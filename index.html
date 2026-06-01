@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Rizzr — stop sending mid replies. start getting dates.</title>
+  <meta name="description" content="Upload the screenshot. Pick your vibe. Get 3 AI-crafted replies in under 10 seconds. Works on Tinder, Instagram, iMessage, Hinge and more." />
+  <meta property="og:title" content="Rizzr — your AI text game coach" />
+  <meta property="og:description" content="stop sending mid replies. start getting dates." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #06060A;
+      --surface:       #0F0F18;
+      --card:          #17172A;
+      --card-hover:    #222240;
+      --card-border:   rgba(255,255,255,0.07);
+      --accent:        #FF2D78;
+      --accent-dim:    rgba(255,45,120,0.12);
+      --accent-glow:   rgba(255,45,120,0.35);
+      --accent2:       #00F0A0;
+      --accent2-dim:   rgba(0,240,160,0.1);
+      --white:         #FFFFFF;
+      --text-primary:  #F2F2FF;
+      --text-secondary:#8888A8;
+      --text-muted:    #444460;
+      --font-display:  'Syne', sans-serif;
+      --font-body:     'Plus Jakarta Sans', sans-serif;
+      --r-sm: 10px;
+      --r-md: 16px;
+      --r-lg: 24px;
+      --r-xl: 32px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-weight: 400;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--card-hover); border-radius: 2px; }
+
+    /* ── LAYOUT ── */
+    .container    { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .container-sm { width: 100%; max-width: 760px;  margin: 0 auto; padding: 0 20px; }
+
+    /* ── SHARED SECTION TOKENS ── */
+    .section     { padding: 60px 0; position: relative; }
+    .section-alt { background: var(--surface); }
+
+    .sec-label {
+      display: inline-block;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); background: var(--accent-dim);
+      border: 1px solid rgba(255,45,120,0.2); border-radius: 50px; padding: 5px 14px;
+      margin-bottom: 16px;
+    }
+    .sec-title {
+      font-family: var(--font-display);
+      font-size: clamp(26px, 5vw, 42px); font-weight: 800;
+      color: var(--white); line-height: 1.07; margin-bottom: 14px; letter-spacing: -0.025em;
+    }
+    .sec-title .hi { color: var(--accent); }
+    .sec-sub {
+      font-size: 16px; color: var(--text-secondary); line-height: 1.65; max-width: 500px;
+    }
+
+    /* ── SHARED BUTTONS ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--accent); color: #fff;
+      font-family: var(--font-body); font-weight: 700; font-size: 16px;
+      padding: 16px 36px; border-radius: var(--r-md);
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 30px rgba(255,45,120,0.3);
+      letter-spacing: -0.01em; min-height: 54px; white-space: nowrap;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,45,120,0.5); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    /* ── SHINY BUTTON ── */
+    @property --gradient-angle {
+      syntax: "<angle>"; initial-value: 0deg; inherits: false;
+    }
+    @property --gradient-angle-offset {
+      syntax: "<angle>"; initial-value: 0deg; inherits: false;
+    }
+    @property --gradient-percent {
+      syntax: "<percentage>"; initial-value: 5%; inherits: false;
+    }
+    @property --gradient-shine {
+      syntax: "<color>"; initial-value: white; inherits: false;
+    }
+
+    .btn-shiny {
+      --shiny-bg:        #FF2D78;
+      --shiny-bg-subtle: #FF5593;
+      --shiny-fg:        #ffffff;
+      --shiny-hi:        rgba(255,255,255,0.92);
+      --shiny-hi-sub:    rgba(255,210,225,0.80);
+      --anim:    gradient-angle linear infinite;
+      --dur:     3s;
+      --sw:      2px;
+      --ease:    800ms cubic-bezier(0.25, 1, 0.5, 1);
+
+      isolation: isolate; position: relative; overflow: hidden;
+      cursor: pointer; outline-offset: 4px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: var(--font-body); font-weight: 700; font-size: 16px;
+      padding: 16px 36px; min-height: 54px; white-space: nowrap; letter-spacing: -0.01em;
+      text-decoration: none;
+      border: 1px solid transparent; border-radius: var(--r-md); color: var(--shiny-fg);
+      background:
+        linear-gradient(var(--shiny-bg), var(--shiny-bg)) padding-box,
+        conic-gradient(
+          from calc(var(--gradient-angle) - var(--gradient-angle-offset)),
+          transparent,
+          var(--shiny-hi)     var(--gradient-percent),
+          var(--gradient-shine) calc(var(--gradient-percent) * 2),
+          var(--shiny-hi)     calc(var(--gradient-percent) * 3),
+          transparent         calc(var(--gradient-percent) * 4)
+        ) border-box;
+      box-shadow: inset 0 0 0 1px var(--shiny-bg-subtle), 0 4px 30px rgba(255,45,120,0.35);
+      animation: var(--anim) var(--dur),
+                 var(--anim) calc(var(--dur) / 0.4) reverse paused;
+      animation-composition: add;
+      transition: --gradient-angle-offset var(--ease), --gradient-percent var(--ease),
+                  --gradient-shine var(--ease), transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-shiny::before, .btn-shiny::after {
+      content: ""; pointer-events: none; position: absolute;
+      inset-inline-start: 50%; inset-block-start: 50%;
+      translate: -50% -50%; z-index: -1;
+    }
+    .btn-shiny:active { translate: 0 1px; }
+
+    /* Rotating dot-pattern shimmer */
+    .btn-shiny::before {
+      --sz: calc(100% - var(--sw) * 3);
+      --p:  2px; --sp: calc(var(--p) * 2);
+      width: var(--sz); height: var(--sz);
+      background: radial-gradient(
+        circle at var(--p) var(--p),
+        rgba(255,255,255,0.75) calc(var(--p) / 4), transparent 0
+      ) padding-box;
+      background-size: var(--sp) var(--sp); background-repeat: space;
+      mask-image: conic-gradient(
+        from calc(var(--gradient-angle) + 45deg), black, transparent 10% 90%, black
+      );
+      border-radius: inherit; opacity: 0.4;
+      animation: var(--anim) var(--dur),
+                 var(--anim) calc(var(--dur) / 0.4) reverse paused;
+      animation-composition: add;
+    }
+
+    /* Inner shimmer sweep */
+    .btn-shiny::after {
+      width: 100%; aspect-ratio: 1;
+      background: linear-gradient(-50deg, transparent, rgba(255,255,255,0.32), transparent);
+      mask-image: radial-gradient(circle at bottom, transparent 40%, black);
+      opacity: 0.6;
+      animation: shimmer-spin linear infinite var(--dur),
+                 shimmer-spin linear infinite calc(var(--dur) / 0.4) reverse paused;
+      animation-composition: add;
+    }
+
+    .btn-shiny:is(:hover,:focus-visible) {
+      --gradient-percent: 20%;
+      --gradient-angle-offset: 95deg;
+      --gradient-shine: var(--shiny-hi-sub);
+      transform: translateY(-2px);
+      box-shadow: inset 0 0 0 1px var(--shiny-bg-subtle), 0 12px 40px rgba(255,45,120,0.55);
+    }
+    .btn-shiny:is(:hover,:focus-visible),
+    .btn-shiny:is(:hover,:focus-visible)::before,
+    .btn-shiny:is(:hover,:focus-visible)::after {
+      animation-play-state: running;
+    }
+
+    .hero-actions .btn-shiny { width: 100%; max-width: 320px; }
+
+    @keyframes gradient-angle  { to { --gradient-angle: 360deg; } }
+    @keyframes shimmer-spin    { to { rotate: 360deg; } }
+
+    /* ── FADE-IN ── */
+    /* Elements are visible by default — animation plays when .visible is added via JS.
+       If JS fails, content is always readable. */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .fade-in.visible          { animation: fadeUp 0.55s cubic-bezier(0.23,1,0.32,1) both; }
+    .fade-in.delay-1.visible  { animation-delay: 0.1s; }
+    .fade-in.delay-2.visible  { animation-delay: 0.22s; }
+    .fade-in.delay-3.visible  { animation-delay: 0.34s; }
+
+    /* ════════════════════════════════
+       NAV
+    ════════════════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      background: rgba(6,6,10,0.9);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: border-color 0.3s;
+    }
+    .nav-logo {
+      font-family: var(--font-display); font-weight: 800; font-size: 22px;
+      color: var(--white); text-decoration: none; letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-links { display: none; gap: 24px; }
+    .nav-links a {
+      font-size: 14px; font-weight: 500; color: var(--text-secondary);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent); color: #fff;
+      font-family: var(--font-body); font-weight: 700; font-size: 14px;
+      padding: 10px 22px; border-radius: 50px;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s; white-space: nowrap;
+      min-height: 44px;
+    }
+    .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px var(--accent-glow); }
+    .nav-cta:active { transform: scale(0.97); }
+
+    /* ════════════════════════════════
+       HERO
+    ════════════════════════════════ */
+    .hero {
+      padding: 0 20px 72px;
+      position: relative; overflow: hidden; min-height: 580px;
+    }
+
+    /* Animated mesh-gradient background */
+    .hero-mesh-bg {
+      position: absolute; inset: 0;
+      background: var(--bg);
+      z-index: 0; overflow: hidden;
+    }
+
+    .mesh-blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(90px); will-change: transform;
+    }
+
+    /* Top-left warm pink */
+    .mesh-b1 {
+      width: 75vw; height: 65vw; max-width: 580px; max-height: 500px;
+      background: rgba(255,45,120,0.32);
+      top: -20%; left: -12%;
+      animation: blobDrift1 16s ease-in-out infinite alternate;
+    }
+
+    /* Right deep magenta */
+    .mesh-b2 {
+      width: 60vw; height: 60vw; max-width: 500px; max-height: 500px;
+      background: rgba(150,25,90,0.45);
+      top: 15%; right: -18%;
+      animation: blobDrift2 12s ease-in-out infinite alternate;
+    }
+
+    /* Bottom crimson */
+    .mesh-b3 {
+      width: 55vw; height: 50vw; max-width: 460px; max-height: 420px;
+      background: rgba(210,25,75,0.3);
+      bottom: -12%; left: 18%;
+      animation: blobDrift3 18s ease-in-out infinite alternate;
+    }
+
+    /* Centre soft rose accent */
+    .mesh-b4 {
+      width: 45vw; height: 45vw; max-width: 400px; max-height: 400px;
+      background: rgba(255,100,155,0.14);
+      top: 38%; left: 32%;
+      animation: blobDrift4 10s ease-in-out infinite alternate;
+    }
+
+    /* Dark veil — keeps text readable */
+    .hero-mesh-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(6,6,10,0.60); pointer-events: none;
+    }
+
+    @keyframes blobDrift1 {
+      0%   { transform: translate(0,0) scale(1); }
+      100% { transform: translate(10vw,8vh) scale(1.14); }
+    }
+    @keyframes blobDrift2 {
+      0%   { transform: translate(0,0) scale(1.06); }
+      100% { transform: translate(-9vw,-10vh) scale(0.88); }
+    }
+    @keyframes blobDrift3 {
+      0%   { transform: translate(0,0) scale(0.92); }
+      100% { transform: translate(-6vw,7vh) scale(1.12); }
+    }
+    @keyframes blobDrift4 {
+      0%   { transform: translate(0,0) scale(1); }
+      100% { transform: translate(7vw,-6vh) scale(0.84); }
+    }
+
+    /* Hero content — centered */
+    .hero-content {
+      position: relative; z-index: 1;
+      text-align: center;
+      max-width: 700px; margin: 240px auto 0;
+      padding: 0;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); background: var(--accent-dim);
+      border: 1px solid rgba(255,45,120,0.25); border-radius: 50px;
+      padding: 6px 16px; margin-bottom: 26px;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+    }
+
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 8.5vw, 80px);
+      font-weight: 800; line-height: 1.03; color: var(--white);
+      letter-spacing: -0.03em; margin-bottom: 20px;
+    }
+    .hero-h1 .hi { color: var(--accent); }
+
+    .hero-sub {
+      font-size: clamp(15px, 2.2vw, 17px); color: var(--text-secondary);
+      line-height: 1.7; margin: 0 auto 34px; max-width: 480px;
+    }
+    .hero-sub strong { color: var(--text-primary); }
+
+    .hero-actions {
+      display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 26px;
+    }
+    .hero-actions .btn-primary { width: 100%; max-width: 320px; }
+
+    .hero-trust {
+      display: flex; align-items: center; justify-content: center;
+      gap: 18px; flex-wrap: wrap; font-size: 13px; color: var(--text-secondary);
+    }
+    .trust-item { display: flex; align-items: center; gap: 6px; }
+    .trust-dot { width: 5px; height: 5px; background: var(--accent2); border-radius: 50%; flex-shrink: 0; }
+
+    /* ════════════════════════════════
+       HOW IT WORKS — 3 STEPS
+    ════════════════════════════════ */
+    .steps-list {
+      margin-top: 48px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .step-item {
+      display: flex; align-items: flex-start; gap: 20px;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r-md); padding: 26px 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .step-item:hover { border-color: rgba(255,45,120,0.25); transform: translateY(-2px); }
+    .step-num-block {
+      min-width: 44px; height: 44px;
+      background: var(--accent-dim); border: 1px solid rgba(255,45,120,0.25);
+      border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 15px; font-weight: 800;
+      color: var(--accent);
+    }
+    .step-body { flex: 1; min-width: 0; }
+    .step-title {
+      font-family: var(--font-display); font-size: 18px; font-weight: 800;
+      color: var(--white); margin-bottom: 6px;
+    }
+    .step-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+
+    /* ════════════════════════════════
+       STATS BAR
+    ════════════════════════════════ */
+    .stats-bar {
+      padding: 0;
+      border-top: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.015);
+    }
+    .stats-bar-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 16px;
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+    .sb-stat { text-align: center; padding: 20px 10px; }
+    .sb-num {
+      font-family: var(--font-display); font-size: 24px; font-weight: 800;
+      color: var(--accent); line-height: 1; margin-bottom: 4px; letter-spacing: -0.03em;
+    }
+    .sb-lbl { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+    .sb-divider { display: none; }
+
+    /* ════════════════════════════════
+       WHY RIZZR — 4 CARDS
+    ════════════════════════════════ */
+    .why-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 12px; margin-top: 44px;
+    }
+    .why-card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r-md); padding: 26px 22px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .why-card:hover { transform: translateY(-3px); border-color: rgba(255,45,120,0.2); }
+    .why-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .wi-pink   { background: rgba(255,45,120,0.12); border: 1px solid rgba(255,45,120,0.18); }
+    .wi-mint   { background: rgba(0,240,160,0.1);   border: 1px solid rgba(0,240,160,0.18); }
+    .wi-purple { background: rgba(130,80,255,0.12); border: 1px solid rgba(130,80,255,0.18); }
+    .wi-gold   { background: rgba(255,220,0,0.1);   border: 1px solid rgba(255,220,0,0.18); }
+    .why-icon-lbl {
+      font-family: var(--font-display); font-size: 17px; font-weight: 800; line-height: 1;
+    }
+    .wi-pink   .why-icon-lbl { color: var(--accent); }
+    .wi-mint   .why-icon-lbl { color: var(--accent2); }
+    .wi-purple .why-icon-lbl { color: #9B70FF; }
+    .wi-gold   .why-icon-lbl { color: #FFD700; }
+    .why-title {
+      font-family: var(--font-display); font-size: 17px; font-weight: 800;
+      color: var(--white); margin-bottom: 8px;
+    }
+    .why-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ════════════════════════════════
+       FEATURE: READS THE ROOM
+    ════════════════════════════════ */
+    .feature-layout {
+      display: flex; flex-direction: column; gap: 36px;
+    }
+    .feature-points { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; }
+    .fp {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 14px; color: var(--text-secondary); line-height: 1.65;
+    }
+    .fp-mark {
+      width: 30px; height: 30px; min-width: 30px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; margin-top: 1px;
+    }
+    .fp-mark.red    { background: rgba(255,45,120,0.12); color: var(--accent); }
+    .fp-mark.green  { background: rgba(0,240,160,0.1);   color: var(--accent2); }
+    .fp-mark.yellow { background: rgba(255,220,0,0.1);   color: #FFD700; }
+
+    .vibe-card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r-md); padding: 24px; flex-shrink: 0;
+    }
+    .vibe-head {
+      font-family: var(--font-display); font-size: 15px; font-weight: 800;
+      color: var(--white); margin-bottom: 16px; letter-spacing: -0.01em;
+    }
+    .vibe-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--card-border);
+      font-size: 13px; color: var(--text-secondary); line-height: 1.55;
+    }
+    .vibe-item:last-of-type { border-bottom: none; }
+    .v-dot {
+      width: 8px; height: 8px; min-width: 8px; border-radius: 50%; margin-top: 5px;
+    }
+    .v-dot.g { background: var(--accent2); }
+    .v-dot.y { background: #FFD700; }
+    .v-dot.r { background: var(--accent); }
+    .vibe-tip {
+      margin-top: 14px; padding: 12px 14px;
+      background: rgba(0,240,160,0.07); border: 1px solid rgba(0,240,160,0.18);
+      border-radius: var(--r-sm); font-size: 13px; color: var(--accent2); line-height: 1.5;
+    }
+
+    /* ════════════════════════════════
+       BIG STAT
+    ════════════════════════════════ */
+    .bigstat {
+      padding: 60px 20px; text-align: center; position: relative; overflow: hidden;
+    }
+    .bigstat::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(0,240,160,0.05) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .bigstat-num {
+      font-family: var(--font-display);
+      font-size: clamp(52px, 8vw, 88px);
+      font-weight: 800; line-height: 1; letter-spacing: -0.04em;
+      color: var(--white); margin-bottom: 18px; position: relative; z-index: 1;
+    }
+    .bigstat-num .hi { color: var(--accent); }
+    .bigstat-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 14px; position: relative; z-index: 1;
+    }
+    .bigstat-label {
+      font-size: clamp(15px, 2.5vw, 18px); color: var(--text-secondary);
+      max-width: 380px; margin: 0 auto; position: relative; z-index: 1; line-height: 1.6;
+    }
+    .bigstat-pills {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; flex-wrap: wrap; margin-top: 28px; position: relative; z-index: 1;
+    }
+    .bigstat-pill {
+      padding: 8px 16px; background: var(--card);
+      border: 1px solid var(--card-border); border-radius: 50px;
+      font-size: 13px; font-weight: 600; color: var(--text-secondary);
+    }
+
+    /* ════════════════════════════════
+       APPS WORKS WITH
+    ════════════════════════════════ */
+    .apps-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-muted); text-align: center; margin-bottom: 20px;
+    }
+    .apps-pills {
+      display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+      margin-top: 36px;
+    }
+    .app-pill {
+      padding: 10px 18px; background: var(--card);
+      border: 1px solid var(--card-border); border-radius: 50px;
+      font-size: 13px; font-weight: 600; color: var(--text-secondary);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .app-pill:hover { border-color: rgba(255,45,120,0.3); color: var(--text-primary); }
+
+    /* ════════════════════════════════
+       TESTIMONIALS — SCROLLING COLUMNS
+    ════════════════════════════════ */
+    .testi-cols-outer {
+      margin-top: 44px; position: relative;
+      max-height: 640px; overflow: hidden;
+      mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 86%, transparent 100%);
+    }
+    .testi-cols-flex { display: flex; justify-content: center; gap: 14px; }
+    .testi-col { flex-shrink: 0; width: min(280px, calc(100vw - 48px)); }
+    .testi-col-2, .testi-col-3 { display: none; }
+    .testi-col-inner {
+      display: flex; flex-direction: column; gap: 14px;
+      animation: testiScroll 20s linear infinite;
+    }
+    .testi-col:hover .testi-col-inner { animation-play-state: paused; }
+    .testi-card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r-lg); padding: 20px;
+      transition: border-color 0.2s; box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+    }
+    .testi-card:hover { border-color: rgba(255,45,120,0.3); }
+    .testi-stars { display: flex; gap: 3px; margin-bottom: 10px; }
+    .star {
+      width: 12px; height: 12px; background: #FFD700; flex-shrink: 0;
+      clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    }
+    .testi-text {
+      font-size: 13px; color: var(--text-primary); line-height: 1.65;
+      margin-bottom: 14px; font-style: italic;
+    }
+    .testi-author { display: flex; align-items: center; gap: 10px; }
+    .testi-avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .testi-name   { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .testi-handle { font-size: 12px; color: var(--text-muted); }
+    @keyframes testiScroll {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-50%); }
+    }
+    @media (prefers-reduced-motion: reduce) { .testi-col-inner { animation-play-state: paused; } }
+
+    /* ════════════════════════════════
+       PRICING
+    ════════════════════════════════ */
+    .price-wrap {
+      max-width: 420px; margin: 48px auto 0;
+    }
+    .price-card {
+      background: var(--card);
+      border-radius: var(--r-xl); padding: 32px 28px;
+      position: relative;
+      box-shadow: 0 0 0 1px rgba(255,45,120,0.4), 0 0 60px rgba(255,45,120,0.1), 0 24px 48px rgba(0,0,0,0.4);
+    }
+    .price-logo-block {
+      text-align: center; margin-bottom: 24px; padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .price-logo-name {
+      font-family: var(--font-display); font-size: 36px; font-weight: 800;
+      color: var(--white); letter-spacing: -0.03em; line-height: 1;
+    }
+    .price-logo-name span { color: var(--accent); }
+    .price-logo-sub {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-muted); margin-top: 5px;
+    }
+    .price-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,45,120,0.12); border: 1px solid rgba(255,45,120,0.3);
+      color: var(--accent); font-size: 11px; font-weight: 700;
+      padding: 5px 14px; border-radius: 50px; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 16px;
+    }
+    .price-badge-dot {
+      width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
+      animation: blink 2s ease-in-out infinite;
+    }
+    .price-amount {
+      font-family: var(--font-display); font-size: 58px; font-weight: 800;
+      color: var(--white); line-height: 1; letter-spacing: -0.03em; margin-bottom: 4px;
+    }
+    .price-amount sup { font-size: 26px; vertical-align: super; color: var(--text-secondary); }
+    .price-amount sub { font-size: 20px; color: var(--text-secondary); }
+    .price-period { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+    .price-features { list-style: none; margin-bottom: 28px; display: flex; flex-direction: column; gap: 11px; }
+    .price-features li {
+      font-size: 14px; color: var(--text-secondary);
+      display: flex; align-items: flex-start; gap: 10px; line-height: 1.4;
+    }
+    .price-features li::before {
+      content: '✓'; color: var(--accent2); font-weight: 800; flex-shrink: 0;
+    }
+    .price-cta {
+      display: block; width: 100%; text-align: center; padding: 18px;
+      border-radius: var(--r-md); font-size: 16px; font-weight: 700;
+      font-family: var(--font-body); color: #fff; background: var(--accent);
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 24px rgba(255,45,120,0.35); min-height: 54px;
+    }
+    .price-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 32px rgba(255,45,120,0.5); }
+    .price-cta:active { transform: scale(0.97); }
+    .price-note { text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted); }
+    .price-note strong { color: var(--text-secondary); }
+
+    /* ════════════════════════════════
+       FAQ
+    ════════════════════════════════ */
+    .faq-list { margin-top: 40px; display: flex; flex-direction: column; gap: 2px; }
+    .faq-item {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r-sm); overflow: hidden; transition: border-color 0.2s;
+    }
+    .faq-item:hover { border-color: rgba(255,45,120,0.2); }
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px; cursor: pointer;
+      font-size: 15px; font-weight: 600; color: var(--text-primary);
+      gap: 12px; user-select: none; min-height: 60px;
+    }
+    .faq-icon {
+      width: 24px; height: 24px; min-width: 24px; background: var(--accent-dim); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 18px; font-weight: 300;
+      transition: transform 0.25s; line-height: 1;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-a {
+      padding: 0 20px; font-size: 14px; color: var(--text-secondary); line-height: 1.7;
+      max-height: 0; overflow: hidden; transition: max-height 0.32s ease, padding 0.32s ease;
+    }
+    .faq-item.open .faq-a { max-height: 300px; padding-bottom: 18px; }
+
+    /* ════════════════════════════════
+       FINAL CTA
+    ════════════════════════════════ */
+    .final-cta { padding: 72px 20px; }
+    .cta-box {
+      max-width: 760px; margin: 0 auto;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: var(--r-xl); padding: 52px 24px;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-box::before {
+      content: ''; position: absolute; top: -70px; right: -70px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(255,45,120,0.15), transparent 70%);
+      pointer-events: none;
+    }
+    .cta-box::after {
+      content: ''; position: absolute; bottom: -70px; left: -70px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(0,240,160,0.09), transparent 70%);
+      pointer-events: none;
+    }
+    .cta-box > * { position: relative; z-index: 1; }
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 5.5vw, 44px);
+      font-weight: 800; color: var(--white); line-height: 1.08;
+      margin-bottom: 16px; letter-spacing: -0.02em;
+    }
+    .cta-title .hi { color: var(--accent); }
+    .cta-sub { font-size: 16px; color: var(--text-secondary); margin-bottom: 32px; line-height: 1.6; }
+    .cta-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .cta-actions .btn-primary { max-width: 320px; width: 100%; }
+    .cta-micro { font-size: 13px; color: var(--text-muted); }
+
+    /* ════════════════════════════════
+       FOOTER
+    ════════════════════════════════ */
+    footer { border-top: 1px solid var(--card-border); padding: 36px 20px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-top {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px; margin-bottom: 20px;
+    }
+    .footer-logo {
+      font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--white);
+    }
+    .footer-logo span { color: var(--accent); }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a {
+      font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text-secondary); }
+    .footer-copy {
+      font-size: 12px; color: var(--text-muted); text-align: center;
+      border-top: 1px solid var(--card-border); padding-top: 20px;
+    }
+
+    /* ════════════════════════════════
+       RESPONSIVE — TABLET 640px+
+    ════════════════════════════════ */
+    @media (min-width: 640px) {
+      .why-grid { grid-template-columns: 1fr 1fr; }
+      .testi-col-2 { display: block; }
+      .stats-bar-inner { display: flex; align-items: center; justify-content: center; padding: 24px 20px; }
+      .sb-stat { flex: 1; min-width: 110px; padding: 12px 20px; }
+      .sb-num { font-size: 28px; }
+      .sb-lbl { font-size: 12px; }
+      .sb-divider { display: block; width: 1px; height: 32px; background: var(--card-border); flex-shrink: 0; }
+      .steps-list { flex-direction: row; align-items: stretch; }
+      .step-item { flex: 1; flex-direction: column; align-items: flex-start; }
+    }
+
+    /* ════════════════════════════════
+       RESPONSIVE — DESKTOP 920px+
+    ════════════════════════════════ */
+    @media (min-width: 920px) {
+      .hero-content { margin-top: 220px; }
+
+      .nav-links { display: flex; }
+
+      .why-grid { grid-template-columns: repeat(4,1fr); }
+
+      .feature-layout { flex-direction: row; align-items: flex-start; gap: 64px; }
+      .feature-text   { flex: 1; }
+      .vibe-card      { flex: 1; }
+
+      .testi-col-3 { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     NAV
+══════════════════════════════════ -->
+<nav id="nav">
+  <a href="#" class="nav-logo">Rizzr<span>.</span></a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#how">how it works</a>
+      <a href="#proof">results</a>
+      <a href="#pricing">pricing</a>
+      <a href="#faq">faq</a>
+    </div>
+    <button class="nav-cta" onclick="handleCheckout()">start free trial</button>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════════
+     HERO
+══════════════════════════════════ -->
+<section class="hero">
+
+  <!-- Animated mesh-gradient background -->
+  <div class="hero-mesh-bg" aria-hidden="true">
+    <div class="mesh-blob mesh-b1"></div>
+    <div class="mesh-blob mesh-b2"></div>
+    <div class="mesh-blob mesh-b3"></div>
+    <div class="mesh-blob mesh-b4"></div>
+  </div>
+
+  <!-- Hero content illuminated by the lamp -->
+  <div class="hero-content fade-in visible">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      your AI text game coach
+    </div>
+    <h1 class="hero-h1">
+      stop sending<br /><span class="hi">mid replies.</span>
+    </h1>
+    <p class="hero-sub">
+      screenshot the chat. pick your vibe. get <strong>3 AI-crafted replies</strong> in under 10 seconds — tailored to the conversation, ready to send.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-shiny" onclick="handleCheckout()"><span>start 7-day free trial</span></button>
+      <div class="hero-trust">
+        <div class="trust-item"><div class="trust-dot"></div><span>no credit card</span></div>
+        <div class="trust-item"><div class="trust-dot"></div><span>cancel anytime</span></div>
+        <div class="trust-item"><div class="trust-dot"></div><span>under 10 seconds</span></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════
+     STATS BAR
+══════════════════════════════════ -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="sb-stat">
+      <div class="sb-num">50k+</div>
+      <div class="sb-lbl">conversations coached</div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-stat">
+      <div class="sb-num">94%</div>
+      <div class="sb-lbl">get a reply back</div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-stat">
+      <div class="sb-num">8s</div>
+      <div class="sb-lbl">average to 3 replies</div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-stat">
+      <div class="sb-num">7</div>
+      <div class="sb-lbl">days free, no card</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════
+     HOW IT WORKS — 3 STEPS
+══════════════════════════════════ -->
+<section class="section section-alt" id="how">
+  <div class="container-sm">
+    <div class="fade-in" style="text-align:center;">
+      <div class="sec-label">how it works</div>
+      <div class="sec-title">three steps.<br />under 10 seconds.</div>
+    </div>
+    <div class="steps-list">
+      <div class="step-item fade-in delay-1">
+        <div class="step-num-block">01</div>
+        <div class="step-body">
+          <div class="step-title">screenshot the chat</div>
+          <div class="step-desc">tap to upload any screenshot — tinder, instagram, imessage, whatever you're working with. rizzr reads the full conversation.</div>
+        </div>
+      </div>
+      <div class="step-item fade-in delay-2">
+        <div class="step-num-block">02</div>
+        <div class="step-body">
+          <div class="step-title">pick your vibe</div>
+          <div class="step-desc">swoon. spicy. saved. make 'em laugh. choose how you want to come across and rizzr tailors every reply to match.</div>
+        </div>
+      </div>
+      <div class="step-item fade-in delay-3">
+        <div class="step-num-block">03</div>
+        <div class="step-body">
+          <div class="step-title">send the reply that lands</div>
+          <div class="step-desc">3 ai-crafted options ready in under 10 seconds. pick the one that feels right and hit send.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     WHY RIZZR
+══════════════════════════════════ -->
+<section class="section">
+  <div class="container">
+    <div class="fade-in" style="text-align:center;">
+      <div class="sec-label">why rizzr works</div>
+      <div class="sec-title">built for how<br />people actually text.</div>
+    </div>
+    <div class="why-grid">
+      <div class="why-card fade-in delay-1">
+        <div class="why-icon wi-pink"><div class="why-icon-lbl">03</div></div>
+        <div class="why-title">instant replies</div>
+        <div class="why-desc">get three ready-to-send options in under 10 seconds. smooth, bold, or playful — pick the one that feels right and hit send.</div>
+      </div>
+      <div class="why-card fade-in delay-2">
+        <div class="why-icon wi-mint"><div class="why-icon-lbl">AI</div></div>
+        <div class="why-title">reads the room</div>
+        <div class="why-desc">rizzr analyzes the full conversation — tone, pace, subtext — and writes replies that match the actual vibe, not just the last message.</div>
+      </div>
+      <div class="why-card fade-in delay-1">
+        <div class="why-icon wi-purple"><div class="why-icon-lbl">7+</div></div>
+        <div class="why-title">every app</div>
+        <div class="why-desc">works anywhere you can take a screenshot. tinder, hinge, instagram, imessage, bumble, snapchat, whatsapp — all of it.</div>
+      </div>
+      <div class="why-card fade-in delay-2">
+        <div class="why-icon wi-gold"><div class="why-icon-lbl">0s</div></div>
+        <div class="why-title">zero data stored</div>
+        <div class="why-desc">screenshots are processed and deleted immediately. no stored conversations, no training on your data, no third-party sharing. ever.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     FEATURE: READS THE ROOM
+══════════════════════════════════ -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="feature-layout">
+
+      <div class="feature-text fade-in">
+        <div class="sec-label">read the room</div>
+        <div class="sec-title">we don't just write replies.<br />we <span class="hi">read the person.</span></div>
+        <p class="sec-sub">every conversation gets a vibe check — what's going on under the surface, what's worth paying attention to, and what your next move should be.</p>
+        <div class="feature-points">
+          <div class="fp">
+            <div class="fp-mark red">!</div>
+            <div><strong style="color:var(--text-primary);">red flag radar</strong> — breadcrumbing, mixed signals, one-word replies? we catch it before you miss it.</div>
+          </div>
+          <div class="fp">
+            <div class="fp-mark green">+</div>
+            <div><strong style="color:var(--text-primary);">green light signals</strong> — they're interested but nervous? we tell you so you don't overthink it.</div>
+          </div>
+          <div class="fp">
+            <div class="fp-mark yellow">→</div>
+            <div><strong style="color:var(--text-primary);">move suggestion</strong> — when to go bold, when to slow down, when to just make the ask.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vibe-card fade-in delay-2">
+        <div class="vibe-head">vibe check</div>
+        <div class="vibe-item">
+          <div class="v-dot g"></div>
+          <div>she's responding quickly and asking follow-up questions — she's interested.</div>
+        </div>
+        <div class="vibe-item">
+          <div class="v-dot y"></div>
+          <div>the "next time" comment was an indirect invite. she's leaving the door open without committing.</div>
+        </div>
+        <div class="vibe-item">
+          <div class="v-dot g"></div>
+          <div>"we're dragging you out" puts you both in the same future plan — lean into it.</div>
+        </div>
+        <div class="vibe-item">
+          <div class="v-dot r"></div>
+          <div>one-word replies earlier in the convo. avoid yes/no questions — keep her in storytelling mode.</div>
+        </div>
+        <div class="vibe-tip">
+          suggested move: pin down the next event. make it feel like her idea.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     BIG STAT
+══════════════════════════════════ -->
+<div class="bigstat">
+  <div class="bigstat-eyebrow fade-in">conversations coached</div>
+  <div class="bigstat-num fade-in"><span class="hi">50</span>,000<span class="hi">+</span></div>
+  <div class="bigstat-label fade-in">across every app, every vibe, every situation — and counting.</div>
+  <div class="bigstat-pills fade-in delay-1">
+    <div class="bigstat-pill">94% got a reply back</div>
+    <div class="bigstat-pill">8s average response time</div>
+    <div class="bigstat-pill">10+ apps supported</div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════
+     APPS
+══════════════════════════════════ -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="fade-in" style="text-align:center;">
+      <div class="sec-label">platform support</div>
+      <div class="sec-title">works with every app<br />you're already on.</div>
+    </div>
+    <div class="apps-pills fade-in delay-1">
+      <div class="app-pill">Tinder</div>
+      <div class="app-pill">Hinge</div>
+      <div class="app-pill">Bumble</div>
+      <div class="app-pill">Instagram</div>
+      <div class="app-pill">iMessage</div>
+      <div class="app-pill">Snapchat</div>
+      <div class="app-pill">WhatsApp</div>
+      <div class="app-pill">Discord</div>
+      <div class="app-pill">Telegram</div>
+      <div class="app-pill">X / Twitter</div>
+    </div>
+    <p style="text-align:center;margin-top:20px;font-size:13px;color:var(--text-muted);">if you can screenshot it, rizzr can work with it.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════ -->
+<section class="section" id="proof">
+  <div class="container">
+    <div class="fade-in" style="text-align:center;">
+      <div class="sec-label">what people are saying</div>
+      <div class="sec-title">no cap, it works.</div>
+    </div>
+
+    <div class="testi-cols-outer fade-in delay-1">
+      <div class="testi-cols-flex">
+
+        <!-- COLUMN 1 — always visible -->
+        <div class="testi-col testi-col-1">
+          <div class="testi-col-inner" style="animation-duration:20s">
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">I matched with this girl on Hinge and had no idea what to say. used swoon mode and she asked ME out. I literally could not believe it.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Marcus T." /><div><div class="testi-name">Marcus T.</div><div class="testi-handle">New York</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">the red flag analysis is actually insane. it caught that he was breadcrumbing me before I even noticed. saved me three months of wasted time.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Priya K." /><div><div class="testi-name">Priya K.</div><div class="testi-handle">Austin</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">my situationship turned into a relationship in two weeks. completely changed how I text. best $8 I spend every month, easy.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/55.jpg" alt="Jake R." /><div><div class="testi-name">Jake R.</div><div class="testi-handle">Los Angeles</div></div></div>
+            </div>
+            <!-- duplicate for seamless loop -->
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">I matched with this girl on Hinge and had no idea what to say. used swoon mode and she asked ME out. I literally could not believe it.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Marcus T." /><div><div class="testi-name">Marcus T.</div><div class="testi-handle">New York</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">the red flag analysis is actually insane. it caught that he was breadcrumbing me before I even noticed. saved me three months of wasted time.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Priya K." /><div><div class="testi-name">Priya K.</div><div class="testi-handle">Austin</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">my situationship turned into a relationship in two weeks. completely changed how I text. best $8 I spend every month, easy.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/55.jpg" alt="Jake R." /><div><div class="testi-name">Jake R.</div><div class="testi-handle">Los Angeles</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMN 2 — hidden on mobile, shown 640px+ -->
+        <div class="testi-col testi-col-2">
+          <div class="testi-col-inner" style="animation-duration:24s">
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">I'm the worst texter — always end up saying something awkward. rizzr fixed my most important situationship. the laugh mode is legitimately genius.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/women/22.jpg" alt="Sophia L." /><div><div class="testi-name">Sophia L.</div><div class="testi-handle">Chicago</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">had a match I thought was totally dead. spicy mode brought it back to life. we got drinks last friday. it just works.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/11.jpg" alt="Tyler M." /><div><div class="testi-name">Tyler M.</div><div class="testi-handle">Miami</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">she ghosted me twice. rizzr helped me re-engage without being weird about it. we're actually meeting this weekend. wild.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/43.jpg" alt="Alex K." /><div><div class="testi-name">Alex K.</div><div class="testi-handle">Seattle</div></div></div>
+            </div>
+            <!-- duplicate -->
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">I'm the worst texter — always end up saying something awkward. rizzr fixed my most important situationship. the laugh mode is legitimately genius.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/women/22.jpg" alt="Sophia L." /><div><div class="testi-name">Sophia L.</div><div class="testi-handle">Chicago</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">had a match I thought was totally dead. spicy mode brought it back to life. we got drinks last friday. it just works.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/11.jpg" alt="Tyler M." /><div><div class="testi-name">Tyler M.</div><div class="testi-handle">Miami</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">she ghosted me twice. rizzr helped me re-engage without being weird about it. we're actually meeting this weekend. wild.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/43.jpg" alt="Alex K." /><div><div class="testi-name">Alex K.</div><div class="testi-handle">Seattle</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUMN 3 — hidden on mobile/tablet, shown 920px+ -->
+        <div class="testi-col testi-col-3">
+          <div class="testi-col-inner" style="animation-duration:22s">
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">first time using it, got replies from 3 different matches within an hour. the swoon mode just hits different. genuinely shocked.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/68.jpg" alt="Diego R." /><div><div class="testi-name">Diego R.</div><div class="testi-handle">Houston</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">the vibe check told me she was playing games before I was too invested. that feature alone is worth the free trial. saved my dignity.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/women/58.jpg" alt="Emma J." /><div><div class="testi-name">Emma J.</div><div class="testi-handle">Boston</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">said something awkward mid-conversation and used saved mode to recover. she laughed it off and kept going. this thing is actually genius.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/77.jpg" alt="Connor B." /><div><div class="testi-name">Connor B.</div><div class="testi-handle">Denver</div></div></div>
+            </div>
+            <!-- duplicate -->
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">first time using it, got replies from 3 different matches within an hour. the swoon mode just hits different. genuinely shocked.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/68.jpg" alt="Diego R." /><div><div class="testi-name">Diego R.</div><div class="testi-handle">Houston</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">the vibe check told me she was playing games before I was too invested. that feature alone is worth the free trial. saved my dignity.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/women/58.jpg" alt="Emma J." /><div><div class="testi-name">Emma J.</div><div class="testi-handle">Boston</div></div></div>
+            </div>
+            <div class="testi-card">
+              <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
+              <div class="testi-text">said something awkward mid-conversation and used saved mode to recover. she laughed it off and kept going. this thing is actually genius.</div>
+              <div class="testi-author"><img class="testi-avatar" src="https://randomuser.me/api/portraits/men/77.jpg" alt="Connor B." /><div><div class="testi-name">Connor B.</div><div class="testi-handle">Denver</div></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     PRICING
+══════════════════════════════════ -->
+<section class="section section-alt" id="pricing">
+  <div class="container-sm">
+    <div class="fade-in" style="text-align:center;">
+      <div class="sec-label">pricing</div>
+      <div class="sec-title">one plan.<br />everything included.</div>
+      <p class="sec-sub" style="margin:0 auto;">try it free for 7 days — no credit card, no commitment.</p>
+    </div>
+    <div class="price-wrap fade-in delay-1">
+      <div class="price-card">
+
+        <!-- Logo block -->
+        <div class="price-logo-block">
+          <div class="price-logo-name">Rizzr<span>.</span></div>
+          <div class="price-logo-sub">AI Text Game Coach</div>
+        </div>
+
+        <!-- Trial badge -->
+        <div class="price-badge">
+          <div class="price-badge-dot"></div>
+          7-day free trial
+        </div>
+
+        <!-- Price -->
+        <div class="price-amount"><sup>$</sup>7<sub>.99/mo</sub></div>
+        <div class="price-period">billed monthly · cancel anytime</div>
+
+        <!-- Features -->
+        <ul class="price-features">
+          <li>unlimited AI replies</li>
+          <li>all 4 modes — swoon, spicy, saved, make 'em laugh</li>
+          <li>full vibe check + conversation analysis</li>
+          <li>red flag radar</li>
+          <li>green light signals</li>
+          <li>move suggestions</li>
+          <li>works on every app — screenshot anything</li>
+          <li>zero data stored, ever</li>
+        </ul>
+
+        <button class="price-cta" onclick="handleCheckout()">start free trial — no card needed</button>
+      </div>
+      <p class="price-note">cancel before 7 days and you won't be charged. <strong>no questions asked.</strong></p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     FAQ
+══════════════════════════════════ -->
+<section class="section" id="faq">
+  <div class="container-sm">
+    <div class="fade-in" style="text-align:center;margin-bottom:12px;">
+      <div class="sec-label">faq</div>
+      <div class="sec-title">yeah, we know<br />what you're thinking.</div>
+    </div>
+    <div class="faq-list fade-in">
+      <div class="faq-item">
+        <div class="faq-q"><span>is this cheating?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a">using spell check doesn't make you a bad writer. wearing a great outfit doesn't make you fake. rizzr gives you the best version of what you'd actually say — no robot vibes, no copy-paste cringe. you're still the one showing up.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>who sees my screenshots?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a">your screenshots are processed to generate replies and deleted immediately after. we don't store your conversations, we don't train on your data, and we don't share anything with third parties. ever.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>what apps does it work with?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a">anything you can screenshot. tinder, bumble, hinge, instagram dms, imessage, snapchat, whatsapp, discord — if it's a chat app, we've got you covered.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>do I need a credit card to start the trial?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a">no. the 7-day free trial requires no card at all. you'll only be asked for payment if you decide to continue after the trial ends.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>what happens after the 7 days?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a">after the free trial, it's $7.99/mo billed monthly. cancel anytime before the trial ends and you won't be charged a single cent. no questions asked.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>can I upload Instagram Stories too?</span><div class="faq-icon">+</div></div>
+        <div class="faq-a">yes. screenshot an ig story, a dm thread, a tinder chat, anything — rizzr reads the context and crafts replies that fit the situation. even reactions to stories.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     FINAL CTA
+══════════════════════════════════ -->
+<section class="final-cta">
+  <div class="container-sm">
+    <div class="cta-box fade-in">
+      <div class="sec-label" style="display:inline-block;">don't wait</div>
+      <div class="cta-title" style="margin-top:12px;">
+        your next match is waiting<br />for a reply that <span class="hi">actually lands.</span>
+      </div>
+      <p class="cta-sub">7 days free. no card. no commitment. just better texts.</p>
+      <div class="cta-actions">
+        <button class="btn-primary" onclick="handleCheckout()">start free trial</button>
+        <p class="cta-micro">then $7.99/mo · cancel before trial ends and pay nothing</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     FOOTER
+══════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-logo">Rizzr<span>.</span></div>
+      <div class="footer-links">
+        <a href="#">privacy policy</a>
+        <a href="#">terms of service</a>
+        <a href="#">contact</a>
+        <a href="#">@getrizzr</a>
+      </div>
+    </div>
+    <p class="footer-copy">© 2026 Rizzr · AI Text Game Coach · not responsible for the situationship you finally get out of</p>
+  </div>
+</footer>
+
+
+<script>
+  /* SCROLL FADE-IN
+     Elements are visible by default; .visible triggers the entrance animation.
+     The observer adds .visible the moment any pixel of the element enters the viewport. */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  /* FAQ ACCORDION */
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  /* NAV SCROLL EFFECT */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.style.borderBottomColor = window.scrollY > 20
+      ? 'rgba(255,255,255,0.09)'
+      : 'rgba(255,255,255,0.05)';
+  }, { passive: true });
+
+  /* CHECKOUT HANDLER
+     TODO: Replace with real Lemon Squeezy checkout link
+     Docs: https://docs.lemonsqueezy.com/help/checkout/checkout-overlay
+     When ready: add lemon.js loader to head, replace CHECKOUT_URL, uncomment lines below.
+  */
+  const CHECKOUT_URL = '#checkout'; // TODO: replace with Lemon Squeezy variant URL
+
+  function handleCheckout() {
+    // window.createLemonSqueezy();
+    // LemonSqueezy.Url.Open(CHECKOUT_URL);
+    window.location.href = CHECKOUT_URL;
+  }
+
+  /* n8n WEBHOOK STUB
+     TODO: Wire screenshot upload to n8n webhook
+     const N8N_WEBHOOK = 'https://your-n8n.cloud/webhook/rizzr-submit';
+     async function submitToN8n(formData) {
+       const res = await fetch(N8N_WEBHOOK, { method: 'POST', body: formData });
+       return res.json(); // { replies: [...], analysis: {...} }
+     }
+  */
+</script>
+</body>
+</html>
