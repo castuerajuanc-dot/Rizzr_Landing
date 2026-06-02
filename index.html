@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
+  <script>document.documentElement.classList.replace('no-js','js');</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Rizzr — stop sending mid replies. start getting dates.</title>
@@ -199,16 +200,15 @@
     @keyframes shimmer-spin    { to { rotate: 360deg; } }
 
     /* ── FADE-IN ── */
-    /* Elements are visible by default — animation plays when .visible is added via JS.
-       If JS fails, content is always readable. */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: none; }
     }
-    .fade-in.visible          { animation: fadeUp 0.55s cubic-bezier(0.23,1,0.32,1) both; }
-    .fade-in.delay-1.visible  { animation-delay: 0.1s; }
-    .fade-in.delay-2.visible  { animation-delay: 0.22s; }
-    .fade-in.delay-3.visible  { animation-delay: 0.34s; }
+    .js .fade-in                         { opacity: 0; transform: translateY(16px); }
+    .js .fade-in.visible                 { animation: fadeUp 0.55s cubic-bezier(0.23,1,0.32,1) forwards; }
+    .js .fade-in.delay-1.visible         { animation-delay: 0.1s; }
+    .js .fade-in.delay-2.visible         { animation-delay: 0.22s; }
+    .js .fade-in.delay-3.visible         { animation-delay: 0.34s; }
 
     /* ════════════════════════════════
        NAV
