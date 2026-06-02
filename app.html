@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+  <script>document.documentElement.classList.replace('no-js','js');</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Rizzr — get your reply</title>
+  <meta name="description" content="Upload the screenshot, pick your vibe, get 3 AI replies in seconds." />
+  <meta name="theme-color" content="#06060A" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #06060A;
+      --surface:       #0F0F18;
+      --card:          #17172A;
+      --card-hover:    #222240;
+      --card-border:   rgba(255,255,255,0.07);
+      --accent:        #FF2D78;
+      --accent-dim:    rgba(255,45,120,0.12);
+      --accent-glow:   rgba(255,45,120,0.35);
+      --accent2:       #00F0A0;
+      --accent2-dim:   rgba(0,240,160,0.1);
+      --accent2-glow:  rgba(0,240,160,0.25);
+      --white:         #FFFFFF;
+      --text-primary:  #F2F2FF;
+      --text-secondary:#8888A8;
+      --text-muted:    #444460;
+      --font-display:  'Syne', sans-serif;
+      --font-body:     'Plus Jakarta Sans', sans-serif;
+      --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; height: 100%; }
+    body {
+      background: var(--bg); color: var(--text-primary);
+      font-family: var(--font-body); font-weight: 400; line-height: 1.6;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden; min-height: 100%;
+    }
+
+    /* ── Grain texture ── */
+    body::before {
+      content: ''; position:fixed; inset:0; z-index:9999; pointer-events:none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.028;
+    }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--card-hover); border-radius: 2px; }
+
+    /* ════ NAV ════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 14px 20px;
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
+      display: flex; align-items: center; justify-content: space-between;
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      background: rgba(6,6,10,0.92);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .nav-logo {
+      font-family: var(--font-display); font-weight: 800; font-size: 22px;
+      color: var(--white); text-decoration: none; letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-back {
+      display: none; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 600; color: var(--text-secondary);
+      background: none; border: none; cursor: pointer; padding: 8px 0;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text-primary); }
+    .nav-back svg { width: 16px; height: 16px; }
+    .nav-tag {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent); background: var(--accent-dim);
+      border: 1px solid rgba(255,45,120,0.2); border-radius: 50px; padding: 4px 12px;
+    }
+
+    /* ════ STATE MACHINE ════ */
+    .app-state { display: none; min-height: 100svh; padding-top: calc(60px + env(safe-area-inset-top, 0px)); }
+    .app-state.active { display: block; animation: stateIn 0.38s cubic-bezier(0.23,1,0.32,1) both; }
+    @keyframes stateIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+    /* ════ SHINY BUTTON ════ */
+    @property --gradient-angle        { syntax:"<angle>";      initial-value:0deg;  inherits:false; }
+    @property --gradient-angle-offset { syntax:"<angle>";      initial-value:0deg;  inherits:false; }
+    @property --gradient-percent      { syntax:"<percentage>"; initial-value:5%;    inherits:false; }
+    @property --gradient-shine        { syntax:"<color>";      initial-value:white; inherits:false; }
+
+    .btn-shiny {
+      --shiny-bg:#FF2D78; --shiny-bg-subtle:#FF5593; --shiny-fg:#ffffff;
+      --shiny-hi:rgba(255,255,255,0.92); --shiny-hi-sub:rgba(255,210,225,0.80);
+      --anim:gradient-angle linear infinite; --dur:3s; --sw:2px;
+      --ease:800ms cubic-bezier(0.25,1,0.5,1);
+      isolation:isolate; position:relative; overflow:hidden; cursor:pointer;
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      font-family:var(--font-body); font-weight:700; font-size:16px;
+      padding:16px 36px; min-height:54px; white-space:nowrap; width:100%;
+      border:1px solid transparent; border-radius:var(--r-md); color:var(--shiny-fg);
+      background:
+        linear-gradient(var(--shiny-bg),var(--shiny-bg)) padding-box,
+        conic-gradient(from calc(var(--gradient-angle) - var(--gradient-angle-offset)),
+          transparent, var(--shiny-hi) var(--gradient-percent),
+          var(--gradient-shine) calc(var(--gradient-percent)*2),
+          var(--shiny-hi) calc(var(--gradient-percent)*3),
+          transparent calc(var(--gradient-percent)*4)) border-box;
+      box-shadow:inset 0 0 0 1px var(--shiny-bg-subtle),0 4px 30px rgba(255,45,120,0.35);
+      animation:var(--anim) var(--dur), var(--anim) calc(var(--dur)/0.4) reverse paused;
+      animation-composition:add;
+      transition:--gradient-angle-offset var(--ease),--gradient-percent var(--ease),
+                 --gradient-shine var(--ease),transform 0.15s,box-shadow 0.15s;
+    }
+    .btn-shiny::before,.btn-shiny::after {
+      content:""; pointer-events:none; position:absolute;
+      inset-inline-start:50%; inset-block-start:50%; translate:-50% -50%; z-index:-1;
+    }
+    .btn-shiny:active { translate:0 1px; }
+    .btn-shiny::before {
+      --sz:calc(100% - var(--sw)*3); --p:2px; --sp:calc(var(--p)*2);
+      width:var(--sz); height:var(--sz);
+      background:radial-gradient(circle at var(--p) var(--p),rgba(255,255,255,0.75) calc(var(--p)/4),transparent 0) padding-box;
+      background-size:var(--sp) var(--sp); background-repeat:space;
+      mask-image:conic-gradient(from calc(var(--gradient-angle)+45deg),black,transparent 10% 90%,black);
+      border-radius:inherit; opacity:0.4;
+      animation:var(--anim) var(--dur),var(--anim) calc(var(--dur)/0.4) reverse paused;
+      animation-composition:add;
+    }
+    .btn-shiny::after {
+      width:100%; aspect-ratio:1;
+      background:linear-gradient(-50deg,transparent,rgba(255,255,255,0.32),transparent);
+      mask-image:radial-gradient(circle at bottom,transparent 40%,black);
+      opacity:0.6;
+      animation:shimmer-spin linear infinite var(--dur),shimmer-spin linear infinite calc(var(--dur)/0.4) reverse paused;
+      animation-composition:add;
+    }
+    .btn-shiny:is(:hover,:focus-visible) {
+      --gradient-percent:20%; --gradient-angle-offset:95deg; --gradient-shine:var(--shiny-hi-sub);
+      box-shadow:inset 0 0 0 1px var(--shiny-bg-subtle),0 12px 40px rgba(255,45,120,0.55);
+    }
+    .btn-shiny:is(:hover,:focus-visible),
+    .btn-shiny:is(:hover,:focus-visible)::before,
+    .btn-shiny:is(:hover,:focus-visible)::after { animation-play-state:running; }
+    .btn-shiny:disabled { opacity:0.45; cursor:not-allowed; pointer-events:none; }
+    @keyframes gradient-angle { to { --gradient-angle: 360deg; } }
+    @keyframes shimmer-spin   { to { rotate: 360deg; } }
+
+    /* ════ INPUT STATE ════ */
+    .input-wrap {
+      padding: 24px 20px calc(96px + var(--safe-bottom));
+      max-width: 520px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* ── Social proof bar ── */
+    .social-proof-bar {
+      display:flex; align-items:center; justify-content:center; gap:7px;
+      font-size:12px; color:var(--text-muted); padding:4px 0 0;
+    }
+    .sp-live-dot {
+      width:6px; height:6px; border-radius:50%; flex-shrink:0;
+      background:var(--accent2); box-shadow:0 0 8px var(--accent2-glow);
+      animation:blink 2s infinite;
+    }
+    .sp-count { color:var(--text-secondary); font-weight:700; }
+
+    .upload-zone {
+      position:relative; background:var(--card);
+      border:2px dashed var(--card-border); border-radius:var(--r-lg);
+      min-height:180px; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:10px; cursor:pointer;
+      transition:border-color 0.25s,background 0.25s,transform 0.2s;
+      overflow:hidden; -webkit-tap-highlight-color:transparent;
+    }
+    .upload-zone:hover,.upload-zone.drag-over {
+      border-color:rgba(255,45,120,0.5); background:rgba(255,45,120,0.04);
+    }
+    .upload-zone:active { transform:scale(0.985); }
+    .upload-zone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+    .upload-icon {
+      width:52px; height:52px; border-radius:16px;
+      background:var(--accent-dim); border:1px solid rgba(255,45,120,0.2);
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; transition:transform 0.2s;
+    }
+    .upload-zone:hover .upload-icon { transform:scale(1.08); }
+    .upload-label { font-size:15px; font-weight:600; color:var(--text-primary); text-align:center; pointer-events:none; }
+    .upload-sub   { font-size:12px; color:var(--text-muted); pointer-events:none; }
+    .upload-zone.has-image { border-style:solid; border-color:rgba(255,45,120,0.4); min-height:220px; }
+    .upload-preview { display:none; width:100%; height:220px; object-fit:cover; border-radius:calc(var(--r-lg) - 2px); pointer-events:none; }
+    .upload-zone.has-image .upload-preview   { display:block; }
+    .upload-zone.has-image .upload-placeholder { display:none; }
+    .upload-change-btn {
+      position:absolute; bottom:10px; right:10px;
+      background:rgba(6,6,10,0.85); backdrop-filter:blur(8px);
+      border:1px solid rgba(255,255,255,0.12); border-radius:50px;
+      color:var(--text-primary); font-size:12px; font-weight:600;
+      padding:6px 14px; display:none; cursor:pointer; transition:background 0.2s;
+    }
+    .upload-zone.has-image .upload-change-btn { display:block; }
+    .field-label {
+      font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:10px;
+    }
+    .modes-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .mode-card {
+      background:var(--card); border:1.5px solid var(--card-border);
+      border-radius:var(--r-md); padding:16px 14px; cursor:pointer;
+      display:flex; flex-direction:column; gap:6px;
+      transition:border-color 0.2s,background 0.2s,transform 0.15s,box-shadow 0.2s;
+      -webkit-tap-highlight-color:transparent; user-select:none;
+    }
+    .mode-card:hover  { border-color:rgba(255,255,255,0.14); background:var(--card-hover); }
+    .mode-card:active { transform:scale(0.96); }
+    .mode-card.selected.swoon { border-color:#FF2D78; background:rgba(255,45,120,0.1);  box-shadow:0 0 20px rgba(255,45,120,0.18); }
+    .mode-card.selected.spicy { border-color:#FF6B35; background:rgba(255,107,53,0.1);  box-shadow:0 0 20px rgba(255,107,53,0.18); }
+    .mode-card.selected.saved { border-color:#00F0A0; background:rgba(0,240,160,0.08);  box-shadow:0 0 20px rgba(0,240,160,0.15); }
+    .mode-card.selected.laugh { border-color:#9B70FF; background:rgba(155,112,255,0.1); box-shadow:0 0 20px rgba(155,112,255,0.18); }
+    .mode-card.selected.ice   { border-color:#4FC3F7; background:rgba(79,195,247,0.09); box-shadow:0 0 20px rgba(79,195,247,0.15); }
+    .mode-card.selected.ghost { border-color:#C084FC; background:rgba(192,132,252,0.09); box-shadow:0 0 20px rgba(192,132,252,0.15); }
+    .mode-emoji { font-size:24px; line-height:1; }
+    .mode-name  { font-family:var(--font-display); font-size:15px; font-weight:800; color:var(--white); letter-spacing:-0.01em; }
+    .mode-desc  { font-size:11px; color:var(--text-secondary); line-height:1.4; }
+    .mode-card.selected .mode-desc { color:var(--text-primary); }
+    .context-wrap { position:relative; }
+    .context-optional { font-size:11px; color:var(--text-muted); font-weight:500; position:absolute; right:0; top:0; }
+    .context-textarea {
+      width:100%; background:var(--card); border:1.5px solid var(--card-border);
+      border-radius:var(--r-md); color:var(--text-primary); font-family:var(--font-body);
+      font-size:14px; line-height:1.6; padding:14px 16px; resize:none; min-height:88px;
+      transition:border-color 0.2s; -webkit-appearance:none;
+    }
+    .context-textarea::placeholder { color:var(--text-muted); }
+    .context-textarea:focus { outline:none; border-color:rgba(255,45,120,0.4); background:rgba(255,45,120,0.03); }
+    .submit-bar {
+      position:fixed; bottom:0; left:0; right:0; z-index:80;
+      padding:12px 20px calc(12px + var(--safe-bottom));
+      background:linear-gradient(to top,rgba(6,6,10,0.98) 70%,transparent);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    }
+    .submit-bar-inner { max-width:520px; margin:0 auto; }
+    .submit-hint { text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:8px; }
+
+    /* ── Credits badge ── */
+    .credits-hint {
+      display:flex; align-items:center; justify-content:center; gap:5px;
+      font-size:11px; font-weight:600; color:var(--accent2);
+      text-align:center; margin-bottom:6px;
+    }
+    .credits-hint.low  { color:#FFB74D; }
+    .credits-hint.empty { color:var(--accent); }
+    .credits-hint .cr-dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+    /* ════ LOADING STATE ════ */
+    .loading-wrap {
+      min-height:calc(100svh - 60px);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      padding:40px 24px; text-align:center; gap:28px;
+    }
+    .loading-blobs { position:relative; width:120px; height:120px; }
+    .loading-blob  { position:absolute; border-radius:50%; filter:blur(18px); }
+    .lb1 { width:80px; height:80px; background:rgba(255,45,120,0.7); top:10px; left:10px;  animation:lbPulse1 2s ease-in-out infinite alternate; }
+    .lb2 { width:60px; height:60px; background:rgba(0,240,160,0.5);  bottom:5px; right:5px; animation:lbPulse2 1.7s ease-in-out infinite alternate; }
+    .lb3 { width:45px; height:45px; background:rgba(155,112,255,0.4); top:50%; left:50%; translate:-50% -50%; animation:lbPulse3 2.3s ease-in-out infinite alternate; }
+    @keyframes lbPulse1 { from{transform:scale(1) translate(0,0);}    to{transform:scale(1.2) translate(4px,-4px);} }
+    @keyframes lbPulse2 { from{transform:scale(1) translate(0,0);}    to{transform:scale(1.15) translate(-3px,3px);} }
+    @keyframes lbPulse3 { from{transform:translate(-50%,-50%) scale(1);} to{transform:translate(-50%,-50%) scale(1.3);} }
+    .loading-logo {
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      font-family:var(--font-display); font-size:20px; font-weight:800;
+      color:var(--white); letter-spacing:-0.02em; z-index:1;
+    }
+    .loading-logo span { color:var(--accent); }
+    .loading-steps { display:flex; flex-direction:column; gap:8px; }
+    .loading-step { display:flex; align-items:center; gap:10px; font-size:14px; color:var(--text-muted); transition:color 0.4s; }
+    .loading-step.active { color:var(--text-primary); }
+    .loading-step.done   { color:var(--accent2); }
+    .ls-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; background:var(--card-border); transition:background 0.4s,box-shadow 0.4s; }
+    .loading-step.active .ls-dot { background:var(--accent); box-shadow:0 0 8px var(--accent-glow); animation:dotPulse 0.9s ease-in-out infinite; }
+    .loading-step.done   .ls-dot { background:var(--accent2); box-shadow:none; animation:none; }
+    @keyframes dotPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.4);} }
+    .loading-tagline { font-size:13px; color:var(--text-muted); max-width:240px; line-height:1.6; }
+
+    /* ════ RESULTS STATE ════ */
+    .results-wrap {
+      padding:20px 20px calc(48px + var(--safe-bottom));
+      max-width:520px; margin:0 auto;
+      display:flex; flex-direction:column; gap:16px;
+    }
+
+    /* ── Rizz Score ring ── */
+    .rizz-score-block {
+      background:var(--card); border:1.5px solid var(--card-border);
+      border-radius:var(--r-lg); padding:24px 20px;
+      display:flex; align-items:center; gap:20px;
+      position:relative; overflow:hidden;
+    }
+    .rizz-score-block::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 20% 50%, rgba(255,45,120,0.07), transparent 65%);
+      pointer-events:none;
+    }
+    .rizz-ring-wrap {
+      position:relative; flex-shrink:0;
+      width:88px; height:88px;
+    }
+    .rizz-ring-wrap svg {
+      width:88px; height:88px; transform:rotate(-90deg);
+    }
+    .rizz-ring-bg  { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:7; }
+    .rizz-ring-fill {
+      fill:none; stroke:var(--accent); stroke-width:7;
+      stroke-linecap:round;
+      stroke-dasharray:251.3;
+      stroke-dashoffset:251.3;
+      transition:stroke-dashoffset 1.6s cubic-bezier(0.23,1,0.32,1), stroke 0.5s ease;
+    }
+    .rizz-ring-center {
+      position:absolute; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:0;
+    }
+    .rizz-num {
+      font-family:var(--font-display); font-size:22px; font-weight:800;
+      color:var(--white); line-height:1; letter-spacing:-0.03em;
+    }
+    .rizz-grade {
+      font-family:var(--font-display); font-size:11px; font-weight:800;
+      letter-spacing:0.1em; text-transform:uppercase; color:var(--accent);
+      transition:color 0.5s;
+    }
+    .rizz-info { flex:1; min-width:0; }
+    .rizz-title {
+      font-family:var(--font-display); font-size:18px; font-weight:800;
+      color:var(--white); letter-spacing:-0.02em; margin-bottom:4px;
+    }
+    .rizz-title span { color:var(--accent); }
+    .rizz-subtitle { font-size:13px; color:var(--text-secondary); line-height:1.5; }
+    .rizz-label-pill {
+      display:inline-flex; align-items:center; gap:5px;
+      font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+      border-radius:50px; padding:3px 10px; margin-top:8px;
+      border:1px solid; transition:all 0.5s;
+    }
+    .rizz-label-pill .pill-dot { width:5px; height:5px; border-radius:50%; animation:blink 2s infinite; }
+
+    /* ── Reply section labels ── */
+    .reply-section-label {
+      font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:8px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .reply-section-label::after { content:''; flex:1; height:1px; background:var(--card-border); }
+
+    /* ── Reply cards ── */
+    .reply-card {
+      background:rgba(23,23,42,0.7); border:1.5px solid var(--card-border);
+      border-radius:var(--r-lg); padding:18px 18px 14px;
+      display:flex; flex-direction:column; gap:12px;
+      backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+      transition:border-color 0.2s, transform 0.15s ease-out, box-shadow 0.2s;
+      position:relative; overflow:hidden;
+      transform-style:preserve-3d; will-change:transform;
+    }
+    .reply-card:hover { border-color:rgba(255,255,255,0.12); }
+    .reply-card.best {
+      border-color:rgba(255,45,120,0.45);
+      background:linear-gradient(135deg,rgba(255,45,120,0.08) 0%,rgba(23,23,42,0.7) 60%);
+      box-shadow:0 0 32px rgba(255,45,120,0.12),0 4px 24px rgba(0,0,0,0.3);
+    }
+    .reply-card.best::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    }
+
+    /* ── Tone tag ── */
+    .reply-tone-tag {
+      display:inline-flex; align-items:center;
+      font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+      border-radius:50px; padding:3px 10px; color:var(--text-muted);
+      width:fit-content;
+    }
+    .reply-card.best .reply-tone-tag {
+      background:rgba(255,45,120,0.1); border-color:rgba(255,45,120,0.25); color:var(--accent);
+    }
+
+    /* ── Best badge ── */
+    .best-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
+      color:var(--accent); background:var(--accent-dim);
+      border:1px solid rgba(255,45,120,0.25); border-radius:50px;
+      padding:3px 10px; width:fit-content;
+    }
+    .best-badge-dot { width:5px; height:5px; background:var(--accent); border-radius:50%; animation:blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+    /* ── Reply card top row ── */
+    .reply-card-top {
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+    }
+
+    /* ── Typewriter ── */
+    .reply-text {
+      font-size:15px; color:var(--text-primary); line-height:1.65; font-weight:500;
+      min-height:24px;
+    }
+    .reply-card.best .reply-text { font-size:16px; }
+    .tw-cursor {
+      display:inline-block; width:2px; height:1em; background:var(--accent);
+      vertical-align:text-bottom; margin-left:2px;
+      animation:twBlink 0.7s ease-in-out infinite;
+    }
+    @keyframes twBlink { 0%,100%{opacity:1;} 49%{opacity:1;} 50%,99%{opacity:0;} }
+
+    .reply-footer { display:flex; align-items:center; justify-content:space-between; }
+
+    /* ── Response rate ── */
+    .reply-rate {
+      display:flex; align-items:center; gap:5px;
+      font-size:11px; font-weight:600; color:var(--accent2); opacity:0.85;
+    }
+    .reply-rate::before {
+      content:''; display:block; width:5px; height:5px; border-radius:50%;
+      background:var(--accent2); flex-shrink:0;
+    }
+
+    /* ── Copy button ── */
+    .copy-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      background:var(--card-hover); border:1px solid var(--card-border);
+      color:var(--text-secondary); font-family:var(--font-body);
+      font-size:12px; font-weight:600; padding:8px 14px; border-radius:50px;
+      cursor:pointer; transition:background 0.2s,color 0.2s,border-color 0.2s,transform 0.15s;
+      min-height:36px; -webkit-tap-highlight-color:transparent;
+    }
+    .copy-btn:active  { transform:scale(0.94); }
+    .copy-btn.copied  { background:var(--accent2-dim); border-color:rgba(0,240,160,0.3); color:var(--accent2); }
+    .copy-btn svg     { width:13px; height:13px; flex-shrink:0; }
+    .alt-replies      { display:flex; flex-direction:column; gap:10px; }
+
+    /* ── Confetti particle ── */
+    @keyframes confettiParticle {
+      0%   { transform:translate(0,0) scale(1) rotate(0deg); opacity:1; }
+      100% { transform:translate(var(--dx),var(--dy)) scale(0.1) rotate(var(--dr)); opacity:0; }
+    }
+
+    /* ── Probability meter ── */
+    .prob-card {
+      background:var(--card); border:1.5px solid var(--card-border);
+      border-radius:var(--r-lg); padding:20px 18px;
+    }
+    .prob-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .prob-title {
+      font-family:var(--font-display); font-size:15px; font-weight:800;
+      color:var(--white); letter-spacing:-0.01em;
+    }
+    .prob-percent-badge {
+      font-family:var(--font-display); font-size:22px; font-weight:800;
+      color:var(--accent2); letter-spacing:-0.03em;
+      transition:color 0.5s;
+    }
+    .prob-track {
+      width:100%; height:10px; background:rgba(255,255,255,0.05);
+      border-radius:50px; overflow:hidden; margin-bottom:10px;
+    }
+    .prob-bar {
+      height:100%; border-radius:50px; width:0%;
+      background:linear-gradient(90deg,var(--accent2),#00c87a);
+      transition:width 1.4s cubic-bezier(0.23,1,0.32,1);
+      box-shadow:0 0 10px rgba(0,240,160,0.4);
+    }
+    .prob-verdict {
+      font-size:13px; color:var(--text-secondary); line-height:1.5;
+    }
+    .prob-verdict strong { color:var(--accent2); }
+
+    /* ── Reply timer card ── */
+    .reply-timer-card {
+      background:var(--card); border:1.5px solid var(--card-border);
+      border-radius:var(--r-md); padding:16px 18px;
+      display:flex; align-items:center; gap:14px;
+    }
+    .timer-icon {
+      width:38px; height:38px; border-radius:10px; flex-shrink:0;
+      background:rgba(79,195,247,0.1); border:1px solid rgba(79,195,247,0.2);
+      display:flex; align-items:center; justify-content:center; font-size:16px;
+    }
+    .timer-info { flex:1; }
+    .timer-title { font-size:13px; font-weight:700; color:var(--text-primary); margin-bottom:2px; }
+    .timer-text  { font-size:12px; color:var(--text-secondary); line-height:1.5; }
+
+    /* ── Vibe check / flags ── */
+    .vibecheck-card {
+      background:var(--card); border:1.5px solid var(--card-border);
+      border-radius:var(--r-lg); padding:20px 18px;
+      display:flex; flex-direction:column; gap:14px;
+    }
+    .vibecheck-head { display:flex; align-items:center; justify-content:space-between; }
+    .vibecheck-title {
+      font-family:var(--font-display); font-size:16px; font-weight:800;
+      color:var(--white); letter-spacing:-0.01em;
+    }
+    .vibecheck-score { display:flex; gap:5px; }
+    .score-pip { width:7px; height:7px; border-radius:2px; background:var(--card-border); transition:background 0.3s; }
+    .score-pip.active.green { background:var(--accent2); }
+    .score-pip.active.red   { background:var(--accent); }
+    .flags-section { display:flex; flex-direction:column; gap:8px; }
+    .flag-item {
+      display:flex; align-items:flex-start; gap:10px; padding:10px 12px;
+      border-radius:var(--r-sm); font-size:13px; line-height:1.55; color:var(--text-secondary);
+    }
+    .flag-item.green { background:rgba(0,240,160,0.06); border:1px solid rgba(0,240,160,0.15); }
+    .flag-item.red   { background:rgba(255,45,120,0.06); border:1px solid rgba(255,45,120,0.15); }
+    .flag-icon {
+      width:20px; height:20px; border-radius:6px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:11px; margin-top:1px;
+    }
+    .flag-item.green .flag-icon { background:rgba(0,240,160,0.15); color:var(--accent2); font-weight:800; }
+    .flag-item.red   .flag-icon { background:rgba(255,45,120,0.15); color:var(--accent);  font-weight:800; }
+    .flag-item.green strong { color:var(--accent2); }
+    .flag-item.red   strong { color:var(--accent); }
+    .move-tip {
+      padding:12px 14px; background:rgba(0,240,160,0.07); border:1px solid rgba(0,240,160,0.2);
+      border-radius:var(--r-sm); font-size:13px; color:var(--accent2); line-height:1.55;
+    }
+    .move-tip-label {
+      font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
+      color:rgba(0,240,160,0.6); margin-bottom:4px; display:block;
+    }
+
+    /* ── Guarantee badge ── */
+    .guarantee-badge {
+      display:flex; align-items:center; gap:12px;
+      background:rgba(0,240,160,0.05); border:1.5px solid rgba(0,240,160,0.18);
+      border-radius:var(--r-md); padding:16px 18px;
+    }
+    .gb-icon {
+      width:40px; height:40px; border-radius:12px; flex-shrink:0;
+      background:rgba(0,240,160,0.1); border:1px solid rgba(0,240,160,0.2);
+      display:flex; align-items:center; justify-content:center; font-size:18px;
+    }
+    .gb-text { flex:1; }
+    .gb-title { font-size:14px; font-weight:700; color:var(--accent2); margin-bottom:2px; }
+    .gb-sub   { font-size:12px; color:var(--text-secondary); line-height:1.4; }
+
+    /* ── Try again ── */
+    .try-again-btn {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; padding:15px;
+      background:none; border:1.5px solid var(--card-border);
+      border-radius:var(--r-md); color:var(--text-secondary);
+      font-family:var(--font-body); font-size:15px; font-weight:600;
+      cursor:pointer; transition:border-color 0.2s,color 0.2s,background 0.2s;
+      min-height:50px; -webkit-tap-highlight-color:transparent;
+    }
+    .try-again-btn:hover  { border-color:rgba(255,255,255,0.15); color:var(--text-primary); background:rgba(255,255,255,0.03); }
+    .try-again-btn:active { transform:scale(0.98); }
+
+    /* ── "Did it work?" bottom sheet ── */
+    .diw-overlay {
+      position:fixed; inset:0; z-index:300;
+      background:rgba(6,6,10,0.7); backdrop-filter:blur(8px);
+      display:flex; align-items:flex-end; justify-content:center;
+      opacity:0; pointer-events:none;
+      transition:opacity 0.3s;
+    }
+    .diw-overlay.show { opacity:1; pointer-events:auto; }
+    .diw-sheet {
+      width:100%; max-width:520px;
+      background:var(--surface); border:1px solid var(--card-border);
+      border-radius:var(--r-xl) var(--r-xl) 0 0;
+      padding:20px 24px calc(28px + var(--safe-bottom));
+      transform:translateY(100%); transition:transform 0.4s cubic-bezier(0.23,1,0.32,1);
+    }
+    .diw-overlay.show .diw-sheet { transform:translateY(0); }
+    .diw-handle {
+      width:36px; height:4px; background:var(--card-border);
+      border-radius:2px; margin:0 auto 20px;
+    }
+    .diw-title {
+      font-family:var(--font-display); font-size:22px; font-weight:800;
+      color:var(--white); letter-spacing:-0.02em; text-align:center; margin-bottom:6px;
+    }
+    .diw-sub { font-size:14px; color:var(--text-secondary); text-align:center; margin-bottom:20px; }
+    .diw-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .diw-btn {
+      padding:16px 12px; border-radius:var(--r-md); font-family:var(--font-body);
+      font-size:15px; font-weight:700; cursor:pointer; border:1.5px solid;
+      transition:transform 0.15s,box-shadow 0.15s; min-height:54px;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .diw-btn:active { transform:scale(0.96); }
+    .diw-btn.fire {
+      background:rgba(255,45,120,0.12); border-color:rgba(255,45,120,0.4); color:var(--accent);
+    }
+    .diw-btn.fire:hover { box-shadow:0 0 20px rgba(255,45,120,0.25); }
+    .diw-btn.dead {
+      background:rgba(255,255,255,0.04); border-color:var(--card-border); color:var(--text-secondary);
+    }
+    .diw-skip { display:block; text-align:center; margin-top:14px; font-size:13px; color:var(--text-muted); cursor:pointer; padding:8px; }
+
+    /* ── Celebration overlay ── */
+    .celebration-overlay {
+      position:fixed; inset:0; z-index:400;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background:rgba(6,6,10,0.85); backdrop-filter:blur(12px);
+      opacity:0; pointer-events:none; transition:opacity 0.4s;
+      text-align:center; padding:32px;
+    }
+    .celebration-overlay.show { opacity:1; pointer-events:auto; }
+    .cel-emoji { font-size:64px; margin-bottom:16px; animation:celBounce 0.6s cubic-bezier(0.23,1,0.32,1); }
+    @keyframes celBounce { from{transform:scale(0) rotate(-20deg);} to{transform:scale(1) rotate(0deg);} }
+    .cel-title {
+      font-family:var(--font-display); font-size:32px; font-weight:800;
+      color:var(--white); line-height:1; letter-spacing:-0.03em; margin-bottom:10px;
+    }
+    .cel-title span { color:var(--accent); }
+    .cel-sub { font-size:15px; color:var(--text-secondary); margin-bottom:28px; line-height:1.6; max-width:280px; }
+    .cel-stat {
+      font-family:var(--font-display); font-size:14px; font-weight:800;
+      color:var(--accent2); letter-spacing:0.05em; text-transform:uppercase;
+      padding:8px 20px; background:var(--accent2-dim); border:1px solid rgba(0,240,160,0.2);
+      border-radius:50px; margin-bottom:24px;
+    }
+    .cel-close {
+      background:none; border:1.5px solid var(--card-border); border-radius:50px;
+      color:var(--text-secondary); font-family:var(--font-body); font-size:14px; font-weight:600;
+      padding:12px 28px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    }
+
+    /* ── Ghost recovery nudge ── */
+    .ghost-nudge {
+      padding:14px 16px; background:rgba(155,112,255,0.07); border:1px solid rgba(155,112,255,0.2);
+      border-radius:var(--r-md); font-size:13px; color:#C4A8FF; line-height:1.55;
+      display:none; margin-top:10px;
+    }
+    .ghost-nudge.show { display:block; animation:stateIn 0.3s ease; }
+    .ghost-nudge strong { color:#9B70FF; }
+
+    /* ── Fade-in items ── */
+    .result-item {
+      opacity:0; transform:translateY(14px);
+      animation:resultIn 0.45s cubic-bezier(0.23,1,0.32,1) forwards;
+    }
+    @keyframes resultIn { to { opacity:1; transform:none; } }
+
+    /* ── Error toast ── */
+    .error-toast {
+      position:fixed; bottom:calc(84px + var(--safe-bottom)); left:20px; right:20px;
+      max-width:480px; margin:0 auto;
+      background:rgba(255,45,120,0.15); border:1px solid rgba(255,45,120,0.35);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      border-radius:var(--r-md); padding:12px 16px;
+      font-size:13px; font-weight:600; color:var(--accent);
+      display:none; align-items:center; gap:8px; z-index:200;
+    }
+    .error-toast.show { display:flex; animation:toastIn 0.25s ease; }
+    @keyframes toastIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:none;} }
+
+    /* ── Paywall sheet ── */
+    .paywall-overlay {
+      position:fixed; inset:0; z-index:500;
+      background:rgba(6,6,10,0.88); backdrop-filter:blur(14px);
+      display:flex; align-items:flex-end; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity 0.3s;
+    }
+    .paywall-overlay.show { opacity:1; pointer-events:auto; }
+    .paywall-sheet {
+      width:100%; max-width:520px;
+      background:var(--surface); border:1px solid var(--card-border);
+      border-top: 1px solid rgba(255,45,120,0.2);
+      border-radius:var(--r-xl) var(--r-xl) 0 0;
+      padding:24px 24px calc(36px + var(--safe-bottom));
+      transform:translateY(100%); transition:transform 0.4s cubic-bezier(0.23,1,0.32,1);
+    }
+    .paywall-overlay.show .paywall-sheet { transform:translateY(0); }
+    .paywall-handle { width:36px; height:4px; background:var(--card-border); border-radius:2px; margin:0 auto 22px; }
+    .paywall-title {
+      font-family:var(--font-display); font-size:24px; font-weight:800;
+      color:var(--white); letter-spacing:-0.02em; text-align:center; margin-bottom:5px;
+    }
+    .paywall-title span { color:var(--accent); }
+    .paywall-sub { font-size:13px; color:var(--text-secondary); text-align:center; margin-bottom:20px; line-height:1.5; }
+    .paywall-stack { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+    .pwall-item {
+      display:flex; align-items:center; gap:10px;
+      font-size:13px; color:var(--text-secondary);
+    }
+    .pwall-check {
+      width:20px; height:20px; border-radius:6px; flex-shrink:0;
+      background:rgba(0,240,160,0.12); border:1px solid rgba(0,240,160,0.25);
+      display:flex; align-items:center; justify-content:center;
+      font-size:10px; font-weight:800; color:var(--accent2);
+    }
+    .pwall-item strong { color:var(--text-primary); }
+    .paywall-price {
+      text-align:center; font-size:13px; color:var(--text-muted); margin-bottom:14px;
+    }
+    .paywall-price strong {
+      font-family:var(--font-display); font-size:28px; font-weight:800;
+      color:var(--white); letter-spacing:-0.03em;
+    }
+    .paywall-note { text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px; }
+
+    /* ════ RESPONSIVE ════ */
+    @media (min-width:520px) {
+      .input-wrap,.results-wrap { padding-left:28px; padding-right:28px; }
+      .submit-bar { padding-left:28px; padding-right:28px; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .lb1,.lb2,.lb3,.ls-dot,.tw-cursor,.rizz-ring-fill,.prob-bar { animation:none; transition:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="index.html" class="nav-logo">Rizzr<span>.</span></a>
+  <button class="nav-back" id="navBack" onclick="resetToInput()">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
+    new shot
+  </button>
+  <div class="nav-tag" id="navTag">analyze</div>
+</nav>
+
+
+<!-- ══ STATE: INPUT ══ -->
+<div id="stateInput" class="app-state active">
+  <div class="input-wrap">
+
+    <!-- Social proof -->
+    <div class="social-proof-bar">
+      <div class="sp-live-dot"></div>
+      <span><span class="sp-count" id="spCount">1,247</span> conversations analyzed today</span>
+    </div>
+
+    <div>
+      <div class="field-label">screenshot</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" accept="image/*" id="fileInput" aria-label="Upload screenshot" />
+        <img class="upload-preview" id="uploadPreview" alt="preview" />
+        <div class="upload-placeholder" id="uploadPlaceholder">
+          <div class="upload-icon">📸</div>
+          <div class="upload-label">tap to upload screenshot</div>
+          <div class="upload-sub">tinder · instagram · imessage · hinge · any app</div>
+        </div>
+        <button class="upload-change-btn" id="changeBtn" type="button">change photo</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="field-label">pick your vibe</div>
+      <div class="modes-grid">
+        <div class="mode-card swoon" data-mode="swoon" onclick="selectMode(this)">
+          <div class="mode-emoji">💘</div>
+          <div class="mode-name">swoon</div>
+          <div class="mode-desc">sweet, genuine, pull them closer</div>
+        </div>
+        <div class="mode-card spicy" data-mode="spicy" onclick="selectMode(this)">
+          <div class="mode-emoji">🌶️</div>
+          <div class="mode-name">spicy</div>
+          <div class="mode-desc">bold, flirty, turn up the heat</div>
+        </div>
+        <div class="mode-card saved" data-mode="saved" onclick="selectMode(this)">
+          <div class="mode-emoji">🛟</div>
+          <div class="mode-name">saved</div>
+          <div class="mode-desc">recover from the awkward</div>
+        </div>
+        <div class="mode-card laugh" data-mode="laugh" onclick="selectMode(this)">
+          <div class="mode-emoji">😭</div>
+          <div class="mode-name">make 'em laugh</div>
+          <div class="mode-desc">witty, playful, unforgettable</div>
+        </div>
+        <div class="mode-card ice" data-mode="ice" onclick="selectMode(this)">
+          <div class="mode-emoji">🧊</div>
+          <div class="mode-name">ice breaker</div>
+          <div class="mode-desc">fresh match, zero history, open strong</div>
+        </div>
+        <div class="mode-card ghost" data-mode="ghost" onclick="selectMode(this)">
+          <div class="mode-emoji">👻</div>
+          <div class="mode-name">ghost reviver</div>
+          <div class="mode-desc">they went quiet — bring them back</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="context-wrap">
+      <div class="field-label" style="position:relative;">
+        context
+        <span class="context-optional">optional</span>
+      </div>
+      <textarea class="context-textarea" id="contextInput"
+        placeholder="e.g. we matched 3 days ago, she seemed excited at first but her last reply was short…"
+        rows="3" maxlength="400"></textarea>
+    </div>
+
+  </div>
+
+  <div class="submit-bar" id="submitBar">
+    <div class="submit-bar-inner">
+      <div class="credits-hint" id="creditsHint"><div class="cr-dot"></div><span id="creditsText">3 free analyses remaining</span></div>
+      <div class="submit-hint" id="submitHint">select a mode to continue</div>
+      <button class="btn-shiny" id="analyzeBtn" onclick="startAnalysis()" disabled>
+        <span>analyze &amp; get my replies</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-left:2px">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ STATE: LOADING ══ -->
+<div id="stateLoading" class="app-state">
+  <div class="loading-wrap">
+    <div class="loading-blobs">
+      <div class="loading-blob lb1"></div>
+      <div class="loading-blob lb2"></div>
+      <div class="loading-blob lb3"></div>
+      <div class="loading-logo">Rizzr<span>.</span></div>
+    </div>
+    <div class="loading-steps">
+      <div class="loading-step" id="ls1"><div class="ls-dot"></div><span>reading the conversation…</span></div>
+      <div class="loading-step" id="ls2"><div class="ls-dot"></div><span>analyzing the vibe…</span></div>
+      <div class="loading-step" id="ls3"><div class="ls-dot"></div><span>crafting your replies…</span></div>
+      <div class="loading-step" id="ls4"><div class="ls-dot"></div><span>scoring your rizz…</span></div>
+    </div>
+    <p class="loading-tagline">under 10 seconds. your future self will thank you.</p>
+  </div>
+</div>
+
+
+<!-- ══ STATE: RESULTS ══ -->
+<div id="stateResults" class="app-state">
+  <div class="results-wrap">
+
+    <!-- Rizz Score ring -->
+    <div class="rizz-score-block result-item" style="animation-delay:0s">
+      <div class="rizz-ring-wrap">
+        <svg viewBox="0 0 88 88">
+          <circle class="rizz-ring-bg"   cx="44" cy="44" r="40"/>
+          <circle class="rizz-ring-fill" id="rizzRingFill" cx="44" cy="44" r="40"/>
+        </svg>
+        <div class="rizz-ring-center">
+          <div class="rizz-num" id="rizzNum">0</div>
+          <div class="rizz-grade" id="rizzGrade">—</div>
+        </div>
+      </div>
+      <div class="rizz-info">
+        <div class="rizz-title">rizz score<span>™</span></div>
+        <div class="rizz-subtitle" id="rizzSubtitle">analyzing your vibe…</div>
+        <div class="rizz-label-pill" id="rizzPill">
+          <div class="pill-dot"></div>
+          <span id="rizzPillText">loading</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Best pick -->
+    <div class="result-item" style="animation-delay:0.08s">
+      <div class="reply-section-label">best pick</div>
+      <div class="reply-card best" id="bestCard">
+        <div class="reply-card-top">
+          <div class="best-badge"><div class="best-badge-dot"></div> top choice</div>
+          <div class="reply-tone-tag" id="reply1Tone"></div>
+        </div>
+        <div class="reply-text" id="reply1Text"></div>
+        <div class="reply-footer">
+          <div class="reply-rate" id="reply1Rate"></div>
+          <button class="copy-btn" onclick="copyReply(this,'reply1Text')">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
+            copy
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alt replies -->
+    <div class="result-item" style="animation-delay:0.15s">
+      <div class="reply-section-label">alternatives</div>
+      <div class="alt-replies">
+        <div class="reply-card">
+          <div class="reply-tone-tag" id="reply2Tone"></div>
+          <div class="reply-text" id="reply2Text"></div>
+          <div class="reply-footer">
+            <div class="reply-rate" id="reply2Rate"></div>
+            <button class="copy-btn" onclick="copyReply(this,'reply2Text')">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
+              copy
+            </button>
+          </div>
+        </div>
+        <div class="reply-card">
+          <div class="reply-tone-tag" id="reply3Tone"></div>
+          <div class="reply-text" id="reply3Text"></div>
+          <div class="reply-footer">
+            <div class="reply-rate" id="reply3Rate"></div>
+            <button class="copy-btn" onclick="copyReply(this,'reply3Text')">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
+              copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Probability meter -->
+    <div class="result-item" style="animation-delay:0.22s">
+      <div class="reply-section-label">ask for the date?</div>
+      <div class="prob-card">
+        <div class="prob-header">
+          <div class="prob-title">date probability</div>
+          <div class="prob-percent-badge" id="probBadge">0%</div>
+        </div>
+        <div class="prob-track">
+          <div class="prob-bar" id="probBar"></div>
+        </div>
+        <div class="prob-verdict" id="probVerdict"></div>
+      </div>
+    </div>
+
+    <!-- Reply timer -->
+    <div class="result-item" style="animation-delay:0.28s">
+      <div class="reply-timer-card">
+        <div class="timer-icon">⏱</div>
+        <div class="timer-info">
+          <div class="timer-title">when to send</div>
+          <div class="timer-text" id="replyTimerText">analyzing timing…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vibe check -->
+    <div class="result-item" style="animation-delay:0.34s">
+      <div class="reply-section-label">vibe check</div>
+      <div class="vibecheck-card">
+        <div class="vibecheck-head">
+          <div class="vibecheck-title">read the room</div>
+          <div class="vibecheck-score" id="vibeScore"></div>
+        </div>
+        <div class="flags-section" id="flagsList"></div>
+        <div class="move-tip">
+          <span class="move-tip-label">suggested move</span>
+          <span id="moveTipText"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guarantee badge -->
+    <div class="result-item" style="animation-delay:0.40s">
+      <div class="guarantee-badge">
+        <div class="gb-icon">🛡️</div>
+        <div class="gb-text">
+          <div class="gb-title">no reply in 48h? we fix it — free.</div>
+          <div class="gb-sub">send us proof and we'll personally write you a recovery message. zero questions asked.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ghost recovery nudge -->
+    <div class="ghost-nudge" id="ghostNudge">
+      <strong>no reply yet?</strong> happens. try <strong>ghost reviver mode</strong> — paste the last thing you said and we'll write you a re-engagement that doesn't feel desperate.
+    </div>
+
+    <!-- Try again -->
+    <div class="result-item" style="animation-delay:0.46s">
+      <button class="try-again-btn" onclick="resetToInput()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 4v5h5"/><path d="M15 12V7h-5"/><path d="M2.4 9A6 6 0 1113.6 7"/>
+        </svg>
+        analyze another screenshot
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- "Did it work?" bottom sheet -->
+<div class="diw-overlay" id="diwOverlay">
+  <div class="diw-sheet">
+    <div class="diw-handle"></div>
+    <div class="diw-title">did it work? 👀</div>
+    <div class="diw-sub">curious minds need to know</div>
+    <div class="diw-btns">
+      <button class="diw-btn fire" onclick="diwFire()">🔥 got a reply</button>
+      <button class="diw-btn dead" onclick="diwDead()">💀 still waiting</button>
+    </div>
+    <span class="diw-skip" onclick="closeDiw()">skip</span>
+  </div>
+</div>
+
+
+<!-- Celebration overlay -->
+<div class="celebration-overlay" id="celOverlay">
+  <div class="cel-emoji" id="celEmoji">🔥</div>
+  <div class="cel-title">it <span>worked.</span></div>
+  <p class="cel-sub">that's what we're talking about. save this mode for next time.</p>
+  <div class="cel-stat" id="celStat">+1 to the win count</div>
+  <button class="cel-close" onclick="closeCelebration()">nice, keep going</button>
+</div>
+
+
+<!-- Paywall sheet -->
+<div class="paywall-overlay" id="paywallOverlay">
+  <div class="paywall-sheet">
+    <div class="paywall-handle"></div>
+    <div class="paywall-title">you used your <span>3 free</span> shots</div>
+    <div class="paywall-sub">unlock unlimited analyses, all 6 modes, and every feature.</div>
+    <div class="paywall-stack">
+      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>unlimited analyses</strong> — no daily cap, ever</span></div>
+      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>rizz score™</strong> + grade on every conversation</span></div>
+      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>6 modes</strong> — ice breaker, ghost reviver & more</span></div>
+      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>date probability</strong> + reply timing advisor</span></div>
+      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>vibe analysis</strong> — red flags, green lights, move tip</span></div>
+      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>48h guarantee</strong> — we rewrite for free if needed</span></div>
+    </div>
+    <div class="paywall-price">just <strong>$7.99</strong>/mo — cancel anytime</div>
+    <button class="btn-shiny" onclick="window.open('#unlock','_blank')" style="margin-bottom:0">
+      <span>unlock rizzr — $7.99/mo</span>
+    </button>
+    <div class="paywall-note">no contracts · cancel in 2 taps · instant access</div>
+  </div>
+</div>
+
+
+<!-- Error toast -->
+<div class="error-toast" id="errorToast">
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7" cy="7" r="6"/><path d="M7 4v4M7 10v.5"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+
+<script>
+  /* ══ GRADE CONFIG ══ */
+  const GRADES = [
+    { min:95, grade:'S+', color:'#FFD700', pillBg:'rgba(255,215,0,0.12)',  pillBorder:'rgba(255,215,0,0.3)',  label:'certified rizz god' },
+    { min:85, grade:'S',  color:'#9B70FF', pillBg:'rgba(155,112,255,0.12)', pillBorder:'rgba(155,112,255,0.3)', label:'elite tier' },
+    { min:75, grade:'A',  color:'#00F0A0', pillBg:'rgba(0,240,160,0.12)',  pillBorder:'rgba(0,240,160,0.3)',  label:'high value' },
+    { min:60, grade:'B',  color:'#4FC3F7', pillBg:'rgba(79,195,247,0.12)', pillBorder:'rgba(79,195,247,0.3)', label:'solid rizz' },
+    { min:45, grade:'C',  color:'#FFB74D', pillBg:'rgba(255,183,77,0.12)', pillBorder:'rgba(255,183,77,0.3)', label:'room to grow' },
+    { min:0,  grade:'D',  color:'#FF2D78', pillBg:'rgba(255,45,120,0.12)', pillBorder:'rgba(255,45,120,0.3)', label:'needs work' },
+  ];
+  function getGrade(n) { return GRADES.find(g => n >= g.min); }
+
+  /* ══ TONE TAGS & RESPONSE RATES ══ */
+  const TONE_TAGS = {
+    swoon: ['💘 romantic', '😊 genuine',   '🌙 soft'],
+    spicy: ['🔥 bold',     '😏 flirty',    '😈 daring'],
+    saved: ['🧊 cool',     '😅 self-aware','💬 honest'],
+    laugh: ['😭 unhinged', '🎭 playful',   '🤌 witty'],
+    ice:   ['✨ confident','😊 curious',   '💬 casual'],
+    ghost: ['🤍 low-key',  '😌 chill',     '💫 warm'],
+  };
+  const REPLY_RATES = {
+    swoon: [82, 71, 68],
+    spicy: [94, 88, 79],
+    saved: [77, 69, 73],
+    laugh: [91, 85, 80],
+    ice:   [88, 76, 70],
+    ghost: [74, 68, 71],
+  };
+
+  /* ══ PROBABILITY VERDICTS ══ */
+  function getProbVerdict(p) {
+    if (p >= 85) return `<strong>ask right now.</strong> they're giving every signal. a direct "we should hang, what does your week look like?" will land.`;
+    if (p >= 70) return `<strong>strong green light.</strong> make a move in the next 1-2 messages — don't wait long enough to lose the momentum.`;
+    if (p >= 55) return `<strong>warming up.</strong> keep the energy for one more exchange, then make the ask. don't overthink it.`;
+    if (p >= 38) return `<strong>not yet.</strong> build a bit more comfort first. you'll know when — just don't wait forever.`;
+    return `<strong>slow down.</strong> focus on the conversation right now. the date ask can wait.`;
+  }
+
+  /* ══ REPLY TIMER TEXT ══ */
+  function getTimerText(mode, score) {
+    if (mode === 'ghost') return "send this today, but don't rush — a message that feels natural beats one that feels desperate.";
+    if (score >= 75) return "send within the next 15 minutes — the momentum is hot right now. don't let it cool.";
+    if (score >= 55) return "send within the hour — don't let the conversation go cold. timing matters here.";
+    return "no rush, but don't wait more than a few hours. overthinking kills more convos than bad openers.";
+  }
+
+  /* ══ CREDITS SYSTEM ══ */
+  const MAX_FREE = 3;
+  let credits = parseInt(localStorage.getItem('rizzr_credits') ?? MAX_FREE);
+  if (isNaN(credits) || credits > MAX_FREE) { credits = MAX_FREE; saveCredits(); }
+
+  function saveCredits() { localStorage.setItem('rizzr_credits', credits); }
+
+  function updateCreditsUI() {
+    const el  = document.getElementById('creditsHint');
+    const txt = document.getElementById('creditsText');
+    if (!el || !txt) return;
+    el.classList.remove('low','empty');
+    if (credits <= 0) {
+      el.classList.add('empty');
+      txt.textContent = 'no free analyses left — unlock rizzr';
+    } else if (credits === 1) {
+      el.classList.add('low');
+      txt.textContent = 'last free analysis — make it count';
+    } else {
+      txt.textContent = `${credits} free analyses remaining`;
+    }
+  }
+
+  function showPaywall()  { document.getElementById('paywallOverlay').classList.add('show'); }
+
+  /* ══ STATE ══ */
+  let selectedMode = null;
+  let uploadedFile = null;
+  let diwTimer     = null;
+  let winCount     = parseInt(localStorage.getItem('rizzr_wins') || '0');
+
+  /* ══ FILE UPLOAD ══ */
+  const fileInput     = document.getElementById('fileInput');
+  const uploadZone    = document.getElementById('uploadZone');
+  const uploadPreview = document.getElementById('uploadPreview');
+
+  fileInput.addEventListener('change', e => { const f = e.target.files[0]; if (f) handleFile(f); });
+
+  document.getElementById('changeBtn').addEventListener('click', e => {
+    e.stopPropagation(); fileInput.value = ''; fileInput.click();
+  });
+
+  uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith('image/')) handleFile(f);
+  });
+
+  function handleFile(file) {
+    uploadedFile = file;
+    uploadPreview.src = URL.createObjectURL(file);
+    uploadZone.classList.add('has-image');
+    updateSubmitHint();
+  }
+
+  /* ══ MODE SELECTION ══ */
+  function selectMode(card) {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedMode = card.dataset.mode;
+    updateSubmitHint();
+  }
+
+  function updateSubmitHint() {
+    const btn  = document.getElementById('analyzeBtn');
+    const hint = document.getElementById('submitHint');
+    if (!uploadedFile && !selectedMode)    { hint.textContent = 'upload a screenshot and pick a mode'; btn.disabled = true; }
+    else if (!uploadedFile)                { hint.textContent = 'upload a screenshot to continue';     btn.disabled = true; }
+    else if (!selectedMode)                { hint.textContent = 'pick a vibe to continue';             btn.disabled = true; }
+    else                                   { hint.textContent = 'ready — tap to analyze';              btn.disabled = false; }
+  }
+
+  /* ══ STATE TRANSITIONS ══ */
+  function showState(id) {
+    document.querySelectorAll('.app-state').forEach(s => {
+      s.classList.remove('active'); s.style.animation = 'none';
+    });
+    const t = document.getElementById(id);
+    t.style.animation = ''; void t.offsetWidth; t.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  function setNavState(state) {
+    const back = document.getElementById('navBack');
+    const tag  = document.getElementById('navTag');
+    back.style.display = state === 'results' ? 'flex'  : 'none';
+    tag.style.display  = state === 'results' ? 'none'  : 'block';
+    tag.textContent    = state === 'loading' ? 'analyzing…' : 'analyze';
+  }
+
+  /* ══ ANALYSIS ══ */
+  function startAnalysis() {
+    if (!uploadedFile) { showToast('please upload a screenshot first'); return; }
+    if (!selectedMode) { showToast('please pick a vibe first'); return; }
+    if (credits <= 0)  { showPaywall(); return; }
+
+    credits--;
+    saveCredits();
+    updateCreditsUI();
+
+    setNavState('loading');
+    showState('stateLoading');
+    runLoadingAnimation();
+
+    /* TODO: replace with real n8n call
+      const fd = new FormData();
+      fd.append('screenshot', uploadedFile);
+      fd.append('mode', selectedMode);
+      fd.append('context', document.getElementById('contextInput').value);
+      const res = await fetch('https://YOUR-N8N.cloud/webhook/rizzr-submit', { method:'POST', body:fd });
+      const data = await res.json();
+      showResults(data);
+    */
+    setTimeout(() => {
+      showResults(generateMockResults(selectedMode));
+    }, 3800);
+  }
+
+  /* ══ LOADING STEPS ══ */
+  const STEPS = ['ls1','ls2','ls3','ls4'];
+  let loadingTimers = [];
+
+  function runLoadingAnimation() {
+    STEPS.forEach(id => { document.getElementById(id).className = 'loading-step'; });
+    loadingTimers.forEach(clearTimeout); loadingTimers = [];
+    [0, 900, 1900, 2800].forEach((delay, i) => {
+      loadingTimers.push(setTimeout(() => {
+        if (i > 0) document.getElementById(STEPS[i-1]).className = 'loading-step done';
+        document.getElementById(STEPS[i]).className = 'loading-step active';
+      }, delay));
+    });
+  }
+
+  /* ══ SHOW RESULTS ══ */
+  function showResults(data) {
+    /* Clear reply text */
+    ['reply1Text','reply2Text','reply3Text'].forEach(id => { document.getElementById(id).textContent = ''; });
+
+    /* Tone tags */
+    const tones = TONE_TAGS[selectedMode] || TONE_TAGS.swoon;
+    const rates = REPLY_RATES[selectedMode] || REPLY_RATES.swoon;
+    ['reply1Tone','reply2Tone','reply3Tone'].forEach((id,i) => {
+      const el = document.getElementById(id); if (el) el.textContent = tones[i];
+    });
+    ['reply1Rate','reply2Rate','reply3Rate'].forEach((id,i) => {
+      const el = document.getElementById(id); if (el) el.textContent = `${rates[i]}% response rate`;
+    });
+
+    /* Reply timer */
+    const timerEl = document.getElementById('replyTimerText');
+    if (timerEl) timerEl.textContent = getTimerText(selectedMode, data.rizzScore);
+
+    /* Vibe score pips */
+    const scoreEl = document.getElementById('vibeScore');
+    scoreEl.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const pip = document.createElement('div');
+      pip.className = 'score-pip' + (i < data.score ? ' active green' : '');
+      scoreEl.appendChild(pip);
+    }
+
+    /* Flags */
+    const flagsList = document.getElementById('flagsList');
+    flagsList.innerHTML = '';
+    data.flags.forEach(f => {
+      const div = document.createElement('div');
+      div.className = `flag-item ${f.type}`;
+      div.innerHTML = `<div class="flag-icon">${f.type==='green'?'✓':'!'}</div><div>${f.text}</div>`;
+      flagsList.appendChild(div);
+    });
+    document.getElementById('moveTipText').textContent = data.move;
+
+    /* Restart result animations */
+    document.querySelectorAll('.result-item').forEach(el => {
+      el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+    });
+
+    setNavState('results');
+    showState('stateResults');
+    STEPS.forEach(id => { document.getElementById(id).className = 'loading-step'; });
+    document.getElementById('ghostNudge').classList.remove('show');
+
+    /* Rizz score ring + counter */
+    setTimeout(() => animateRizzScore(data.rizzScore), 350);
+
+    /* Probability meter */
+    setTimeout(() => animateProbability(data.probability), 600);
+
+    /* Typewriter replies */
+    const t1 = 300, spd = 22;
+    typewriter('reply1Text', data.replies[0], t1, spd, () => {
+      typewriter('reply2Text', data.replies[1], 120, spd, () => {
+        typewriter('reply3Text', data.replies[2], 100, spd);
+      });
+    });
+
+    /* Tilt effect on reply cards */
+    setTimeout(initTilt, 600);
+
+    /* "Did it work?" — show after 14s */
+    clearTimeout(diwTimer);
+    diwTimer = setTimeout(showDiw, 14000);
+  }
+
+  /* ══ TILT EFFECT ══ */
+  function initTilt() {
+    document.querySelectorAll('.reply-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width  - 0.5;
+        const y = (e.clientY - r.top)  / r.height - 0.5;
+        card.style.transform = `perspective(800px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg) scale(1.01)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+  }
+
+  /* ══ RIZZ SCORE ══ */
+  function animateRizzScore(target) {
+    const numEl   = document.getElementById('rizzNum');
+    const gradeEl = document.getElementById('rizzGrade');
+    const ring    = document.getElementById('rizzRingFill');
+    const pillEl  = document.getElementById('rizzPill');
+    const pillTxt = document.getElementById('rizzPillText');
+    const subEl   = document.getElementById('rizzSubtitle');
+    const CIRC    = 2 * Math.PI * 40;
+
+    const g = getGrade(target);
+
+    let current = 0;
+    const step = Math.ceil(target / 40);
+    const interval = setInterval(() => {
+      current = Math.min(current + step, target);
+      numEl.textContent = current;
+      if (current >= target) clearInterval(interval);
+    }, 35);
+
+    const offset = CIRC * (1 - target / 100);
+    ring.style.stroke = g.color;
+    ring.style.strokeDashoffset = offset;
+
+    gradeEl.textContent = g.grade;
+    gradeEl.style.color = g.color;
+
+    pillEl.style.background   = g.pillBg;
+    pillEl.style.borderColor  = g.pillBorder;
+    pillEl.style.color        = g.color;
+    pillEl.querySelector('.pill-dot').style.background = g.color;
+    pillTxt.textContent       = g.label;
+
+    const subtitles = {
+      95: "you're operating on a different level.",
+      85: "top tier — they don't stand a chance.",
+      75: "strong. this convo has real potential.",
+      60: "good energy. a few more moves and you're there.",
+      45: "some signals mixed. there's room to turn it around.",
+      0:  "rough start — but that's what saved mode is for."
+    };
+    const key = [95,85,75,60,45,0].find(k => target >= k);
+    subEl.textContent = subtitles[key] || subtitles[0];
+  }
+
+  /* ══ PROBABILITY METER ══ */
+  function animateProbability(prob) {
+    const bar     = document.getElementById('probBar');
+    const badge   = document.getElementById('probBadge');
+    const verdict = document.getElementById('probVerdict');
+
+    const color = prob >= 70 ? '#00F0A0' : prob >= 50 ? '#FFD700' : '#FF6B35';
+    bar.style.background   = `linear-gradient(90deg, ${color}, ${color}aa)`;
+    bar.style.boxShadow    = `0 0 10px ${color}66`;
+    badge.style.color      = color;
+
+    let cur = 0;
+    const interval = setInterval(() => {
+      cur = Math.min(cur + 3, prob);
+      badge.textContent = cur + '%';
+      if (cur >= prob) clearInterval(interval);
+    }, 28);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { bar.style.width = prob + '%'; });
+    });
+
+    verdict.innerHTML = getProbVerdict(prob);
+  }
+
+  /* ══ TYPEWRITER ══ */
+  function typewriter(elId, text, delay, speed, onDone) {
+    const el = document.getElementById(elId);
+    el.innerHTML = '';
+    let i = 0;
+    const cursor = document.createElement('span');
+    cursor.className = 'tw-cursor';
+    el.appendChild(cursor);
+
+    setTimeout(() => {
+      const iv = setInterval(() => {
+        if (i < text.length) {
+          el.insertBefore(document.createTextNode(text[i]), cursor);
+          i++;
+        } else {
+          clearInterval(iv);
+          cursor.remove();
+          if (onDone) setTimeout(onDone, 80);
+        }
+      }, speed);
+    }, delay);
+  }
+
+  /* ══ COPY + CONFETTI ══ */
+  function copyReply(btn, textId) {
+    const text = document.getElementById(textId).textContent;
+
+    navigator.clipboard.writeText(text).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+    });
+
+    spawnConfetti(btn);
+
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 7l3.5 3.5L12 3"/></svg> copied!`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg> copy`;
+    }, 2000);
+  }
+
+  function spawnConfetti(originEl) {
+    const rect = originEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height / 2;
+    const colors = ['#FF2D78','#00F0A0','#FFD700','#9B70FF','#FF6B35','#FFFFFF','#4FC3F7'];
+    const count  = 28;
+
+    for (let i = 0; i < count; i++) {
+      const el  = document.createElement('div');
+      const ang = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+      const vel = 60 + Math.random() * 100;
+      const dx  = Math.cos(ang) * vel;
+      const dy  = Math.sin(ang) * vel - 30;
+      const dr  = (Math.random() - 0.5) * 720;
+      const sz  = 4 + Math.random() * 5;
+      const col = colors[Math.floor(Math.random() * colors.length)];
+      const dur = 0.65 + Math.random() * 0.35;
+
+      el.style.cssText = `
+        position:fixed;left:${cx}px;top:${cy}px;
+        width:${sz}px;height:${sz}px;
+        background:${col};
+        border-radius:${Math.random()>0.4?'50%':'3px'};
+        pointer-events:none;z-index:9999;
+        --dx:${dx}px;--dy:${dy}px;--dr:${dr}deg;
+        animation:confettiParticle ${dur}s ease-out forwards;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), (dur + 0.1) * 1000);
+    }
+  }
+
+  /* ══ "DID IT WORK?" ══ */
+  function showDiw() {
+    if (document.getElementById('stateResults').classList.contains('active')) {
+      document.getElementById('diwOverlay').classList.add('show');
+    }
+  }
+  function closeDiw() {
+    document.getElementById('diwOverlay').classList.remove('show');
+    clearTimeout(diwTimer);
+  }
+  function diwFire() {
+    closeDiw();
+    winCount++;
+    localStorage.setItem('rizzr_wins', winCount);
+    document.getElementById('celStat').textContent = `${winCount} win${winCount===1?'':'s'} and counting 🔥`;
+    document.getElementById('celOverlay').classList.add('show');
+    spawnMegaConfetti();
+  }
+  function diwDead() {
+    closeDiw();
+    document.getElementById('ghostNudge').classList.add('show');
+    document.getElementById('ghostNudge').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  function spawnMegaConfetti() {
+    for (let i = 0; i < 5; i++) {
+      setTimeout(() => {
+        const cx = window.innerWidth  * (0.2 + Math.random() * 0.6);
+        const cy = window.innerHeight * (0.3 + Math.random() * 0.3);
+        const fakeEl = { getBoundingClientRect: () => ({ left: cx, top: cy, width: 0, height: 0 }) };
+        spawnConfetti(fakeEl);
+      }, i * 180);
+    }
+  }
+  function closeCelebration() {
+    document.getElementById('celOverlay').classList.remove('show');
+  }
+
+  /* ══ RESET ══ */
+  function resetToInput() {
+    clearTimeout(diwTimer);
+    closeDiw();
+    document.getElementById('celOverlay').classList.remove('show');
+    setNavState('input');
+    showState('stateInput');
+  }
+
+  /* ══ TOAST ══ */
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('errorToast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  /* ══ SOCIAL PROOF COUNTER ══ */
+  function animateSocialProof() {
+    const el = document.getElementById('spCount');
+    if (!el) return;
+    const base = 1100 + Math.floor(Math.random() * 500);
+    let cur = base - 60;
+    const iv = setInterval(() => {
+      cur = Math.min(cur + 3, base);
+      el.textContent = cur.toLocaleString();
+      if (cur >= base) clearInterval(iv);
+    }, 20);
+    setInterval(() => {
+      const n = parseInt(el.textContent.replace(/,/g, '')) + Math.floor(Math.random() * 3) + 1;
+      el.textContent = n.toLocaleString();
+    }, 28000);
+  }
+
+  /* ══ MOCK DATA ══ */
+  function generateMockResults(mode) {
+    const data = {
+      swoon: {
+        replies: [
+          "okay but that last thing you said is genuinely living rent-free in my head 😭 we need to talk about this in person",
+          "not me rereading this three times because i liked your energy way too much for a tuesday afternoon",
+          "you're making me want to cancel my plans and i barely even know you yet. terrifying in the best way"
+        ],
+        flags: [
+          { type:'green', text:'<strong>matching energy</strong> — their replies are keeping up with yours. they\'re engaged.' },
+          { type:'green', text:'<strong>personal details</strong> — they\'re sharing real stuff. comfort is building fast.' },
+          { type:'red',   text:'<strong>pace check</strong> — last message felt slightly held back. keep it warm, not intense.' }
+        ],
+        move:        "keep momentum but suggest something specific soon — they\'re waiting for you to lead.",
+        rizzScore:   78,
+        probability: 74,
+        score:       4
+      },
+      spicy: {
+        replies: [
+          "okay you can\'t just say that and expect me to act normal for the rest of the day. not fair and you know it",
+          "i was going to play it cool but you made that literally impossible. bold move.",
+          "okay fine, you win. i\'m interested. happy now? 😏"
+        ],
+        flags: [
+          { type:'green', text:'<strong>playful tension</strong> — the banter is landing and they\'re leaning in. great chemistry signal.' },
+          { type:'green', text:'<strong>fast replies</strong> — they\'re not keeping you waiting. they\'re very much into it.' },
+          { type:'red',   text:'<strong>create some tension</strong> — you\'ve both been very available. a slight pull-back builds desire.' }
+        ],
+        move:        "let them chase a little — reply well, then don\'t respond instantly. make them wonder.",
+        rizzScore:   91,
+        probability: 88,
+        score:       5
+      },
+      saved: {
+        replies: [
+          "okay that came out way weirder than i meant lol — what i was actually trying to say was that i think you\'re interesting",
+          "ignore my last message. pretend i said something smooth instead. the real version: i genuinely enjoyed talking to you",
+          "okay i fumbled that one 😭 let me try again — the point was just that you\'re kind of hard not to like"
+        ],
+        flags: [
+          { type:'green', text:'<strong>still here</strong> — despite the awkward message, they replied. they haven\'t checked out yet.' },
+          { type:'red',   text:'<strong>shorter replies</strong> — their energy dropped a little. a light, warm recovery can reset this.' },
+          { type:'red',   text:'<strong>overthinking risk</strong> — don\'t dwell on the fumble. acknowledge it once, then move forward.' }
+        ],
+        move:        "acknowledge with humor, then pivot fast to something genuinely engaging. don\'t make it a thing.",
+        rizzScore:   42,
+        probability: 35,
+        score:       2
+      },
+      laugh: {
+        replies: [
+          "this conversation just took a turn i was absolutely not prepared for and now i can\'t stop laughing. you owe me an explanation 😭",
+          "okay who told you that was an acceptable thing to say to someone?? i\'m devastated and crying (in a good way)",
+          "i came in completely unprepared for you to be this funny. my whole week is ruined. thanks a lot 😭🙏"
+        ],
+        flags: [
+          { type:'green', text:'<strong>laughing together</strong> — humor is landing and they\'re playing along. this is where real connection forms.' },
+          { type:'green', text:'<strong>inside jokes forming</strong> — you\'re building your own language. that\'s a genuinely good sign.' },
+          { type:'red',   text:'<strong>don\'t stay in comedy mode</strong> — humor got you here, but eventually show there\'s more to you.' }
+        ],
+        move:        "land one more great joke then shift gears — ask something real. banter got the door open, now walk through it.",
+        rizzScore:   83,
+        probability: 79,
+        score:       4
+      },
+      ice: {
+        replies: [
+          "okay your profile had one thing i needed to ask about immediately — give me the full story",
+          "first message, zero context, all vibes — but i promise i have more range than 'hey' 😂",
+          "matched on a tuesday, no pressure — just thought you seemed genuinely interesting and wanted to find out if i was right"
+        ],
+        flags: [
+          { type:'green', text:'<strong>fresh start</strong> — no history to overthink. this is your cleanest opening shot.' },
+          { type:'green', text:'<strong>full control</strong> — you set the tone entirely. make it curious, not thirsty.' },
+          { type:'red',   text:'<strong>no context yet</strong> — keep it light and ask one specific question. don\'t dump your personality in one message.' }
+        ],
+        move:        "open with genuine curiosity — ask something specific about them. you\'ll immediately stand out from everyone saying \'hey\'.",
+        rizzScore:   65,
+        probability: 60,
+        score:       3
+      },
+      ghost: {
+        replies: [
+          "hey — zero pressure, just wanted to follow up in case my message got buried. still think we had something good going 👀",
+          "okay i\'ll break the silence 😅 life clearly got busy on both sides — want to pick back up?",
+          "not gonna overthink the gap — just wanted to check in. hope you\'re doing well tbh"
+        ],
+        flags: [
+          { type:'green', text:'<strong>you reached out</strong> — most people never do. that alone puts you ahead.' },
+          { type:'red',   text:'<strong>no explanation needed</strong> — don\'t over-apologize or explain the silence. keep it breezy.' },
+          { type:'red',   text:'<strong>one shot</strong> — this is your re-engage. make it warm, curious, and pressure-free.' }
+        ],
+        move:        "send one warm, low-pressure message. if they don\'t respond within 48h, move on with your head held high.",
+        rizzScore:   38,
+        probability: 32,
+        score:       2
+      }
+    };
+    return data[mode] || data.swoon;
+  }
+
+  /* ══ INIT ══ */
+  setNavState('input');
+  updateSubmitHint();
+  updateCreditsUI();
+  animateSocialProof();
+</script>
+</body>
+</html>
