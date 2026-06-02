@@ -225,7 +225,7 @@
     .mode-card.selected.swoon { border-color:#FF2D78; background:rgba(255,45,120,0.1);  box-shadow:0 0 20px rgba(255,45,120,0.18); }
     .mode-card.selected.spicy { border-color:#FF6B35; background:rgba(255,107,53,0.1);  box-shadow:0 0 20px rgba(255,107,53,0.18); }
     .mode-card.selected.saved { border-color:#00F0A0; background:rgba(0,240,160,0.08);  box-shadow:0 0 20px rgba(0,240,160,0.15); }
-    .mode-card.selected.laugh { border-color:#9B70FF; background:rgba(155,112,255,0.1); box-shadow:0 0 20px rgba(155,112,255,0.18); }
+    .mode-card.selected.laugh { border-color:#FFD60A; background:rgba(255,214,10,0.08); box-shadow:0 0 20px rgba(255,214,10,0.15); }
     .mode-card.selected.ice   { border-color:#4FC3F7; background:rgba(79,195,247,0.09); box-shadow:0 0 20px rgba(79,195,247,0.15); }
     .mode-card.selected.ghost { border-color:#C084FC; background:rgba(192,132,252,0.09); box-shadow:0 0 20px rgba(192,132,252,0.15); }
     .mode-emoji { font-size:24px; line-height:1; }
@@ -250,6 +250,49 @@
     }
     .submit-bar-inner { max-width:520px; margin:0 auto; }
     .submit-hint { text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:8px; }
+
+    /* ── Slide-to-analyze button ── */
+    .slide-btn-outer { transition: opacity 0.35s; }
+    .slide-btn-outer.sb-disabled { opacity: 0.28; pointer-events: none; }
+    .slide-btn-outer.sb-ready    { opacity: 0.5; }
+
+    .slide-hint-row {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 7px;
+    }
+    .slide-arr { display: inline-block; animation: slArrow 1.5s ease-in-out infinite; }
+    .slide-arr:last-child { animation-delay: 0.28s; }
+    @keyframes slArrow {
+      0%,100% { transform: translateX(0); opacity: 0.3; }
+      50%      { transform: translateX(4px); opacity: 1; }
+    }
+
+    .slide-btn-track {
+      position: relative; height: 56px; border-radius: 28px;
+      background: var(--card); border: 1.5px solid var(--card-border);
+      overflow: hidden; cursor: grab; user-select: none; -webkit-user-select: none;
+      touch-action: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .slide-btn-fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 60px; border-radius: 28px;
+      background: var(--accent); pointer-events: none;
+      box-shadow: 2px 0 18px rgba(255,45,120,0.45);
+    }
+    .slide-btn-thumb {
+      position: absolute; left: 5px; top: 5px;
+      width: 46px; height: 46px; border-radius: 50%;
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.28); pointer-events: none; z-index: 2;
+    }
+    .slide-btn-thumb svg { color: var(--accent); }
+    .slide-btn-label {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-body); font-weight: 700; font-size: 15px;
+      color: var(--text-secondary); pointer-events: none;
+      padding-left: 56px; white-space: nowrap;
+    }
 
     /* ── Credits badge ── */
     .credits-hint {
@@ -713,6 +756,96 @@
     }
     .paywall-note { text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px; }
 
+    /* ════ ORBITAL VIBE PICKER ════ */
+    .orbital-section { display:flex; flex-direction:column; align-items:center; gap:0; }
+    .orbital-outer {
+      position:relative; width:min(260px,100%); aspect-ratio:1;
+      margin:0 auto; overflow:visible;
+    }
+    .orbit-track-ring {
+      position:absolute; left:50%; top:50%;
+      width:200px; height:200px; margin:-100px 0 0 -100px;
+      border-radius:50%; border:1px solid rgba(255,255,255,0.07); pointer-events:none;
+    }
+    .orbit-hub { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:5; }
+    .hub-ring {
+      position:absolute; left:50%; top:50%; border-radius:50%;
+      border:1px solid rgba(255,255,255,0.1); transform:translate(-50%,-50%); pointer-events:none;
+    }
+    .hub-ring-1 { width:54px; height:54px; animation:hubPing1 3s ease-in-out infinite; }
+    .hub-ring-2 { width:76px; height:76px; animation:hubPing2 3s ease-in-out infinite 0.5s; }
+    @keyframes hubPing1 { 0%,100%{opacity:0.4;transform:translate(-50%,-50%) scale(1);}  50%{opacity:0.65;transform:translate(-50%,-50%) scale(1.07);} }
+    @keyframes hubPing2 { 0%,100%{opacity:0.14;transform:translate(-50%,-50%) scale(1);} 50%{opacity:0.28;transform:translate(-50%,-50%) scale(1.05);} }
+    .hub-core {
+      position:relative; width:44px; height:44px; border-radius:50%;
+      background:linear-gradient(135deg,rgba(255,45,120,0.2),rgba(0,240,160,0.08));
+      border:1.5px solid rgba(255,45,120,0.22);
+      display:flex; align-items:center; justify-content:center; z-index:1;
+      box-shadow:0 0 20px rgba(255,45,120,0.12),inset 0 0 8px rgba(255,45,120,0.07);
+      transition:background 0.5s,border-color 0.5s,box-shadow 0.5s;
+    }
+    .hub-dot {
+      width:10px; height:10px; border-radius:50%;
+      background:linear-gradient(135deg,#FF2D78,#00F0A0);
+      box-shadow:0 0 12px rgba(255,45,120,0.55);
+      transition:background 0.5s,box-shadow 0.5s;
+    }
+    .orbit-nodes-container { position:absolute; inset:0; }
+    .orbit-node {
+      position:absolute; left:50%; top:50%;
+      width:44px; height:44px; margin:-22px 0 0 -22px;
+      cursor:pointer; -webkit-tap-highlight-color:transparent; user-select:none;
+    }
+    .orbit-node-inner {
+      width:44px; height:44px; border-radius:50%;
+      border:1.5px solid rgba(255,255,255,0.1);
+      background:var(--card); color:rgba(255,255,255,0.3);
+      display:flex; align-items:center; justify-content:center;
+      transition:border-color 0.3s,background 0.3s,box-shadow 0.3s,color 0.3s;
+    }
+    .orbit-node-inner svg { width:18px; height:18px; }
+    .orbit-node.selected .orbit-node-inner {
+      border-color:var(--node-color,var(--accent));
+      background:var(--node-dim,var(--accent-dim));
+      color:var(--node-color,var(--accent));
+      box-shadow:0 0 18px var(--node-glow,rgba(255,45,120,0.3));
+    }
+    .orbit-node-label {
+      position:absolute; top:calc(100% + 5px); left:50%; transform:translateX(-50%);
+      white-space:nowrap; font-size:9px; font-weight:700; letter-spacing:0.08em;
+      text-transform:uppercase; color:var(--text-muted); pointer-events:none; transition:color 0.3s;
+    }
+    .orbit-node.selected .orbit-node-label { color:var(--text-secondary); }
+
+    .mode-info-panel {
+      min-height:62px; text-align:center; padding:14px 24px 6px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    }
+    .mip-name {
+      font-family:var(--font-display); font-size:20px; font-weight:800;
+      color:var(--white); letter-spacing:-0.02em; transition:color 0.4s;
+    }
+    .mip-desc { font-size:12px; color:var(--text-secondary); line-height:1.4; }
+
+    /* Upload CTA */
+    .upload-cta-section { display:flex; flex-direction:column; gap:8px; animation:stateIn 0.4s cubic-bezier(0.23,1,0.32,1) both; }
+    .upload-cta-sub { text-align:center; font-size:12px; color:var(--text-muted); }
+    .upload-preview-card {
+      position:relative; border-radius:var(--r-lg); overflow:hidden;
+      border:1.5px solid rgba(255,255,255,0.08); margin-top:12px;
+      animation:stateIn 0.3s ease both;
+    }
+    .upload-preview-card img { width:100%; max-height:200px; object-fit:cover; display:block; }
+    .upload-preview-change {
+      position:absolute; bottom:10px; right:10px;
+      background:rgba(6,6,10,0.85); backdrop-filter:blur(8px);
+      border:1px solid rgba(255,255,255,0.12); border-radius:50px;
+      color:var(--text-primary); font-family:var(--font-body);
+      font-size:12px; font-weight:600; padding:6px 14px;
+      cursor:pointer; -webkit-tap-highlight-color:transparent;
+    }
+    .context-reveal { animation:stateIn 0.35s cubic-bezier(0.23,1,0.32,1) both; }
+
     /* ════ RESPONSIVE ════ */
     @media (min-width:520px) {
       .input-wrap,.results-wrap { padding-left:28px; padding-right:28px; }
@@ -746,57 +879,44 @@
       <span><span class="sp-count" id="spCount">1,247</span> conversations analyzed today</span>
     </div>
 
-    <div>
-      <div class="field-label">screenshot</div>
-      <div class="upload-zone" id="uploadZone">
-        <input type="file" accept="image/*" id="fileInput" aria-label="Upload screenshot" />
-        <img class="upload-preview" id="uploadPreview" alt="preview" />
-        <div class="upload-placeholder" id="uploadPlaceholder">
-          <div class="upload-icon">📸</div>
-          <div class="upload-label">tap to upload screenshot</div>
-          <div class="upload-sub">tinder · instagram · imessage · hinge · any app</div>
-        </div>
-        <button class="upload-change-btn" id="changeBtn" type="button">change photo</button>
-      </div>
-    </div>
-
-    <div>
+    <!-- Orbital vibe picker -->
+    <div class="orbital-section">
       <div class="field-label">pick your vibe</div>
-      <div class="modes-grid">
-        <div class="mode-card swoon" data-mode="swoon" onclick="selectMode(this)">
-          <div class="mode-emoji">💘</div>
-          <div class="mode-name">swoon</div>
-          <div class="mode-desc">sweet, genuine, pull them closer</div>
+      <div class="orbital-outer">
+        <div class="orbit-hub" id="orbitHub">
+          <div class="hub-ring hub-ring-2"></div>
+          <div class="hub-ring hub-ring-1"></div>
+          <div class="hub-core"><div class="hub-dot"></div></div>
         </div>
-        <div class="mode-card spicy" data-mode="spicy" onclick="selectMode(this)">
-          <div class="mode-emoji">🌶️</div>
-          <div class="mode-name">spicy</div>
-          <div class="mode-desc">bold, flirty, turn up the heat</div>
-        </div>
-        <div class="mode-card saved" data-mode="saved" onclick="selectMode(this)">
-          <div class="mode-emoji">🛟</div>
-          <div class="mode-name">saved</div>
-          <div class="mode-desc">recover from the awkward</div>
-        </div>
-        <div class="mode-card laugh" data-mode="laugh" onclick="selectMode(this)">
-          <div class="mode-emoji">😭</div>
-          <div class="mode-name">make 'em laugh</div>
-          <div class="mode-desc">witty, playful, unforgettable</div>
-        </div>
-        <div class="mode-card ice" data-mode="ice" onclick="selectMode(this)">
-          <div class="mode-emoji">🧊</div>
-          <div class="mode-name">ice breaker</div>
-          <div class="mode-desc">fresh match, zero history, open strong</div>
-        </div>
-        <div class="mode-card ghost" data-mode="ghost" onclick="selectMode(this)">
-          <div class="mode-emoji">👻</div>
-          <div class="mode-name">ghost reviver</div>
-          <div class="mode-desc">they went quiet — bring them back</div>
-        </div>
+        <div class="orbit-track-ring"></div>
+        <div class="orbit-nodes-container" id="orbitNodes"></div>
+      </div>
+      <div class="mode-info-panel">
+        <div class="mip-name" id="mipName">choose your weapon</div>
+        <div class="mip-desc" id="mipDesc">tap a vibe to get started</div>
       </div>
     </div>
 
-    <div class="context-wrap">
+    <!-- Upload CTA — revealed after mode selection -->
+    <div id="uploadSection" style="display:none">
+      <div class="upload-cta-section">
+        <button class="btn-shiny" id="uploadCtaBtn" type="button">
+          <span id="uploadCtaBtnText">drop the receipts</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-left:2px">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="upload-cta-sub" id="uploadCtaSub">screenshot your chat — I won't judge (I will)</div>
+      </div>
+      <div class="upload-preview-card" id="uploadPreviewCard" style="display:none">
+        <img id="uploadPreview" alt="preview">
+        <button class="upload-preview-change" id="changeBtn" type="button">change photo</button>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" style="position:fixed;left:-9999px;opacity:0;pointer-events:none">
+    </div>
+
+    <!-- Context — revealed after upload -->
+    <div class="context-wrap context-reveal" id="contextSection" style="display:none">
       <div class="field-label" style="position:relative;">
         context
         <span class="context-optional">optional</span>
@@ -811,13 +931,23 @@
   <div class="submit-bar" id="submitBar">
     <div class="submit-bar-inner">
       <div class="credits-hint" id="creditsHint"><div class="cr-dot"></div><span id="creditsText">3 free analyses remaining</span></div>
-      <div class="submit-hint" id="submitHint">select a mode to continue</div>
-      <button class="btn-shiny" id="analyzeBtn" onclick="startAnalysis()" disabled>
-        <span>analyze &amp; get my replies</span>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-left:2px">
-          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
+      <div class="submit-hint" id="submitHint">pick a vibe to get started</div>
+      <div class="slide-btn-outer sb-disabled" id="slideBtnOuter">
+        <div class="slide-hint-row" id="slideHintRow" style="visibility:hidden">
+          <span class="slide-arr">›</span>
+          <span>slide to analyze</span>
+          <span class="slide-arr">›</span>
+        </div>
+        <div class="slide-btn-track" id="slideBtnTrack">
+          <div class="slide-btn-fill" id="slideBtnFill"></div>
+          <div class="slide-btn-thumb" id="slideBtnThumb">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 10h12M10 4l6 6-6 6"/>
+            </svg>
+          </div>
+          <div class="slide-btn-label">analyze &amp; get my replies</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1122,47 +1252,268 @@
   let diwTimer     = null;
   let winCount     = parseInt(localStorage.getItem('rizzr_wins') || '0');
 
+  const N8N_WEBHOOK = 'https://rizzr.app.n8n.cloud/webhook/rizzr-analyze';
+
+  function getUserId() {
+    let id = localStorage.getItem('rizzr_user_id');
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem('rizzr_user_id', id);
+    }
+    return id;
+  }
+
+  async function compressImage(file) {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(blob => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(blob);
+        }, 'image/jpeg', 0.82);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
   /* ══ FILE UPLOAD ══ */
-  const fileInput     = document.getElementById('fileInput');
-  const uploadZone    = document.getElementById('uploadZone');
-  const uploadPreview = document.getElementById('uploadPreview');
-
-  fileInput.addEventListener('change', e => { const f = e.target.files[0]; if (f) handleFile(f); });
-
-  document.getElementById('changeBtn').addEventListener('click', e => {
-    e.stopPropagation(); fileInput.value = ''; fileInput.click();
-  });
-
-  uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault(); uploadZone.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0];
-    if (f && f.type.startsWith('image/')) handleFile(f);
-  });
+  function initFileUpload() {
+    const fileInput = document.getElementById('fileInput');
+    fileInput.addEventListener('change', e => {
+      const f = e.target.files[0]; if (f) handleFile(f);
+    });
+    document.getElementById('uploadCtaBtn').addEventListener('click', () => {
+      fileInput.click();
+    });
+    document.getElementById('changeBtn').addEventListener('click', () => {
+      fileInput.value = ''; fileInput.click();
+    });
+  }
 
   function handleFile(file) {
     uploadedFile = file;
-    uploadPreview.src = URL.createObjectURL(file);
-    uploadZone.classList.add('has-image');
+    const preview = document.getElementById('uploadPreview');
+    preview.src = URL.createObjectURL(file);
+    document.getElementById('uploadPreviewCard').style.display = 'block';
+    document.getElementById('contextSection').style.display = 'block';
     updateSubmitHint();
   }
 
-  /* ══ MODE SELECTION ══ */
-  function selectMode(card) {
-    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-    selectedMode = card.dataset.mode;
+  /* ══ ORBITAL VIBE PICKER ══ */
+  const ORBITAL_MODES = [
+    { id:'swoon', name:'swoon',           desc:'sweet, genuine — pull them closer',           color:'#FF2D78', glow:'rgba(255,45,120,0.35)',   dim:'rgba(255,45,120,0.12)'  },
+    { id:'spicy', name:'spicy',           desc:'bold, flirty — turn up the heat',             color:'#FF6B35', glow:'rgba(255,107,53,0.35)',  dim:'rgba(255,107,53,0.12)' },
+    { id:'saved', name:'saved',           desc:'recover from the awkward gracefully',         color:'#00F0A0', glow:'rgba(0,240,160,0.28)',   dim:'rgba(0,240,160,0.08)'  },
+    { id:'laugh', name:"make 'em laugh",  desc:'witty, playful — completely unforgettable',   color:'#FFD60A', glow:'rgba(255,214,10,0.40)',  dim:'rgba(255,214,10,0.10)'  },
+    { id:'ice',   name:'ice breaker',     desc:'fresh match — open strong, no cringe',        color:'#4FC3F7', glow:'rgba(79,195,247,0.3)',   dim:'rgba(79,195,247,0.09)' },
+    { id:'ghost', name:'ghost reviver',   desc:'they went quiet — bring them back',           color:'#C084FC', glow:'rgba(192,132,252,0.3)',  dim:'rgba(192,132,252,0.09)' },
+  ];
+
+  const UPLOAD_COPY = {
+    swoon: { main: "show me how it's going",   sub: "the screenshot — I'll keep it sweet, promise" },
+    spicy: { main: "drop the evidence",         sub: "show me what you're working with. no judgment" },
+    saved: { main: "okay, what happened",       sub: "full disaster please — I've seen worse. maybe." },
+    laugh: { main: "show me this situation",    sub: "screenshots only — I won't judge. (I will.)" },
+    ice:   { main: "show me their profile",     sub: "blank slate — let's cook something actually good" },
+    ghost: { main: "show me the crime scene",   sub: "when exactly did they go quiet? bring receipts" },
+  };
+
+  const ORBIT_ICONS = {
+    swoon: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5A3.5 3.5 0 0 1 10 5.8a3.5 3.5 0 0 1 6.5 1.7c0 4.5-6.5 8-6.5 8S3.5 12 3.5 7.5z"/></svg>`,
+    spicy: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 2.5c0 4.5-5 3.5-5 8.5a5 5 0 0 0 10 0c0-3.5-3-3-3-7 0 2.5-2 3-2 7"/></svg>`,
+    saved: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><circle cx="10" cy="10" r="2.8"/><path d="M10 3v4.2M10 12.8V17M3 10h4.2M12.8 10H17"/></svg>`,
+    laugh: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="7.5"/><path d="M7 12.5c.6 1.6 1.6 2 3 2s2.4-.4 3-2"/><circle cx="7.5" cy="9" r="1" fill="currentColor" stroke="none"/><circle cx="12.5" cy="9" r="1" fill="currentColor" stroke="none"/></svg>`,
+    ice:   `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="10" y1="2" x2="10" y2="18"/><line x1="2" y1="10" x2="18" y2="10"/><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/><circle cx="10" cy="2" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="1.3" fill="currentColor" stroke="none"/><circle cx="2" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="18" cy="10" r="1.3" fill="currentColor" stroke="none"/></svg>`,
+    ghost: `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9.5A5 5 0 0 1 10 4.5a5 5 0 0 1 5 5V15l-2-1.5L11 15l-1-1.5L9 15l-1.5-1.5L5 15z"/><circle cx="8" cy="9.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="9.5" r="1" fill="currentColor" stroke="none"/></svg>`,
+  };
+
+  let orbitAngle    = 0;
+  let orbitPaused   = false;
+  let orbitLastTime = 0;
+
+  function initOrbital() {
+    const container = document.getElementById('orbitNodes');
+    ORBITAL_MODES.forEach((m, i) => {
+      const node = document.createElement('div');
+      node.className   = 'orbit-node';
+      node.dataset.mode = m.id;
+      node.style.cssText = `--node-color:${m.color};--node-glow:${m.glow};--node-dim:${m.dim}`;
+      node.innerHTML   = `<div class="orbit-node-inner">${ORBIT_ICONS[m.id]}</div><div class="orbit-node-label">${m.name}</div>`;
+      node.addEventListener('click', () => selectOrbitalMode(m.id));
+      container.appendChild(node);
+    });
+    requestAnimationFrame(orbitTick);
+  }
+
+  function orbitTick(ts) {
+    if (!orbitPaused) {
+      if (orbitLastTime) {
+        const delta = Math.min(ts - orbitLastTime, 80);
+        orbitAngle = (orbitAngle + delta * 0.02) % 360;
+      }
+      orbitLastTime = ts;
+      renderOrbitNodes();
+    }
+    requestAnimationFrame(orbitTick);
+  }
+
+  function renderOrbitNodes() {
+    const container = document.getElementById('orbitNodes');
+    if (!container) return;
+    const R = (container.closest('.orbital-outer').offsetWidth / 2) * 0.77;
+    container.querySelectorAll('.orbit-node').forEach((node, i) => {
+      const total  = ORBITAL_MODES.length;
+      const rad    = ((i / total) * 360 + orbitAngle) * Math.PI / 180;
+      const x      = R * Math.cos(rad);
+      const y      = R * Math.sin(rad);
+      const depth  = (1 + Math.sin(rad)) / 2;
+      const sel    = node.dataset.mode === selectedMode;
+      node.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+      node.style.opacity   = sel ? '1' : (0.28 + 0.72 * depth).toFixed(2);
+      node.style.zIndex    = sel ? '10' : String(Math.round(depth * 5));
+    });
+  }
+
+  function selectOrbitalMode(modeId) {
+    const mode = ORBITAL_MODES.find(m => m.id === modeId);
+    if (!mode) return;
+    selectedMode  = modeId;
+    orbitPaused   = true;
+    orbitLastTime = 0;
+
+    document.querySelectorAll('.orbit-node').forEach(n => {
+      n.classList.toggle('selected', n.dataset.mode === modeId);
+    });
+    renderOrbitNodes();
+
+    const nameEl = document.getElementById('mipName');
+    nameEl.textContent  = mode.name;
+    nameEl.style.color  = mode.color;
+    document.getElementById('mipDesc').textContent = mode.desc;
+
+    const hub  = document.getElementById('orbitHub');
+    const core = hub.querySelector('.hub-core');
+    const dot  = hub.querySelector('.hub-dot');
+    core.style.background  = `linear-gradient(135deg,${mode.dim},rgba(0,240,160,0.04))`;
+    core.style.borderColor = mode.color + '55';
+    core.style.boxShadow   = `0 0 20px ${mode.glow}`;
+    dot.style.background   = mode.color;
+    dot.style.boxShadow    = `0 0 12px ${mode.glow}`;
+
+    const copy = UPLOAD_COPY[modeId] || UPLOAD_COPY.swoon;
+    document.getElementById('uploadCtaBtnText').textContent = copy.main;
+    document.getElementById('uploadCtaSub').textContent     = copy.sub;
+
+    const sec = document.getElementById('uploadSection');
+    sec.style.display = 'block';
+
     updateSubmitHint();
   }
 
   function updateSubmitHint() {
-    const btn  = document.getElementById('analyzeBtn');
-    const hint = document.getElementById('submitHint');
-    if (!uploadedFile && !selectedMode)    { hint.textContent = 'upload a screenshot and pick a mode'; btn.disabled = true; }
-    else if (!uploadedFile)                { hint.textContent = 'upload a screenshot to continue';     btn.disabled = true; }
-    else if (!selectedMode)                { hint.textContent = 'pick a vibe to continue';             btn.disabled = true; }
-    else                                   { hint.textContent = 'ready — tap to analyze';              btn.disabled = false; }
+    const outer   = document.getElementById('slideBtnOuter');
+    const hint    = document.getElementById('submitHint');
+    const hintRow = document.getElementById('slideHintRow');
+    if (!selectedMode) {
+      hint.textContent = 'pick a vibe to get started';
+      outer.className  = 'slide-btn-outer sb-disabled';
+      hintRow.style.visibility = 'hidden';
+    } else if (!uploadedFile) {
+      hint.textContent = 'now drop the screenshot';
+      outer.className  = 'slide-btn-outer sb-disabled';
+      hintRow.style.visibility = 'hidden';
+    } else {
+      hint.textContent = '';
+      outer.className  = 'slide-btn-outer sb-ready';
+      hintRow.style.visibility = 'visible';
+    }
+  }
+
+  /* ══ SLIDE BUTTON ══ */
+  let slideCompleted = false;
+
+  function initSlideButton() {
+    const track   = document.getElementById('slideBtnTrack');
+    const thumb   = document.getElementById('slideBtnThumb');
+    const fill    = document.getElementById('slideBtnFill');
+    const outer   = document.getElementById('slideBtnOuter');
+    const hintRow = document.getElementById('slideHintRow');
+    let dragging  = false;
+    let startX    = 0;
+    let curX      = 0;
+
+    function maxX() { return track.offsetWidth - 46 - 10; }
+
+    function moveTo(x) {
+      const mx = maxX();
+      x = Math.max(0, Math.min(x, mx));
+      curX = x;
+      thumb.style.left = (5 + x) + 'px';
+      fill.style.width  = (60 + x) + 'px';
+    }
+
+    function onStart(e) {
+      if (outer.classList.contains('sb-disabled') || slideCompleted) return;
+      dragging = true;
+      outer.style.opacity = '1';
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      startX = cx - curX;
+      e.preventDefault();
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      moveTo(cx - startX);
+      e.preventDefault();
+    }
+
+    function onEnd() {
+      if (!dragging) return;
+      dragging = false;
+      const progress = curX / maxX();
+      if (progress >= 0.88) {
+        completeSlide();
+      } else {
+        thumb.style.transition = 'left 0.4s cubic-bezier(0.23,1,0.32,1)';
+        fill.style.transition   = 'width 0.4s cubic-bezier(0.23,1,0.32,1)';
+        moveTo(0);
+        outer.style.opacity = '';
+        setTimeout(() => { thumb.style.transition = ''; fill.style.transition = ''; }, 400);
+      }
+    }
+
+    function completeSlide() {
+      slideCompleted = true;
+      thumb.style.transition = 'left 0.18s ease';
+      fill.style.transition   = 'width 0.18s ease';
+      moveTo(maxX());
+      setTimeout(startAnalysis, 220);
+    }
+
+    window._resetSlideBtn = function() {
+      slideCompleted = false;
+      thumb.style.transition = 'left 0.4s cubic-bezier(0.23,1,0.32,1)';
+      fill.style.transition   = 'width 0.4s cubic-bezier(0.23,1,0.32,1)';
+      moveTo(0);
+      curX = 0;
+      outer.style.opacity = '';
+      setTimeout(() => { thumb.style.transition = ''; fill.style.transition = ''; }, 400);
+    };
+
+    track.addEventListener('mousedown',  onStart);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup',   onEnd);
+    track.addEventListener('touchstart',  onStart, { passive: false });
+    document.addEventListener('touchmove', onMove,  { passive: false });
+    document.addEventListener('touchend',  onEnd);
   }
 
   /* ══ STATE TRANSITIONS ══ */
@@ -1184,7 +1535,7 @@
   }
 
   /* ══ ANALYSIS ══ */
-  function startAnalysis() {
+  async function startAnalysis() {
     if (!uploadedFile) { showToast('please upload a screenshot first'); return; }
     if (!selectedMode) { showToast('please pick a vibe first'); return; }
     if (credits <= 0)  { showPaywall(); return; }
@@ -1197,18 +1548,40 @@
     showState('stateLoading');
     runLoadingAnimation();
 
-    /* TODO: replace with real n8n call
-      const fd = new FormData();
-      fd.append('screenshot', uploadedFile);
-      fd.append('mode', selectedMode);
-      fd.append('context', document.getElementById('contextInput').value);
-      const res = await fetch('https://YOUR-N8N.cloud/webhook/rizzr-submit', { method:'POST', body:fd });
-      const data = await res.json();
+    try {
+      const imageBase64 = await compressImage(uploadedFile);
+      const context = document.getElementById('contextInput')?.value || '';
+      const res = await fetch(N8N_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64,
+          mode: selectedMode,
+          context,
+          userId: getUserId()
+        })
+      });
+
+      if (res.status === 402) {
+        credits = 0; saveCredits(); updateCreditsUI();
+        showPaywall(); setNavState('upload'); showState('stateUpload');
+        return;
+      }
+
+      if (!res.ok) throw new Error('n8n error ' + res.status);
+
+      const rawText = await res.text();
+      if (!rawText || rawText.trim() === '') throw new Error('n8n returned empty response — check the workflow has a Respond to Webhook node');
+      let data;
+      try { data = JSON.parse(rawText); } catch(e) { throw new Error('n8n returned invalid JSON: ' + rawText.slice(0, 120)); }
+      data.score = data.vibeScore ?? data.score ?? 3;
       showResults(data);
-    */
-    setTimeout(() => {
-      showResults(generateMockResults(selectedMode));
-    }, 3800);
+    } catch (err) {
+      console.error('Rizzr error:', err);
+      credits++; saveCredits(); updateCreditsUI();
+      showToast('error: ' + (err.message || 'try again'));
+      try { setNavState('upload'); showState('stateUpload'); } catch(_) {}
+    }
   }
 
   /* ══ LOADING STEPS ══ */
@@ -1232,8 +1605,8 @@
     ['reply1Text','reply2Text','reply3Text'].forEach(id => { document.getElementById(id).textContent = ''; });
 
     /* Tone tags */
-    const tones = TONE_TAGS[selectedMode] || TONE_TAGS.swoon;
-    const rates = REPLY_RATES[selectedMode] || REPLY_RATES.swoon;
+    const tones = (data.toneLabels && data.toneLabels.length) ? data.toneLabels : (TONE_TAGS[selectedMode] || TONE_TAGS.swoon);
+    const rates = (data.responseRates && data.responseRates.length) ? data.responseRates : (REPLY_RATES[selectedMode] || REPLY_RATES.swoon);
     ['reply1Tone','reply2Tone','reply3Tone'].forEach((id,i) => {
       const el = document.getElementById(id); if (el) el.textContent = tones[i];
     });
@@ -1501,6 +1874,29 @@
     document.getElementById('celOverlay').classList.remove('show');
     setNavState('input');
     showState('stateInput');
+
+    selectedMode  = null;
+    uploadedFile  = null;
+    orbitPaused   = false;
+    orbitLastTime = 0;
+
+    document.querySelectorAll('.orbit-node').forEach(n => n.classList.remove('selected'));
+    const nameEl = document.getElementById('mipName');
+    nameEl.textContent = 'choose your weapon'; nameEl.style.color = '';
+    document.getElementById('mipDesc').textContent = 'tap a vibe to get started';
+
+    const hub  = document.getElementById('orbitHub');
+    const core = hub.querySelector('.hub-core');
+    const dot  = hub.querySelector('.hub-dot');
+    core.style.background  = ''; core.style.borderColor = ''; core.style.boxShadow = '';
+    dot.style.background   = ''; dot.style.boxShadow    = '';
+
+    document.getElementById('uploadSection').style.display      = 'none';
+    document.getElementById('uploadPreviewCard').style.display  = 'none';
+    document.getElementById('contextSection').style.display     = 'none';
+    document.getElementById('fileInput').value                  = '';
+    if (window._resetSlideBtn) window._resetSlideBtn();
+    updateSubmitHint();
   }
 
   /* ══ TOAST ══ */
@@ -1638,6 +2034,9 @@
   updateSubmitHint();
   updateCreditsUI();
   animateSocialProof();
+  initOrbital();
+  initFileUpload();
+  initSlideButton();
 </script>
 </body>
 </html>

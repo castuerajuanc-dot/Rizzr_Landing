@@ -795,7 +795,7 @@
       <a href="#pricing">pricing</a>
       <a href="#faq">faq</a>
     </div>
-    <button class="nav-cta" onclick="handleCheckout()">try it free</button>
+    <button class="nav-cta" onclick="goToApp()">try it free</button>
   </div>
 </nav>
 
@@ -826,7 +826,7 @@
       screenshot the chat. pick your vibe. get <strong>3 AI-crafted replies</strong> in under 10 seconds — tailored to the conversation, ready to send.
     </p>
     <div class="hero-actions">
-      <button class="btn-shiny" onclick="handleCheckout()"><span>get 3 free shots</span></button>
+      <button class="btn-shiny" onclick="goToApp()"><span>get 3 free shots</span></button>
       <div class="hero-trust">
         <div class="trust-item"><div class="trust-dot"></div><span>3 free analyses</span></div>
         <div class="trust-item"><div class="trust-dot"></div><span>no account needed</span></div>
@@ -1307,7 +1307,7 @@
       </div>
       <p class="cta-sub">3 free shots — no account, no card. just open the app and go.</p>
       <div class="cta-actions">
-        <button class="btn-primary" onclick="handleCheckout()">get my 3 free shots</button>
+        <button class="btn-primary" onclick="goToApp()">get my 3 free shots</button>
         <p class="cta-micro">then $7.99/mo · cancel anytime · first month refunded if you're not happy</p>
       </div>
     </div>
@@ -1373,6 +1373,10 @@
      When ready: add lemon.js loader to head, replace CHECKOUT_URL, uncomment lines below.
   */
   const CHECKOUT_URL = '#checkout'; // TODO: replace with Lemon Squeezy variant URL
+
+  function goToApp() {
+    window.location.href = 'app.html';
+  }
 
   function handleCheckout() {
     // window.createLemonSqueezy();
