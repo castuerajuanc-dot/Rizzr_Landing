@@ -682,6 +682,38 @@
       padding:12px 28px; cursor:pointer; -webkit-tap-highlight-color:transparent;
     }
 
+    /* ── Platform picker ── */
+    .platform-chips { display:flex; flex-wrap:wrap; gap:7px; }
+    .platform-chip {
+      display:flex; align-items:center; gap:5px;
+      padding:7px 13px; border-radius:50px;
+      background:var(--card); border:1.5px solid var(--card-border);
+      font-size:12px; font-weight:600; color:var(--text-secondary);
+      cursor:pointer; transition:border-color 0.2s,background 0.2s,color 0.2s,transform 0.15s;
+      -webkit-tap-highlight-color:transparent; user-select:none;
+    }
+    .platform-chip:hover { border-color:rgba(255,255,255,0.15); color:var(--text-primary); }
+    .platform-chip:active { transform:scale(0.94); }
+    .platform-chip.selected {
+      border-color:rgba(255,45,120,0.5); background:rgba(255,45,120,0.1);
+      color:var(--text-primary); box-shadow:0 0 12px rgba(255,45,120,0.15);
+    }
+    .platform-chip-icon { font-size:13px; line-height:1; }
+
+    /* ── Share button ── */
+    .share-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(155,112,255,0.1); border:1.5px solid rgba(155,112,255,0.3);
+      color:#C4A8FF; font-family:var(--font-body);
+      font-size:13px; font-weight:700; padding:10px 18px; border-radius:50px;
+      cursor:pointer; transition:background 0.2s,border-color 0.2s,transform 0.15s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .share-btn:hover { background:rgba(155,112,255,0.18); border-color:rgba(155,112,255,0.5); }
+    .share-btn:active { transform:scale(0.95); }
+    .share-btn svg { width:14px; height:14px; flex-shrink:0; }
+    .share-btn.shared { background:rgba(0,240,160,0.1); border-color:rgba(0,240,160,0.3); color:var(--accent2); }
+
     /* ── Ghost recovery nudge ── */
     .ghost-nudge {
       padding:14px 16px; background:rgba(155,112,255,0.07); border:1px solid rgba(155,112,255,0.2);
@@ -755,6 +787,33 @@
       color:var(--white); letter-spacing:-0.03em;
     }
     .paywall-note { text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px; }
+
+    /* ── Email gate ── */
+    .email-gate-input {
+      width:100%; background:rgba(255,255,255,0.05);
+      border:1px solid var(--card-border); border-radius:var(--r-md);
+      padding:14px 16px; font-size:15px; color:var(--white);
+      outline:none; margin-bottom:12px; transition:border-color 0.2s;
+      box-sizing:border-box; font-family:inherit;
+    }
+    .email-gate-input:focus { border-color:var(--accent); }
+    .email-gate-input::placeholder { color:var(--text-muted); }
+    .email-gate-marketing {
+      display:flex; align-items:flex-start; gap:10px;
+      margin-bottom:20px; cursor:pointer;
+    }
+    .email-gate-marketing input[type="checkbox"] {
+      width:16px; height:16px; flex-shrink:0; margin-top:2px;
+      accent-color:var(--accent2); cursor:pointer;
+    }
+    .email-gate-marketing span { font-size:12px; color:var(--text-muted); line-height:1.4; }
+    .email-gate-skip {
+      display:block; width:100%; background:none; border:none;
+      color:var(--text-muted); font-size:12px; margin-top:12px;
+      padding:6px; cursor:pointer; text-align:center;
+      transition:color 0.2s; font-family:inherit;
+    }
+    .email-gate-skip:hover { color:var(--text-secondary); }
 
     /* ════ ORBITAL VIBE PICKER ════ */
     .orbital-section { display:flex; flex-direction:column; align-items:center; gap:0; }
@@ -915,6 +974,20 @@
       <input type="file" id="fileInput" accept="image/*" style="position:fixed;left:-9999px;opacity:0;pointer-events:none">
     </div>
 
+    <!-- Platform picker — revealed after upload -->
+    <div class="context-reveal" id="platformSection" style="display:none">
+      <div class="field-label">which app?<span style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:none;letter-spacing:0;margin-left:6px">optional but helps</span></div>
+      <div class="platform-chips" id="platformChips">
+        <div class="platform-chip" data-platform="tinder"><span class="platform-chip-icon">🔥</span>tinder</div>
+        <div class="platform-chip" data-platform="bumble"><span class="platform-chip-icon">🐝</span>bumble</div>
+        <div class="platform-chip" data-platform="hinge"><span class="platform-chip-icon">💎</span>hinge</div>
+        <div class="platform-chip" data-platform="instagram"><span class="platform-chip-icon">📸</span>instagram</div>
+        <div class="platform-chip" data-platform="imessage"><span class="platform-chip-icon">💬</span>imessage</div>
+        <div class="platform-chip" data-platform="whatsapp"><span class="platform-chip-icon">📱</span>whatsapp</div>
+        <div class="platform-chip" data-platform="snapchat"><span class="platform-chip-icon">👻</span>snapchat</div>
+      </div>
+    </div>
+
     <!-- Context — revealed after upload -->
     <div class="context-wrap context-reveal" id="contextSection" style="display:none">
       <div class="field-label" style="position:relative;">
@@ -963,12 +1036,12 @@
       <div class="loading-logo">Rizzr<span>.</span></div>
     </div>
     <div class="loading-steps">
-      <div class="loading-step" id="ls1"><div class="ls-dot"></div><span>reading the conversation…</span></div>
-      <div class="loading-step" id="ls2"><div class="ls-dot"></div><span>analyzing the vibe…</span></div>
-      <div class="loading-step" id="ls3"><div class="ls-dot"></div><span>crafting your replies…</span></div>
-      <div class="loading-step" id="ls4"><div class="ls-dot"></div><span>scoring your rizz…</span></div>
+      <div class="loading-step" id="ls1"><div class="ls-dot"></div><span>reading the vibe...</span></div>
+      <div class="loading-step" id="ls2"><div class="ls-dot"></div><span>analyzing the signals...</span></div>
+      <div class="loading-step" id="ls3"><div class="ls-dot"></div><span>writing your replies...</span></div>
+      <div class="loading-step" id="ls4"><div class="ls-dot"></div><span>calculating rizz score...</span></div>
     </div>
-    <p class="loading-tagline">under 10 seconds. your future self will thank you.</p>
+    <p class="loading-tagline">under 10 seconds. you got this.</p>
   </div>
 </div>
 
@@ -997,6 +1070,14 @@
           <span id="rizzPillText">loading</span>
         </div>
       </div>
+    </div>
+
+    <!-- Share row -->
+    <div class="result-item" style="animation-delay:0.05s;display:flex;justify-content:flex-end">
+      <button class="share-btn" id="shareBtn" onclick="shareResults()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/><path d="M5.5 7l5-3M5.5 9l5 3"/></svg>
+        share my rizz
+      </button>
     </div>
 
     <!-- Best pick -->
@@ -1144,6 +1225,24 @@
 </div>
 
 
+<!-- Email gate -->
+<div class="paywall-overlay" id="emailGateOverlay">
+  <div class="paywall-sheet">
+    <div class="paywall-handle"></div>
+    <div class="paywall-title">your <span>free shots</span> are up</div>
+    <div class="paywall-sub">drop your email — you'll be first to know about deals, new features, and early access.</div>
+    <input type="email" id="emailGateInput" class="email-gate-input" placeholder="you@email.com" autocomplete="email" onkeydown="if(event.key==='Enter') submitEmailGate()" />
+    <label class="email-gate-marketing">
+      <input type="checkbox" id="emailGateMarketing" checked />
+      <span>send me rizzr tips and exclusive offers (unsubscribe anytime)</span>
+    </label>
+    <button class="btn-shiny" id="emailGateBtn" onclick="submitEmailGate()">
+      <span>continue →</span>
+    </button>
+    <button class="email-gate-skip" onclick="skipEmailGate()">skip for now</button>
+  </div>
+</div>
+
 <!-- Paywall sheet -->
 <div class="paywall-overlay" id="paywallOverlay">
   <div class="paywall-sheet">
@@ -1244,13 +1343,56 @@
     }
   }
 
-  function showPaywall()  { document.getElementById('paywallOverlay').classList.add('show'); }
+  function showPaywall() { document.getElementById('paywallOverlay').classList.add('show'); }
+
+  const N8N_LEAD_WEBHOOK = 'https://rizzr.app.n8n.cloud/webhook/rizzr-lead';
+
+  function showEmailGate() {
+    if (localStorage.getItem('rizzr_email_captured')) { showPaywall(); return; }
+    document.getElementById('emailGateOverlay').classList.add('show');
+    setTimeout(() => document.getElementById('emailGateInput').focus(), 420);
+  }
+
+  function skipEmailGate() {
+    document.getElementById('emailGateOverlay').classList.remove('show');
+    showPaywall();
+  }
+
+  async function submitEmailGate() {
+    const input = document.getElementById('emailGateInput');
+    const email = input.value.trim();
+    const marketing = document.getElementById('emailGateMarketing').checked;
+    const btn = document.getElementById('emailGateBtn');
+
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      input.style.borderColor = 'rgba(255,45,120,0.7)';
+      input.focus();
+      setTimeout(() => { input.style.borderColor = ''; }, 1500);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.querySelector('span').textContent = 'saving...';
+    localStorage.setItem('rizzr_email_captured', '1');
+    localStorage.setItem('rizzr_email', email);
+
+    fetch(N8N_LEAD_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, userId: getUserId(), fingerprint: getFingerprint(), marketingConsent: marketing })
+    }).catch(() => {});
+
+    document.getElementById('emailGateOverlay').classList.remove('show');
+    showPaywall();
+  }
 
   /* ══ STATE ══ */
-  let selectedMode = null;
-  let uploadedFile = null;
-  let diwTimer     = null;
-  let winCount     = parseInt(localStorage.getItem('rizzr_wins') || '0');
+  let selectedMode     = null;
+  let selectedPlatform = null;
+  let uploadedFile     = null;
+  let diwTimer         = null;
+  let winCount         = parseInt(localStorage.getItem('rizzr_wins') || '0');
+  let lastResultData   = null;
 
   const N8N_WEBHOOK = 'https://rizzr.app.n8n.cloud/webhook/rizzr-analyze';
 
@@ -1261,6 +1403,21 @@
       localStorage.setItem('rizzr_user_id', id);
     }
     return id;
+  }
+
+  function getFingerprint() {
+    const raw = [
+      navigator.userAgent,
+      screen.width,
+      screen.height,
+      screen.colorDepth,
+      Intl.DateTimeFormat().resolvedOptions().timeZone
+    ].join('|');
+    let h = 5381;
+    for (let i = 0; i < raw.length; i++) {
+      h = ((h << 5) + h) ^ raw.charCodeAt(i);
+    }
+    return 'fp_' + (h >>> 0).toString(36);
   }
 
   async function compressImage(file) {
@@ -1302,8 +1459,26 @@
     const preview = document.getElementById('uploadPreview');
     preview.src = URL.createObjectURL(file);
     document.getElementById('uploadPreviewCard').style.display = 'block';
+    document.getElementById('platformSection').style.display = 'block';
     document.getElementById('contextSection').style.display = 'block';
     updateSubmitHint();
+  }
+
+  /* ══ PLATFORM PICKER ══ */
+  function initPlatformPicker() {
+    document.querySelectorAll('.platform-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const p = chip.dataset.platform;
+        if (selectedPlatform === p) {
+          selectedPlatform = null;
+          chip.classList.remove('selected');
+        } else {
+          selectedPlatform = p;
+          document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('selected'));
+          chip.classList.add('selected');
+        }
+      });
+    });
   }
 
   /* ══ ORBITAL VIBE PICKER ══ */
@@ -1536,9 +1711,9 @@
 
   /* ══ ANALYSIS ══ */
   async function startAnalysis() {
-    if (!uploadedFile) { showToast('please upload a screenshot first'); return; }
-    if (!selectedMode) { showToast('please pick a vibe first'); return; }
-    if (credits <= 0)  { showPaywall(); return; }
+    if (!uploadedFile) { showToast('drop a screenshot first'); return; }
+    if (!selectedMode) { showToast('pick your vibe first'); return; }
+    if (credits <= 0)  { showEmailGate(); return; }
 
     credits--;
     saveCredits();
@@ -1558,13 +1733,16 @@
           imageBase64,
           mode: selectedMode,
           context,
-          userId: getUserId()
+          platform: selectedPlatform || null,
+          userId: getUserId(),
+          fingerprint: getFingerprint()
         })
       });
 
       if (res.status === 402) {
         credits = 0; saveCredits(); updateCreditsUI();
-        showPaywall(); setNavState('upload'); showState('stateUpload');
+        setNavState('upload'); showState('stateUpload');
+        showEmailGate();
         return;
       }
 
@@ -1579,7 +1757,7 @@
     } catch (err) {
       console.error('Rizzr error:', err);
       credits++; saveCredits(); updateCreditsUI();
-      showToast('error: ' + (err.message || 'try again'));
+      showToast('something went wrong — try again');
       try { setNavState('upload'); showState('stateUpload'); } catch(_) {}
     }
   }
@@ -1614,9 +1792,12 @@
       const el = document.getElementById(id); if (el) el.textContent = `${rates[i]}% response rate`;
     });
 
-    /* Reply timer */
+    /* Reply timer — prefer n8n's analysis, fall back to local */
     const timerEl = document.getElementById('replyTimerText');
-    if (timerEl) timerEl.textContent = getTimerText(selectedMode, data.rizzScore);
+    if (timerEl) timerEl.textContent = data.timing || getTimerText(selectedMode, data.rizzScore);
+
+    /* Store result for share */
+    lastResultData = data;
 
     /* Vibe score pips */
     const scoreEl = document.getElementById('vibeScore');
@@ -1867,6 +2048,32 @@
     document.getElementById('celOverlay').classList.remove('show');
   }
 
+  /* ══ SHARE ══ */
+  function shareResults() {
+    if (!lastResultData) return;
+    const g    = getGrade(lastResultData.rizzScore);
+    const mode = (selectedMode || 'rizz').replace('ice','ice breaker').replace('ghost','ghost reviver').replace('laugh',"make 'em laugh");
+    const text = `got my rizz analyzed 👀\n\nscore: ${lastResultData.rizzScore} — ${g.grade} (${g.label})\ndate probability: ${lastResultData.probability}%\nmode: ${mode}\n\nrizzr.app — ai texting coach`;
+    const btn  = document.getElementById('shareBtn');
+
+    if (navigator.share) {
+      navigator.share({ title: 'my rizz score', text }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(text).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+      });
+      btn.classList.add('shared');
+      btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8l4 4L14 4"/></svg> copied to clipboard`;
+      setTimeout(() => {
+        btn.classList.remove('shared');
+        btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/><path d="M5.5 7l5-3M5.5 9l5 3"/></svg> share my rizz`;
+      }, 2200);
+    }
+  }
+
   /* ══ RESET ══ */
   function resetToInput() {
     clearTimeout(diwTimer);
@@ -1875,10 +2082,14 @@
     setNavState('input');
     showState('stateInput');
 
-    selectedMode  = null;
-    uploadedFile  = null;
-    orbitPaused   = false;
-    orbitLastTime = 0;
+    selectedMode     = null;
+    selectedPlatform = null;
+    uploadedFile     = null;
+    lastResultData   = null;
+    orbitPaused      = false;
+    orbitLastTime    = 0;
+    document.querySelectorAll('.platform-chip').forEach(c => c.classList.remove('selected'));
+    document.getElementById('platformSection').style.display = 'none';
 
     document.querySelectorAll('.orbit-node').forEach(n => n.classList.remove('selected'));
     const nameEl = document.getElementById('mipName');
@@ -2036,6 +2247,7 @@
   animateSocialProof();
   initOrbital();
   initFileUpload();
+  initPlatformPicker();
   initSlideButton();
 </script>
 </body>
