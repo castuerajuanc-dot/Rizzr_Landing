@@ -157,7 +157,7 @@
 
     /* ════ INPUT STATE ════ */
     .input-wrap {
-      padding: 24px 20px calc(96px + var(--safe-bottom));
+      padding: 24px 20px calc(200px + var(--safe-bottom));
       max-width: 520px; margin: 0 auto;
       display: flex; flex-direction: column; gap: 20px;
     }
@@ -2124,15 +2124,21 @@
   function animateSocialProof() {
     const el = document.getElementById('spCount');
     if (!el) return;
-    const base = 1100 + Math.floor(Math.random() * 500);
-    let cur = base - 60;
+    const now = new Date();
+    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+    // stable daily base (varies day-to-day but consistent within same day)
+    const dailyBase = 900 + (dayOfYear * 137 % 500);
+    // grows ~400 extra across 24 hours
+    const hourFraction = (now.getHours() * 60 + now.getMinutes()) / 1440;
+    const base = Math.floor(dailyBase + hourFraction * 400);
+    let cur = base - 40;
     const iv = setInterval(() => {
-      cur = Math.min(cur + 3, base);
+      cur = Math.min(cur + 2, base);
       el.textContent = cur.toLocaleString();
       if (cur >= base) clearInterval(iv);
     }, 20);
     setInterval(() => {
-      const n = parseInt(el.textContent.replace(/,/g, '')) + Math.floor(Math.random() * 3) + 1;
+      const n = parseInt(el.textContent.replace(/,/g, '')) + Math.floor(Math.random() * 2) + 1;
       el.textContent = n.toLocaleString();
     }, 28000);
   }
