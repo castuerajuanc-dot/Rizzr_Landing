@@ -201,14 +201,22 @@
 
     /* ── FADE-IN ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
+      from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: none; }
     }
-    .js .fade-in                         { opacity: 0; transform: translateY(16px); }
+    .js .fade-in                         { opacity: 0; transform: translateY(20px); }
     .js .fade-in.visible                 { animation: fadeUp 0.55s cubic-bezier(0.23,1,0.32,1) forwards; }
     .js .fade-in.delay-1.visible         { animation-delay: 0.1s; }
     .js .fade-in.delay-2.visible         { animation-delay: 0.22s; }
     .js .fade-in.delay-3.visible         { animation-delay: 0.34s; }
+
+    /* hero staggered entrance — each child fades in slower and further apart */
+    .js .hero-fade                        { opacity: 0; transform: translateY(22px); }
+    .js .hero-fade.visible                { animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .js .hero-fade.hd-1.visible           { animation-delay: 0.05s; }
+    .js .hero-fade.hd-2.visible           { animation-delay: 0.22s; }
+    .js .hero-fade.hd-3.visible           { animation-delay: 0.42s; }
+    .js .hero-fade.hd-4.visible           { animation-delay: 0.62s; }
 
     /* ════════════════════════════════
        NAV
@@ -814,18 +822,18 @@
   </div>
 
   <!-- Hero content illuminated by the lamp -->
-  <div class="hero-content fade-in visible">
-    <div class="hero-badge">
+  <div class="hero-content">
+    <div class="hero-badge hero-fade hd-1">
       <div class="hero-badge-dot"></div>
       your AI text game coach
     </div>
-    <h1 class="hero-h1">
+    <h1 class="hero-h1 hero-fade hd-2">
       stop sending<br /><span class="hi">mid replies.</span>
     </h1>
-    <p class="hero-sub">
+    <p class="hero-sub hero-fade hd-3">
       screenshot the chat. pick your vibe. get <strong>6 AI-crafted replies</strong> in under 10 seconds — tailored to the conversation, ready to send.
     </p>
-    <div class="hero-actions">
+    <div class="hero-actions hero-fade hd-4">
       <button class="btn-shiny" onclick="handleCheckout()"><span>unlock the rizz</span></button>
       <div class="hero-trust">
         <div class="trust-item"><div class="trust-dot"></div><span>6 free analyses</span></div>
@@ -1347,7 +1355,7 @@
     });
   }, { threshold: 0, rootMargin: '0px 0px -40px 0px' });
 
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  document.querySelectorAll('.fade-in, .hero-fade').forEach(el => observer.observe(el));
 
   /* FAQ ACCORDION */
   document.querySelectorAll('.faq-q').forEach(q => {
