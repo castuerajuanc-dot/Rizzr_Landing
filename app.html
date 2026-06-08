@@ -1322,8 +1322,10 @@
 
   /* ══ CREDITS SYSTEM ══ */
   const MAX_FREE = 3;
-  let credits = parseInt(localStorage.getItem('rizzr_credits') ?? MAX_FREE);
-  if (isNaN(credits) || credits > MAX_FREE) { credits = MAX_FREE; saveCredits(); }
+  const PRO_UNLOCKED = localStorage.getItem('rizzr_pro') === '1';
+  if (new URLSearchParams(location.search).get('pro') === '1') localStorage.setItem('rizzr_pro', '1');
+  let credits = PRO_UNLOCKED ? Infinity : parseInt(localStorage.getItem('rizzr_credits') ?? MAX_FREE);
+  if (!PRO_UNLOCKED && (isNaN(credits) || credits > MAX_FREE)) { credits = MAX_FREE; saveCredits(); }
 
   function saveCredits() { localStorage.setItem('rizzr_credits', credits); }
 
@@ -1332,7 +1334,9 @@
     const txt = document.getElementById('creditsText');
     if (!el || !txt) return;
     el.classList.remove('low','empty');
-    if (credits <= 0) {
+    if (PRO_UNLOCKED) {
+      txt.textContent = 'unlimited analyses · rizzr pro';
+    } else if (credits <= 0) {
       el.classList.add('empty');
       txt.textContent = 'no free analyses left — unlock rizzr';
     } else if (credits === 1) {
