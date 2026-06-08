@@ -1453,7 +1453,7 @@
      Docs: https://docs.lemonsqueezy.com/help/checkout/checkout-overlay
      When ready: add lemon.js loader to head, replace CHECKOUT_URL, uncomment lines below.
   */
-  const CHECKOUT_URL = '#checkout'; // TODO: replace with Lemon Squeezy variant URL
+  const CHECKOUT_URL = 'https://whop.com/rizzr/rizzr-pro';
 
   function goToApp() {
     window.location.href = 'app.html';
@@ -1462,7 +1462,7 @@
   function handleCheckout() {
     // window.createLemonSqueezy();
     // LemonSqueezy.Url.Open(CHECKOUT_URL);
-    window.location.href = CHECKOUT_URL;
+    window.open(CHECKOUT_URL, '_blank');
   }
 
   /* n8n WEBHOOK STUB
