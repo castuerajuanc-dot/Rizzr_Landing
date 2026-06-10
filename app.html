@@ -1446,7 +1446,7 @@
     <div class="login-magic-sent" id="loginMagicSent">
       <div class="login-magic-icon">✉️</div>
       <div class="login-magic-sent-title">check your inbox</div>
-      <div class="login-magic-sent-sub">we sent a magic link to <strong id="loginSentEmail"></strong> — click it to restore your pro access.</div>
+      <div class="login-magic-sent-sub">we sent a magic link to <strong id="loginSentEmail"></strong> — click it to restore your pro access. check your spam if it doesn't arrive in 30 seconds.</div>
     </div>
     <button class="login-modal-dismiss" onclick="closeLoginModal()">close</button>
   </div>
@@ -1518,35 +1518,17 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_CldjvYNyppIsB8r8HrV7wg_7BAr1hai';
   const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  /* Checks Supabase session (magic link) then falls back to email check */
+  /* Source of truth: authenticated Supabase session → email → user_credits.is_pro.
+     No localStorage UUID lookups — email is the cross-device identity. */
   async function initProStatus() {
-    /* Grab email from any active Supabase session (magic link) and persist it */
     try {
       const { data: { session } } = await _supabase.auth.getSession();
-      if (session?.user?.email) localStorage.setItem('rizzr_email', session.user.email);
+      if (!session?.user?.email) return;
+      const { data } = await _supabase
+        .from('user_credits').select('is_pro')
+        .eq('email', session.user.email).maybeSingle();
+      if (data?.is_pro) setProUnlocked();
     } catch (_) {}
-
-    /* Primary lookup: user_id — this is what Whop/n8n uses to set is_pro */
-    const userId = localStorage.getItem('rizzr_user_id');
-    if (userId) {
-      try {
-        const { data } = await _supabase
-          .from('user_credits').select('is_pro')
-          .eq('user_id', userId).maybeSingle();
-        if (data?.is_pro) { setProUnlocked(); return; }
-      } catch (_) {}
-    }
-
-    /* Fallback: email (for manually-created pro accounts) */
-    const email = localStorage.getItem('rizzr_email');
-    if (email) {
-      try {
-        const { data } = await _supabase
-          .from('user_credits').select('is_pro')
-          .eq('email', email).maybeSingle();
-        if (data?.is_pro) setProUnlocked();
-      } catch (_) {}
-    }
   }
 
   /* Called whenever isPro becomes true from any source */
@@ -2603,48 +2585,41 @@
   initSlideButton();
   initProStatus(); /* async — fetches Pro status from Supabase by stored email / session */
 
-  /* Post-payment retry loop — Whop redirects here with ?paid=1 after checkout.
-     n8n webhook may take a few seconds to update Supabase, so we retry 4 times. */
+  /* Post-payment retry loop — Whop redirects here with ?paid=1.
+     n8n may take a few seconds to write to Supabase, so we retry using the
+     authenticated session email (requires user to be logged in). */
   if (new URLSearchParams(window.location.search).get('paid') === '1') {
-    history.replaceState(null, '', window.location.pathname); /* clean up URL */
+    history.replaceState(null, '', window.location.pathname);
     async function recheckPro() {
       if (isPro) return;
-      const userId = localStorage.getItem('rizzr_user_id');
-      if (!userId) return;
       try {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (!session?.user?.email) return;
         const { data } = await _supabase
           .from('user_credits').select('is_pro')
-          .eq('user_id', userId).maybeSingle();
+          .eq('email', session.user.email).maybeSingle();
         if (data?.is_pro) { setProUnlocked(); showToast('pro unlocked ✦'); }
       } catch (_) {}
     }
     [1500, 3500, 6500, 11000].forEach(ms => setTimeout(recheckPro, ms));
   }
 
-  /* Auto-unlock when user clicks a magic link and lands back on this page */
+  /* Auto-unlock when magic link is clicked — session email is the identity */
   _supabase.auth.onAuthStateChange(async (event, session) => {
     if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
-      localStorage.setItem('rizzr_email', session.user.email);
-      /* Try user_id first, then email */
-      const userId = localStorage.getItem('rizzr_user_id');
-      let found = false;
-      if (userId) {
-        try {
-          const { data } = await _supabase
-            .from('user_credits').select('is_pro')
-            .eq('user_id', userId).maybeSingle();
-          if (data?.is_pro) found = true;
-        } catch (_) {}
-      }
-      if (!found) {
-        try {
-          const { data } = await _supabase
-            .from('user_credits').select('is_pro')
-            .eq('email', session.user.email).maybeSingle();
-          if (data?.is_pro) found = true;
-        } catch (_) {}
-      }
-      if (found) { setProUnlocked(); closeLoginModal(); showToast('welcome back, pro ✦'); }
+      try {
+        const { data } = await _supabase
+          .from('user_credits').select('is_pro')
+          .eq('email', session.user.email).maybeSingle();
+        if (data?.is_pro) {
+          setProUnlocked();
+          closeLoginModal();
+          showToast('welcome back, pro ✦');
+        } else {
+          closeLoginModal();
+          showToast('logged in — no active pro subscription found');
+        }
+      } catch (_) {}
     }
   });
 </script>
