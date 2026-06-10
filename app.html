@@ -1520,28 +1520,37 @@
 
   /* Checks Supabase session (magic link) then falls back to email check */
   async function initProStatus() {
+    /* Grab email from any active Supabase session (magic link) and persist it */
     try {
       const { data: { session } } = await _supabase.auth.getSession();
-      if (session?.user?.email) {
-        localStorage.setItem('rizzr_email', session.user.email);
+      if (session?.user?.email) localStorage.setItem('rizzr_email', session.user.email);
+    } catch (_) {}
+
+    /* Primary lookup: user_id — this is what Whop/n8n uses to set is_pro */
+    const userId = localStorage.getItem('rizzr_user_id');
+    if (userId) {
+      try {
         const { data } = await _supabase
           .from('user_credits').select('is_pro')
-          .eq('email', session.user.email).maybeSingle();
-        if (data?.is_pro) { setProUnlocked(session.user.email); return; }
-      }
-    } catch (_) {}
+          .eq('user_id', userId).maybeSingle();
+        if (data?.is_pro) { setProUnlocked(); return; }
+      } catch (_) {}
+    }
+
+    /* Fallback: email (for manually-created pro accounts) */
     const email = localStorage.getItem('rizzr_email');
-    if (!email) return;
-    try {
-      const { data } = await _supabase
-        .from('user_credits').select('is_pro')
-        .eq('email', email).maybeSingle();
-      if (data?.is_pro) setProUnlocked(email);
-    } catch (_) { /* network/config error — leave free credits intact */ }
+    if (email) {
+      try {
+        const { data } = await _supabase
+          .from('user_credits').select('is_pro')
+          .eq('email', email).maybeSingle();
+        if (data?.is_pro) setProUnlocked();
+      } catch (_) {}
+    }
   }
 
   /* Called whenever isPro becomes true from any source */
-  function setProUnlocked(email) {
+  function setProUnlocked() {
     isPro   = true;
     credits = Infinity;
     updateCreditsUI();
@@ -2603,13 +2612,13 @@
     history.replaceState(null, '', window.location.pathname); /* clean up URL */
     async function recheckPro() {
       if (isPro) return;
-      const email = localStorage.getItem('rizzr_email');
-      if (!email) return;
+      const userId = localStorage.getItem('rizzr_user_id');
+      if (!userId) return;
       try {
         const { data } = await _supabase
           .from('user_credits').select('is_pro')
-          .eq('email', email).maybeSingle();
-        if (data?.is_pro) { setProUnlocked(email); showToast('pro unlocked ✦'); }
+          .eq('user_id', userId).maybeSingle();
+        if (data?.is_pro) { setProUnlocked(); showToast('pro unlocked ✦'); }
       } catch (_) {}
     }
     [1500, 3500, 6500, 11000].forEach(ms => setTimeout(recheckPro, ms));
@@ -2618,17 +2627,27 @@
   /* Auto-unlock when user clicks a magic link and lands back on this page */
   _supabase.auth.onAuthStateChange(async (event, session) => {
     if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
-      try {
-        const { data } = await _supabase
-          .from('user_credits').select('is_pro')
-          .eq('email', session.user.email).maybeSingle();
-        if (data?.is_pro) {
-          localStorage.setItem('rizzr_email', session.user.email);
-          setProUnlocked(session.user.email);
-          closeLoginModal();
-          showToast('welcome back, pro ✦');
-        }
-      } catch (_) {}
+      localStorage.setItem('rizzr_email', session.user.email);
+      /* Try user_id first, then email */
+      const userId = localStorage.getItem('rizzr_user_id');
+      let found = false;
+      if (userId) {
+        try {
+          const { data } = await _supabase
+            .from('user_credits').select('is_pro')
+            .eq('user_id', userId).maybeSingle();
+          if (data?.is_pro) found = true;
+        } catch (_) {}
+      }
+      if (!found) {
+        try {
+          const { data } = await _supabase
+            .from('user_credits').select('is_pro')
+            .eq('email', session.user.email).maybeSingle();
+          if (data?.is_pro) found = true;
+        } catch (_) {}
+      }
+      if (found) { setProUnlocked(); closeLoginModal(); showToast('welcome back, pro ✦'); }
     }
   });
 </script>
