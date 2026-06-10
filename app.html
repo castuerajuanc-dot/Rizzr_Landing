@@ -16,6 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -790,6 +791,39 @@
     }
     .paywall-note { text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px; }
 
+    /* ── Plan selector ── */
+    .plan-selector {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;
+    }
+    .plan-option {
+      position:relative; background:var(--card); border:1.5px solid var(--card-border);
+      border-radius:var(--r-md); padding:16px 12px; cursor:pointer; text-align:center;
+      transition:border-color 0.2s,background 0.2s,box-shadow 0.2s;
+      -webkit-tap-highlight-color:transparent; user-select:none;
+    }
+    .plan-option:active { transform:scale(0.97); }
+    .plan-option.selected {
+      border-color:var(--accent); background:rgba(255,45,120,0.08);
+      box-shadow:0 0 22px rgba(255,45,120,0.18);
+    }
+    .plan-label {
+      font-size:10px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:8px; transition:color 0.2s;
+    }
+    .plan-option.selected .plan-label { color:var(--accent); }
+    .plan-price {
+      font-family:var(--font-display); font-size:24px; font-weight:800;
+      color:var(--white); letter-spacing:-0.03em; line-height:1;
+    }
+    .plan-period { font-size:11px; color:var(--text-muted); margin-top:4px; line-height:1.4; }
+    .plan-option.selected .plan-period { color:var(--text-secondary); }
+    .plan-save-badge {
+      position:absolute; top:-11px; left:50%; transform:translateX(-50%);
+      background:rgba(0,240,160,0.14); border:1px solid rgba(0,240,160,0.4);
+      color:var(--accent2); font-size:9px; font-weight:800; letter-spacing:0.1em;
+      text-transform:uppercase; padding:3px 10px; border-radius:50px; white-space:nowrap;
+    }
+
     /* ── Email gate ── */
     .email-gate-input {
       width:100%; background:rgba(255,255,255,0.05);
@@ -1259,9 +1293,21 @@
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>vibe analysis</strong> — red flags, green lights, move tip</span></div>
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>48h guarantee</strong> — we rewrite for free if needed</span></div>
     </div>
-    <div class="paywall-price">just <strong>$7.99</strong>/mo — cancel anytime</div>
-    <button class="btn-shiny" onclick="window.open('https://whop.com/rizzr/rizzr-pro','_blank')" style="margin-bottom:0">
-      <span>unlock rizzr — $7.99/mo</span>
+    <div class="plan-selector">
+      <div class="plan-option selected" id="planMonthly" onclick="selectPlan('monthly')">
+        <div class="plan-label">monthly</div>
+        <div class="plan-price">$7.99</div>
+        <div class="plan-period">per month</div>
+      </div>
+      <div class="plan-option" id="planAnnual" onclick="selectPlan('annual')">
+        <div class="plan-save-badge">save 37%</div>
+        <div class="plan-label">annual</div>
+        <div class="plan-price">$59.99</div>
+        <div class="plan-period">$5.00/mo · billed yearly</div>
+      </div>
+    </div>
+    <button class="btn-shiny" id="paywallBtn" onclick="openWhopCheckout()" style="margin-bottom:0">
+      <span id="paywallBtnText">unlock rizzr — $7.99/mo</span>
     </button>
     <div class="paywall-note">no contracts · cancel in 2 taps · instant access</div>
   </div>
@@ -1324,10 +1370,32 @@
 
   /* ══ CREDITS SYSTEM ══ */
   const MAX_FREE = 3;
-  const PRO_UNLOCKED = localStorage.getItem('rizzr_pro') === '1';
-  if (new URLSearchParams(location.search).get('pro') === '1') localStorage.setItem('rizzr_pro', '1');
-  let credits = PRO_UNLOCKED ? Infinity : parseInt(localStorage.getItem('rizzr_credits') ?? MAX_FREE);
-  if (!PRO_UNLOCKED && (isNaN(credits) || credits > MAX_FREE)) { credits = MAX_FREE; saveCredits(); }
+  let isPro   = false;
+  let credits = parseInt(localStorage.getItem('rizzr_credits') ?? MAX_FREE);
+  if (isNaN(credits) || credits > MAX_FREE) { credits = MAX_FREE; saveCredits(); }
+
+  /* ── Supabase client (replace the two placeholder values below) ── */
+  const SUPABASE_URL      = 'https://vrwziojsegadhbweqeez.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_CldjvYNyppIsB8r8HrV7wg_7BAr1hai';
+  const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* Checks Supabase on load; silently fails open so UX is never blocked */
+  async function initProStatus() {
+    const email = localStorage.getItem('rizzr_email');
+    if (!email) return;
+    try {
+      const { data } = await _supabase
+        .from('user_credits')
+        .select('is_pro')
+        .eq('email', email)
+        .maybeSingle();
+      if (data?.is_pro) {
+        isPro   = true;
+        credits = Infinity;
+        updateCreditsUI();
+      }
+    } catch (_) { /* network/config error — leave free credits intact */ }
+  }
 
   function saveCredits() { localStorage.setItem('rizzr_credits', credits); }
 
@@ -1336,7 +1404,7 @@
     const txt = document.getElementById('creditsText');
     if (!el || !txt) return;
     el.classList.remove('low','empty');
-    if (PRO_UNLOCKED) {
+    if (isPro) {
       txt.textContent = 'unlimited analyses · rizzr pro';
     } else if (credits <= 0) {
       el.classList.add('empty');
@@ -1350,6 +1418,29 @@
   }
 
   function showPaywall() { document.getElementById('paywallOverlay').classList.add('show'); }
+
+  const WHOP_PLANS = {
+    monthly: 'https://whop.com/checkout/plan_c92T01n4OHGzP',
+    annual:  'https://whop.com/checkout/plan_5fidYp9CpLnkQ'
+  };
+  let selectedPlan = 'monthly';
+
+  function selectPlan(plan) {
+    selectedPlan = plan;
+    document.getElementById('planMonthly').classList.toggle('selected', plan === 'monthly');
+    document.getElementById('planAnnual').classList.toggle('selected', plan === 'annual');
+    document.getElementById('paywallBtnText').textContent =
+      plan === 'monthly' ? 'unlock rizzr — $7.99/mo' : 'unlock rizzr — $59.99/yr';
+  }
+
+  function openWhopCheckout() {
+    const email   = localStorage.getItem('rizzr_email') || '';
+    const userId  = getUserId();
+    const pt      = btoa(JSON.stringify({ userId, email }))
+                      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const baseUrl = WHOP_PLANS[selectedPlan] || WHOP_PLANS.monthly;
+    window.open(baseUrl + '?pass_through=' + pt, '_blank');
+  }
 
   const N8N_LEAD_WEBHOOK = 'https://rizzr.app.n8n.cloud/webhook/rizzr-lead';
 
@@ -2261,6 +2352,7 @@
   initFileUpload();
   initPlatformPicker();
   initSlideButton();
+  initProStatus(); /* async — fetches Pro status from Supabase by stored email */
 </script>
 </body>
 </html>
