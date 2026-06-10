@@ -1633,7 +1633,10 @@
     document.getElementById('loginSubmitBtnText').textContent = 'sending...';
 
     try {
-      const { error } = await _supabase.auth.signInWithOtp({ email });
+      const { error } = await _supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname }
+      });
       if (error) throw error;
       localStorage.setItem('rizzr_email', email);
       document.getElementById('loginSentEmail').textContent = email;
@@ -2593,6 +2596,24 @@
   initPlatformPicker();
   initSlideButton();
   initProStatus(); /* async — fetches Pro status from Supabase by stored email / session */
+
+  /* Post-payment retry loop — Whop redirects here with ?paid=1 after checkout.
+     n8n webhook may take a few seconds to update Supabase, so we retry 4 times. */
+  if (new URLSearchParams(window.location.search).get('paid') === '1') {
+    history.replaceState(null, '', window.location.pathname); /* clean up URL */
+    async function recheckPro() {
+      if (isPro) return;
+      const email = localStorage.getItem('rizzr_email');
+      if (!email) return;
+      try {
+        const { data } = await _supabase
+          .from('user_credits').select('is_pro')
+          .eq('email', email).maybeSingle();
+        if (data?.is_pro) { setProUnlocked(email); showToast('pro unlocked ✦'); }
+      } catch (_) {}
+    }
+    [1500, 3500, 6500, 11000].forEach(ms => setTimeout(recheckPro, ms));
+  }
 
   /* Auto-unlock when user clicks a magic link and lands back on this page */
   _supabase.auth.onAuthStateChange(async (event, session) => {
