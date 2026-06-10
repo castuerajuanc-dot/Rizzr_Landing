@@ -949,6 +949,108 @@
     @media (prefers-reduced-motion:reduce) {
       .lb1,.lb2,.lb3,.ls-dot,.tw-cursor,.rizz-ring-fill,.prob-bar { animation:none; transition:none; }
     }
+
+    /* ── Pro reply blur gate ── */
+    .reply-card.blurred {
+      filter: blur(7px); -webkit-filter: blur(7px);
+      user-select: none; pointer-events: none;
+    }
+    .alt-replies-gated { position: relative; }
+    .alt-replies-blur-overlay {
+      position: absolute; inset: 0; z-index: 5;
+      display: none; align-items: center; justify-content: center;
+      background: linear-gradient(to bottom, rgba(6,6,10,0.05) 0%, rgba(6,6,10,0.55) 48%, rgba(6,6,10,0.08) 100%);
+      border-radius: var(--r-lg);
+    }
+    .alt-replies-blur-overlay.visible { display: flex; }
+    .pro-unlock-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #fff;
+      font-family: var(--font-body); font-size: 14px; font-weight: 700;
+      letter-spacing: 0.01em; padding: 12px 26px; border-radius: 50px;
+      border: none; cursor: pointer;
+      box-shadow: 0 4px 28px rgba(255,45,120,0.55), inset 0 0 0 1px rgba(255,255,255,0.15);
+      transition: transform 0.15s, box-shadow 0.15s;
+      animation: pillPop 0.45s cubic-bezier(0.23,1,0.32,1) both 0.2s;
+    }
+    .pro-unlock-pill:hover { transform: scale(1.05); box-shadow: 0 8px 36px rgba(255,45,120,0.7), inset 0 0 0 1px rgba(255,255,255,0.2); }
+    .pro-unlock-pill:active { transform: scale(0.96); }
+    @keyframes pillPop {
+      from { transform: scale(0.6) translateY(8px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .pro-unlock-pill svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* ── Locked orbit mode ── */
+    .orbit-node.locked .orbit-node-inner { opacity: 0.35; }
+    .orbit-node.locked .orbit-node-label { opacity: 0.4; }
+    .orbit-lock-badge {
+      position: absolute; top: -4px; right: -4px;
+      width: 17px; height: 17px; border-radius: 50%;
+      background: rgba(255,45,120,0.92); border: 1.5px solid var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 3; pointer-events: none;
+      box-shadow: 0 0 8px rgba(255,45,120,0.5);
+    }
+    .orbit-lock-badge svg { width: 9px; height: 9px; color: #fff; }
+
+    /* ── Nav pro / login button ── */
+    .nav-login-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-body); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.04em; color: var(--text-secondary);
+      background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);
+      border-radius: 50px; padding: 6px 13px; cursor: pointer; white-space: nowrap;
+      transition: color 0.2s, background 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-login-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
+    .nav-login-btn.is-pro { color: var(--accent); background: var(--accent-dim); border-color: rgba(255,45,120,0.3); }
+
+    /* ── Magic link login modal ── */
+    .login-modal-overlay {
+      position: fixed; inset: 0; z-index: 600;
+      background: rgba(6,6,10,0.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .login-modal-overlay.show { opacity: 1; pointer-events: auto; }
+    .login-modal-sheet {
+      width: 100%; max-width: 520px;
+      background: var(--surface); border: 1px solid var(--card-border);
+      border-top: 1px solid rgba(255,45,120,0.2);
+      border-radius: var(--r-xl) var(--r-xl) 0 0;
+      padding: 24px 24px calc(36px + var(--safe-bottom));
+      transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+    }
+    .login-modal-overlay.show .login-modal-sheet { transform: translateY(0); }
+    .login-modal-handle { width: 36px; height: 4px; background: var(--card-border); border-radius: 2px; margin: 0 auto 22px; }
+    .login-modal-title {
+      font-family: var(--font-display); font-size: 22px; font-weight: 800;
+      color: var(--white); letter-spacing: -0.02em; text-align: center; margin-bottom: 5px;
+    }
+    .login-modal-title span { color: var(--accent); }
+    .login-modal-sub { font-size: 13px; color: var(--text-secondary); text-align: center; margin-bottom: 22px; line-height: 1.5; }
+    .login-form-area { display: flex; flex-direction: column; gap: 0; }
+    .login-form-area.hide { display: none; }
+    .login-magic-sent {
+      display: none; flex-direction: column; align-items: center;
+      gap: 10px; text-align: center; padding: 8px 0;
+    }
+    .login-magic-sent.show { display: flex; }
+    .login-magic-icon { font-size: 44px; line-height: 1; margin-bottom: 4px; }
+    .login-magic-sent-title {
+      font-family: var(--font-display); font-size: 20px; font-weight: 800;
+      color: var(--white); letter-spacing: -0.02em;
+    }
+    .login-magic-sent-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.6; max-width: 260px; }
+    .login-magic-sent-sub strong { color: var(--text-primary); }
+    .login-modal-dismiss {
+      display: block; width: 100%; background: none; border: none; font-family: inherit;
+      color: var(--text-muted); font-size: 12px; margin-top: 16px;
+      padding: 6px; cursor: pointer; text-align: center; transition: color 0.2s;
+    }
+    .login-modal-dismiss:hover { color: var(--text-secondary); }
   </style>
 </head>
 <body>
@@ -960,7 +1062,13 @@
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
     new shot
   </button>
-  <div class="nav-tag" id="navTag">analyze</div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="nav-login-btn" id="navLoginBtn" onclick="openLoginModal()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4" r="2.5"/><path d="M1.5 11c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4"/></svg>
+      <span id="navLoginBtnText">log in</span>
+    </button>
+    <div class="nav-tag" id="navTag">analyze</div>
+  </div>
 </nav>
 
 
@@ -1138,28 +1246,37 @@
     <!-- Alt replies -->
     <div class="result-item" style="animation-delay:0.15s">
       <div class="reply-section-label">alternatives</div>
-      <div class="alt-replies">
-        <div class="reply-card">
-          <div class="reply-tone-tag" id="reply2Tone"></div>
-          <div class="reply-text" id="reply2Text"></div>
-          <div class="reply-footer">
-            <div class="reply-rate" id="reply2Rate"></div>
-            <button class="copy-btn" onclick="copyReply(this,'reply2Text')">
-              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
-              copy
-            </button>
+      <div class="alt-replies-gated">
+        <div class="alt-replies">
+          <div class="reply-card" id="altReply2Card">
+            <div class="reply-tone-tag" id="reply2Tone"></div>
+            <div class="reply-text" id="reply2Text"></div>
+            <div class="reply-footer">
+              <div class="reply-rate" id="reply2Rate"></div>
+              <button class="copy-btn" onclick="copyReply(this,'reply2Text')">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
+                copy
+              </button>
+            </div>
+          </div>
+          <div class="reply-card" id="altReply3Card">
+            <div class="reply-tone-tag" id="reply3Tone"></div>
+            <div class="reply-text" id="reply3Text"></div>
+            <div class="reply-footer">
+              <div class="reply-rate" id="reply3Rate"></div>
+              <button class="copy-btn" onclick="copyReply(this,'reply3Text')">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
+                copy
+              </button>
+            </div>
           </div>
         </div>
-        <div class="reply-card">
-          <div class="reply-tone-tag" id="reply3Tone"></div>
-          <div class="reply-text" id="reply3Text"></div>
-          <div class="reply-footer">
-            <div class="reply-rate" id="reply3Rate"></div>
-            <button class="copy-btn" onclick="copyReply(this,'reply3Text')">
-              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
-              copy
-            </button>
-          </div>
+        <!-- Pro blur overlay — hidden for pro users -->
+        <div class="alt-replies-blur-overlay" id="altRepliesOverlay">
+          <button class="pro-unlock-pill" onclick="showPaywall()">
+            <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="9" height="6" rx="1.5"/><path d="M5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
+            Unlock in Pro
+          </button>
         </div>
       </div>
     </div>
@@ -1314,6 +1431,28 @@
 </div>
 
 
+<!-- Magic link login modal -->
+<div class="login-modal-overlay" id="loginModalOverlay">
+  <div class="login-modal-sheet">
+    <div class="login-modal-handle"></div>
+    <div class="login-modal-title">welcome back, <span>pro</span></div>
+    <div class="login-modal-sub">enter your email — we'll send a magic link to restore your access instantly.</div>
+    <div class="login-form-area" id="loginFormArea">
+      <input type="email" id="loginEmailInput" class="email-gate-input" placeholder="you@email.com" autocomplete="email" onkeydown="if(event.key==='Enter') submitMagicLink()" />
+      <button class="btn-shiny" id="loginSubmitBtn" onclick="submitMagicLink()">
+        <span id="loginSubmitBtnText">send magic link →</span>
+      </button>
+    </div>
+    <div class="login-magic-sent" id="loginMagicSent">
+      <div class="login-magic-icon">✉️</div>
+      <div class="login-magic-sent-title">check your inbox</div>
+      <div class="login-magic-sent-sub">we sent a magic link to <strong id="loginSentEmail"></strong> — click it to restore your pro access.</div>
+    </div>
+    <button class="login-modal-dismiss" onclick="closeLoginModal()">close</button>
+  </div>
+</div>
+
+
 <!-- Error toast -->
 <div class="error-toast" id="errorToast">
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7" cy="7" r="6"/><path d="M7 4v4M7 10v.5"/></svg>
@@ -1379,22 +1518,62 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_CldjvYNyppIsB8r8HrV7wg_7BAr1hai';
   const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  /* Checks Supabase on load; silently fails open so UX is never blocked */
+  /* Checks Supabase session (magic link) then falls back to email check */
   async function initProStatus() {
+    try {
+      const { data: { session } } = await _supabase.auth.getSession();
+      if (session?.user?.email) {
+        localStorage.setItem('rizzr_email', session.user.email);
+        const { data } = await _supabase
+          .from('user_credits').select('is_pro')
+          .eq('email', session.user.email).maybeSingle();
+        if (data?.is_pro) { setProUnlocked(session.user.email); return; }
+      }
+    } catch (_) {}
     const email = localStorage.getItem('rizzr_email');
     if (!email) return;
     try {
       const { data } = await _supabase
-        .from('user_credits')
-        .select('is_pro')
-        .eq('email', email)
-        .maybeSingle();
-      if (data?.is_pro) {
-        isPro   = true;
-        credits = Infinity;
-        updateCreditsUI();
-      }
+        .from('user_credits').select('is_pro')
+        .eq('email', email).maybeSingle();
+      if (data?.is_pro) setProUnlocked(email);
     } catch (_) { /* network/config error — leave free credits intact */ }
+  }
+
+  /* Called whenever isPro becomes true from any source */
+  function setProUnlocked(email) {
+    isPro   = true;
+    credits = Infinity;
+    updateCreditsUI();
+    applyProGating();
+    const btn  = document.getElementById('navLoginBtn');
+    const txt  = document.getElementById('navLoginBtnText');
+    if (btn) btn.classList.add('is-pro');
+    if (txt) txt.textContent = 'pro ✦';
+  }
+
+  /* Applies or removes blur/lock gating based on current isPro value */
+  function applyProGating() {
+    if (isPro) {
+      /* Unblur reply cards */
+      document.getElementById('altReply2Card')?.classList.remove('blurred');
+      document.getElementById('altReply3Card')?.classList.remove('blurred');
+      const overlay = document.getElementById('altRepliesOverlay');
+      if (overlay) overlay.classList.remove('visible');
+      /* Unlock orbit nodes */
+      document.querySelectorAll('.orbit-node.locked').forEach(n => {
+        n.classList.remove('locked');
+        n.querySelector('.orbit-lock-badge')?.remove();
+      });
+    }
+  }
+
+  /* Blur alt replies for free users — called after showResults() */
+  function applyRepliesBlur() {
+    document.getElementById('altReply2Card')?.classList.add('blurred');
+    document.getElementById('altReply3Card')?.classList.add('blurred');
+    const overlay = document.getElementById('altRepliesOverlay');
+    if (overlay) overlay.classList.add('visible');
   }
 
   function saveCredits() { localStorage.setItem('rizzr_credits', credits); }
@@ -1418,6 +1597,54 @@
   }
 
   function showPaywall() { document.getElementById('paywallOverlay').classList.add('show'); }
+
+  /* ── Login / Magic link modal ── */
+  function openLoginModal() {
+    const overlay = document.getElementById('loginModalOverlay');
+    if (!overlay) return;
+    /* Reset to form state each open */
+    document.getElementById('loginFormArea').classList.remove('hide');
+    document.getElementById('loginMagicSent').classList.remove('show');
+    document.getElementById('loginEmailInput').value = '';
+    const btn = document.getElementById('loginSubmitBtn');
+    btn.disabled = false;
+    document.getElementById('loginSubmitBtnText').textContent = 'send magic link →';
+    overlay.classList.add('show');
+    setTimeout(() => document.getElementById('loginEmailInput').focus(), 420);
+  }
+
+  function closeLoginModal() {
+    document.getElementById('loginModalOverlay')?.classList.remove('show');
+  }
+
+  async function submitMagicLink() {
+    const input = document.getElementById('loginEmailInput');
+    const email = input.value.trim();
+    const btn   = document.getElementById('loginSubmitBtn');
+
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      input.style.borderColor = 'rgba(255,45,120,0.7)';
+      input.focus();
+      setTimeout(() => { input.style.borderColor = ''; }, 1500);
+      return;
+    }
+
+    btn.disabled = true;
+    document.getElementById('loginSubmitBtnText').textContent = 'sending...';
+
+    try {
+      const { error } = await _supabase.auth.signInWithOtp({ email });
+      if (error) throw error;
+      localStorage.setItem('rizzr_email', email);
+      document.getElementById('loginSentEmail').textContent = email;
+      document.getElementById('loginFormArea').classList.add('hide');
+      document.getElementById('loginMagicSent').classList.add('show');
+    } catch (err) {
+      document.getElementById('loginSubmitBtnText').textContent = 'send magic link →';
+      btn.disabled = false;
+      showToast(err.message || 'something went wrong — try again');
+    }
+  }
 
   const WHOP_PLANS = {
     monthly: 'https://whop.com/checkout/plan_c92T01n4OHGzP',
@@ -1610,15 +1837,27 @@
   let orbitPaused   = false;
   let orbitLastTime = 0;
 
+  const PRO_ONLY_MODES = ['saved', 'ghost'];
+
   function initOrbital() {
     const container = document.getElementById('orbitNodes');
     ORBITAL_MODES.forEach((m, i) => {
       const node = document.createElement('div');
-      node.className   = 'orbit-node';
+      node.className    = 'orbit-node';
       node.dataset.mode = m.id;
       node.style.cssText = `--node-color:${m.color};--node-glow:${m.glow};--node-dim:${m.dim}`;
-      node.innerHTML   = `<div class="orbit-node-inner">${ORBIT_ICONS[m.id]}</div><div class="orbit-node-label">${m.name}</div>`;
-      node.addEventListener('click', () => selectOrbitalMode(m.id));
+      node.innerHTML    = `<div class="orbit-node-inner">${ORBIT_ICONS[m.id]}</div><div class="orbit-node-label">${m.name}</div>`;
+      if (!isPro && PRO_ONLY_MODES.includes(m.id)) {
+        node.classList.add('locked');
+        const badge = document.createElement('div');
+        badge.className = 'orbit-lock-badge';
+        badge.innerHTML = `<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="5" width="6" height="4" rx="1"/><path d="M3.5 5V3.5a1.5 1.5 0 0 1 3 0V5"/></svg>`;
+        node.appendChild(badge);
+      }
+      node.addEventListener('click', () => {
+        if (!isPro && PRO_ONLY_MODES.includes(m.id)) { showPaywall(); return; }
+        selectOrbitalMode(m.id);
+      });
       container.appendChild(node);
     });
     requestAnimationFrame(orbitTick);
@@ -1923,6 +2162,7 @@
 
     setNavState('results');
     showState('stateResults');
+    if (!isPro) applyRepliesBlur();
     STEPS.forEach(id => { document.getElementById(id).className = 'loading-step'; });
     document.getElementById('ghostNudge').classList.remove('show');
 
@@ -2352,7 +2592,24 @@
   initFileUpload();
   initPlatformPicker();
   initSlideButton();
-  initProStatus(); /* async — fetches Pro status from Supabase by stored email */
+  initProStatus(); /* async — fetches Pro status from Supabase by stored email / session */
+
+  /* Auto-unlock when user clicks a magic link and lands back on this page */
+  _supabase.auth.onAuthStateChange(async (event, session) => {
+    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
+      try {
+        const { data } = await _supabase
+          .from('user_credits').select('is_pro')
+          .eq('email', session.user.email).maybeSingle();
+        if (data?.is_pro) {
+          localStorage.setItem('rizzr_email', session.user.email);
+          setProUnlocked(session.user.email);
+          closeLoginModal();
+          showToast('welcome back, pro ✦');
+        }
+      } catch (_) {}
+    }
+  });
 </script>
 </body>
 </html>
