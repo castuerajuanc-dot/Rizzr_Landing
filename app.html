@@ -1642,10 +1642,7 @@
     document.getElementById('loginSubmitBtnText').textContent = 'sending...';
 
     try {
-      const { error } = await _supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: window.location.origin + window.location.pathname }
-      });
+      const { error } = await _supabase.auth.signInWithOtp({ email });
       if (error) throw error;
       localStorage.setItem('rizzr_email', email);
       document.getElementById('loginSentEmail').textContent = email;
