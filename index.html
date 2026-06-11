@@ -3,14 +3,14 @@
 <head>
   <script>document.documentElement.classList.replace('no-js','js');</script>
   <script>
+    /* Safety net: if Supabase somehow lands an auth callback here,
+       bounce it to app.html which has the full Supabase client.
+       Primary redirect is configured in Supabase Dashboard → Auth → Site URL. */
     (function(){
       var h = window.location.hash;
       var s = window.location.search;
-      /* Implicit flow: Supabase puts access_token in the URL hash */
-      var hashMatch = h && (h.indexOf('access_token=') !== -1 || h.indexOf('refresh_token=') !== -1);
-      /* PKCE flow (default in Supabase JS v2.60+): Supabase puts code in the query string */
-      var codeMatch = s && s.indexOf('code=') !== -1;
-      if (hashMatch || codeMatch) {
+      if ((h && (h.indexOf('access_token=') !== -1 || h.indexOf('refresh_token=') !== -1)) ||
+          (s && s.indexOf('code=') !== -1)) {
         window.location.replace('./app.html' + s + h);
       }
     })();

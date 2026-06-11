@@ -1639,10 +1639,10 @@
     document.getElementById('loginSubmitBtnText').textContent = 'sending...';
 
     try {
-      /* redirectTo MUST point back to app.html so Supabase delivers the session
-         hash here (not to index.html which has no Supabase JS and would silently
-         swallow the token, leaving the user stuck on the free tier). */
-      const redirectTo = window.location.href.split('?')[0].split('#')[0];
+      /* redirectTo must match the Site URL set in Supabase Dashboard →
+         Authentication → URL Configuration. Magic link lands on app.html
+         directly; onAuthStateChange fires SIGNED_IN and checks user_credits. */
+      const redirectTo = 'https://www.getrizzr.app/app.html';
       console.log('[Rizzr Auth] submitMagicLink: sending OTP to', email, '— redirect:', redirectTo);
       const { error } = await _supabase.auth.signInWithOtp({
         email,
