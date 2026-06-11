@@ -1529,15 +1529,12 @@
     if (storedEmail) {
       console.log('[Rizzr Auth] initProStatus: stored email found:', storedEmail);
       try {
-        const { data } = await _supabase
-          .from('user_credits').select('is_pro')
-          .eq('email', storedEmail).maybeSingle();
-        if (data?.is_pro) {
+        const { data: isPro } = await _supabase.rpc('is_pro_email', { p_email: storedEmail });
+        if (isPro) {
           console.log('[Rizzr Auth] initProStatus: stored email is Pro → unlocking.');
           setProUnlocked(storedEmail);
           return;
         } else {
-          /* Email no longer Pro — clear so they're prompted to re-check */
           localStorage.removeItem('rizzr_pro_email');
           console.log('[Rizzr Auth] initProStatus: stored email no longer Pro, cleared.');
         }
@@ -1666,26 +1663,22 @@
     try {
       console.log('[Rizzr Auth] login: checking pro status for', email);
 
-      const query = _supabase
-        .from('user_credits')
-        .select('is_pro')
-        .eq('email', email)
-        .maybeSingle();
+      const rpc = _supabase.rpc('is_pro_email', { p_email: email });
 
       const timeout = new Promise((_, rej) =>
-        setTimeout(() => rej(new Error('connection timed out — check your network and try again')), 8000)
+        setTimeout(() => rej(new Error('connection timed out — check your network and try again')), 12000)
       );
 
-      const { data, error } = await Promise.race([query, timeout]);
+      const { data: isPro, error } = await Promise.race([rpc, timeout]);
 
-      console.log('[Rizzr Auth] login: result:', data, error);
+      console.log('[Rizzr Auth] login: is_pro_email result:', isPro, error);
 
       if (error) {
-        console.error('[Rizzr Auth] login: DB error:', error);
-        throw new Error(error.message || 'DB error — try again');
+        console.error('[Rizzr Auth] login: RPC error:', error);
+        throw new Error(error.message || 'server error — try again');
       }
 
-      if (data?.is_pro) {
+      if (isPro) {
         setProUnlocked(email);
         closeLoginModal();
         showToast('pro access restored ✦');
