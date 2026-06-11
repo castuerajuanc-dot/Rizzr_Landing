@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Dark rounded background -->
+  <rect width="512" height="512" rx="96" fill="#0A0A12"/>
+  <!-- Bold white R -->
+  <text
+    x="52"
+    y="410"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="900"
+    font-size="400"
+    fill="#FFFFFF"
+  >R</text>
+  <!-- Pink accent square — brand signature -->
+  <rect x="362" y="358" width="108" height="108" rx="16" fill="#FF2D78"/>
+</svg>
