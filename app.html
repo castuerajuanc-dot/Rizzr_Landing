@@ -1665,13 +1665,25 @@
 
     try {
       console.log('[Rizzr Auth] login: checking pro status for', email);
-      const { data, error } = await _supabase
+
+      const query = _supabase
         .from('user_credits')
         .select('is_pro')
         .eq('email', email)
         .maybeSingle();
 
+      const timeout = new Promise((_, rej) =>
+        setTimeout(() => rej(new Error('connection timed out — check your network and try again')), 8000)
+      );
+
+      const { data, error } = await Promise.race([query, timeout]);
+
       console.log('[Rizzr Auth] login: result:', data, error);
+
+      if (error) {
+        console.error('[Rizzr Auth] login: DB error:', error);
+        throw new Error(error.message || 'DB error — try again');
+      }
 
       if (data?.is_pro) {
         setProUnlocked(email);
@@ -1683,6 +1695,7 @@
         document.getElementById('loginMagicSent').classList.add('show');
       }
     } catch (err) {
+      console.error('[Rizzr Auth] login error:', err);
       document.getElementById('loginSubmitBtnText').textContent = 'restore access →';
       btn.disabled = false;
       showToast(err.message || 'something went wrong — try again');
