@@ -2632,30 +2632,43 @@
      URL after the user clicks their magic link email. This is the definitive place
      to gate on is_pro because getSession() at init time may fire before the
      hash exchange completes. */
+  /* Shared handler — runs for any event that produces a live session.
+     SIGNED_IN     : magic link clicked, OTP verified
+     TOKEN_REFRESHED: background token refresh
+     INITIAL_SESSION: existing session found in storage on page load
+                      (catches the case where SIGNED_IN fired before this
+                       listener was registered, e.g. fast PKCE exchange) */
+  async function handleAuthSession(event, session) {
+    if (!session?.user?.email) return;
+    const email = session.user.email;
+    if (isPro) return; /* already unlocked — skip redundant DB hit */
+    console.log('[Rizzr Auth]', event, '— querying user_credits for:', email);
+    try {
+      const { data, error } = await _supabase
+        .from('user_credits').select('is_pro')
+        .eq('email', email).maybeSingle();
+      console.log('[Rizzr Auth] user_credits result:', data, error);
+      if (data?.is_pro) {
+        setProUnlocked(email);
+        if (event === 'SIGNED_IN') {
+          closeLoginModal();
+          showToast('welcome back, pro ✦');
+        }
+      } else if (event === 'SIGNED_IN') {
+        closeLoginModal();
+        showToast('logged in — no active pro subscription found');
+        console.log('[Rizzr Auth] is_pro=false or row missing for', email);
+      }
+    } catch (e) {
+      console.error('[Rizzr Auth] onAuthStateChange DB error:', e);
+    }
+  }
+
   _supabase.auth.onAuthStateChange(async (event, session) => {
     console.log('[Rizzr Auth] onAuthStateChange:', event, session?.user?.email ?? '(no session)');
 
-    if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
-      const email = session.user.email;
-      console.log('[Rizzr Auth] SIGNED_IN — querying user_credits for:', email);
-      try {
-        const { data, error } = await _supabase
-          .from('user_credits').select('is_pro')
-          .eq('email', email).maybeSingle();
-        console.log('[Rizzr Auth] user_credits result:', data, error);
-        if (data?.is_pro) {
-          setProUnlocked(email);
-          closeLoginModal();
-          showToast('welcome back, pro ✦');
-        } else {
-          closeLoginModal();
-          /* Row may not exist yet if n8n webhook is still processing; user sees this message */
-          showToast('logged in — no active pro subscription found');
-          console.log('[Rizzr Auth] is_pro=false or row missing for', email);
-        }
-      } catch (e) {
-        console.error('[Rizzr Auth] onAuthStateChange DB error:', e);
-      }
+    if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+      await handleAuthSession(event, session);
     }
 
     if (event === 'SIGNED_OUT') {
