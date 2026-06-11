@@ -2,6 +2,14 @@
 <html lang="en" class="no-js">
 <head>
   <script>document.documentElement.classList.replace('no-js','js');</script>
+  <script>
+    (function(){
+      var h = window.location.hash;
+      if (h && (h.indexOf('access_token=') !== -1 || h.indexOf('refresh_token=') !== -1)) {
+        window.location.replace('./app.html' + window.location.search + h);
+      }
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Rizzr — stop sending mid replies. start getting dates.</title>
