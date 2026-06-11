@@ -1436,17 +1436,17 @@
   <div class="login-modal-sheet">
     <div class="login-modal-handle"></div>
     <div class="login-modal-title">welcome back, <span>pro</span></div>
-    <div class="login-modal-sub">enter your email — we'll send a magic link to restore your access instantly.</div>
+    <div class="login-modal-sub">enter your pro email to restore access instantly — no link needed.</div>
     <div class="login-form-area" id="loginFormArea">
       <input type="email" id="loginEmailInput" class="email-gate-input" placeholder="you@email.com" autocomplete="email" onkeydown="if(event.key==='Enter') submitMagicLink()" />
       <button class="btn-shiny" id="loginSubmitBtn" onclick="submitMagicLink()">
-        <span id="loginSubmitBtnText">send magic link →</span>
+        <span id="loginSubmitBtnText">restore access →</span>
       </button>
     </div>
     <div class="login-magic-sent" id="loginMagicSent">
-      <div class="login-magic-icon">✉️</div>
-      <div class="login-magic-sent-title">check your inbox</div>
-      <div class="login-magic-sent-sub">we sent a magic link to <strong id="loginSentEmail"></strong> — click it to restore your pro access. check your spam if it doesn't arrive in 30 seconds.</div>
+      <div class="login-magic-sent-title">no pro subscription found</div>
+      <div class="login-magic-sent-sub">we couldn't find a pro account for <strong id="loginSentEmail"></strong>. if you just subscribed, wait a moment and try again.</div>
+      <button class="login-modal-dismiss" style="margin-top:12px;opacity:0.7;font-size:12px;" onclick="document.getElementById('loginFormArea').classList.remove('hide');document.getElementById('loginMagicSent').classList.remove('show');document.getElementById('loginSubmitBtn').disabled=false;document.getElementById('loginSubmitBtnText').textContent='restore access →';">try another email →</button>
     </div>
     <button class="login-modal-dismiss" onclick="closeLoginModal()">close</button>
   </div>
@@ -1518,14 +1518,39 @@
   const SUPABASE_ANON_KEY = 'sb_publishable_CldjvYNyppIsB8r8HrV7wg_7BAr1hai';
   const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  /* Source of truth: authenticated Supabase session → email → user_credits.is_pro.
-     No localStorage UUID lookups — email is the cross-device identity. */
+  /* Source of truth: email → user_credits.is_pro (DB is always re-queried).
+     Fast path: stored email from last successful login → verify against DB.
+     Fallback: active Supabase session → verify against DB. */
   async function initProStatus() {
-    console.log('[Rizzr Auth] initProStatus: checking Supabase session...');
+    console.log('[Rizzr Auth] initProStatus: checking pro status...');
+
+    /* Fast path — returning Pro user, no session needed */
+    const storedEmail = localStorage.getItem('rizzr_pro_email');
+    if (storedEmail) {
+      console.log('[Rizzr Auth] initProStatus: stored email found:', storedEmail);
+      try {
+        const { data } = await _supabase
+          .from('user_credits').select('is_pro')
+          .eq('email', storedEmail).maybeSingle();
+        if (data?.is_pro) {
+          console.log('[Rizzr Auth] initProStatus: stored email is Pro → unlocking.');
+          setProUnlocked(storedEmail);
+          return;
+        } else {
+          /* Email no longer Pro — clear so they're prompted to re-check */
+          localStorage.removeItem('rizzr_pro_email');
+          console.log('[Rizzr Auth] initProStatus: stored email no longer Pro, cleared.');
+        }
+      } catch (e) {
+        console.error('[Rizzr Auth] initProStatus stored email check error:', e);
+      }
+    }
+
+    /* Fallback — active Supabase auth session */
     try {
       const { data: { session } } = await _supabase.auth.getSession();
       if (!session?.user?.email) {
-        console.log('[Rizzr Auth] initProStatus: no active session found.');
+        console.log('[Rizzr Auth] initProStatus: no session, no stored email — not Pro.');
         return;
       }
       console.log('[Rizzr Auth] initProStatus: session active for', session.user.email);
@@ -1534,11 +1559,11 @@
         .eq('email', session.user.email).maybeSingle();
       console.log('[Rizzr Auth] initProStatus: user_credits result:', data, error);
       if (data?.is_pro) {
-        console.log('[Rizzr Auth] initProStatus: is_pro=true → unlocking Pro.');
+        console.log('[Rizzr Auth] initProStatus: session is Pro → unlocking.');
         setProUnlocked(session.user.email);
       }
     } catch (e) {
-      console.error('[Rizzr Auth] initProStatus error:', e);
+      console.error('[Rizzr Auth] initProStatus session check error:', e);
     }
   }
 
@@ -1614,7 +1639,7 @@
     document.getElementById('loginEmailInput').value = '';
     const btn = document.getElementById('loginSubmitBtn');
     btn.disabled = false;
-    document.getElementById('loginSubmitBtnText').textContent = 'send magic link →';
+    document.getElementById('loginSubmitBtnText').textContent = 'restore access →';
     overlay.classList.add('show');
     setTimeout(() => document.getElementById('loginEmailInput').focus(), 420);
   }
@@ -1625,7 +1650,7 @@
 
   async function submitMagicLink() {
     const input = document.getElementById('loginEmailInput');
-    const email = input.value.trim();
+    const email = input.value.trim().toLowerCase();
     const btn   = document.getElementById('loginSubmitBtn');
 
     if (!email || !email.includes('@') || !email.includes('.')) {
@@ -1636,25 +1661,29 @@
     }
 
     btn.disabled = true;
-    document.getElementById('loginSubmitBtnText').textContent = 'sending...';
+    document.getElementById('loginSubmitBtnText').textContent = 'checking...';
 
     try {
-      /* redirectTo must match the Site URL set in Supabase Dashboard →
-         Authentication → URL Configuration. Magic link lands on app.html
-         directly; onAuthStateChange fires SIGNED_IN and checks user_credits. */
-      const redirectTo = 'https://www.getrizzr.app/app.html';
-      console.log('[Rizzr Auth] submitMagicLink: sending OTP to', email, '— redirect:', redirectTo);
-      const { error } = await _supabase.auth.signInWithOtp({
-        email,
-        options: { redirectTo }
-      });
-      if (error) throw error;
-      localStorage.setItem('rizzr_email', email);
-      document.getElementById('loginSentEmail').textContent = email;
-      document.getElementById('loginFormArea').classList.add('hide');
-      document.getElementById('loginMagicSent').classList.add('show');
+      console.log('[Rizzr Auth] login: checking pro status for', email);
+      const { data, error } = await _supabase
+        .from('user_credits')
+        .select('is_pro')
+        .eq('email', email)
+        .maybeSingle();
+
+      console.log('[Rizzr Auth] login: result:', data, error);
+
+      if (data?.is_pro) {
+        setProUnlocked(email);
+        closeLoginModal();
+        showToast('pro access restored ✦');
+      } else {
+        document.getElementById('loginSentEmail').textContent = email;
+        document.getElementById('loginFormArea').classList.add('hide');
+        document.getElementById('loginMagicSent').classList.add('show');
+      }
     } catch (err) {
-      document.getElementById('loginSubmitBtnText').textContent = 'send magic link →';
+      document.getElementById('loginSubmitBtnText').textContent = 'restore access →';
       btn.disabled = false;
       showToast(err.message || 'something went wrong — try again');
     }
