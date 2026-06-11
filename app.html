@@ -1529,7 +1529,12 @@
     if (storedEmail) {
       console.log('[Rizzr Auth] initProStatus: stored email found:', storedEmail);
       try {
-        const { data: isPro } = await _supabase.rpc('is_pro_email', { p_email: storedEmail });
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_pro_email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+          body: JSON.stringify({ p_email: storedEmail })
+        });
+        const isPro = r.ok ? await r.json() : false;
         if (isPro) {
           console.log('[Rizzr Auth] initProStatus: stored email is Pro → unlocking.');
           setProUnlocked(storedEmail);
@@ -1663,20 +1668,23 @@
     try {
       console.log('[Rizzr Auth] login: checking pro status for', email);
 
-      const rpc = _supabase.rpc('is_pro_email', { p_email: email });
+      const rpcFetch = fetch(`${SUPABASE_URL}/rest/v1/rpc/is_pro_email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({ p_email: email })
+      }).then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(`${r.status}: ${t}`); }));
 
       const timeout = new Promise((_, rej) =>
         setTimeout(() => rej(new Error('connection timed out — check your network and try again')), 12000)
       );
 
-      const { data: isPro, error } = await Promise.race([rpc, timeout]);
+      const isPro = await Promise.race([rpcFetch, timeout]);
 
-      console.log('[Rizzr Auth] login: is_pro_email result:', isPro, error);
-
-      if (error) {
-        console.error('[Rizzr Auth] login: RPC error:', error);
-        throw new Error(error.message || 'server error — try again');
-      }
+      console.log('[Rizzr Auth] login: is_pro_email result:', isPro);
 
       if (isPro) {
         setProUnlocked(email);
