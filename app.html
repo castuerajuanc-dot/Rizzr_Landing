@@ -1521,20 +1521,35 @@
   /* Source of truth: authenticated Supabase session → email → user_credits.is_pro.
      No localStorage UUID lookups — email is the cross-device identity. */
   async function initProStatus() {
+    console.log('[Rizzr Auth] initProStatus: checking Supabase session...');
     try {
       const { data: { session } } = await _supabase.auth.getSession();
-      if (!session?.user?.email) return;
-      const { data } = await _supabase
+      if (!session?.user?.email) {
+        console.log('[Rizzr Auth] initProStatus: no active session found.');
+        return;
+      }
+      console.log('[Rizzr Auth] initProStatus: session active for', session.user.email);
+      const { data, error } = await _supabase
         .from('user_credits').select('is_pro')
         .eq('email', session.user.email).maybeSingle();
-      if (data?.is_pro) setProUnlocked();
-    } catch (_) {}
+      console.log('[Rizzr Auth] initProStatus: user_credits result:', data, error);
+      if (data?.is_pro) {
+        console.log('[Rizzr Auth] initProStatus: is_pro=true → unlocking Pro.');
+        setProUnlocked(session.user.email);
+      }
+    } catch (e) {
+      console.error('[Rizzr Auth] initProStatus error:', e);
+    }
   }
 
   /* Called whenever isPro becomes true from any source */
-  function setProUnlocked() {
+  function setProUnlocked(email) {
+    console.log('[Rizzr Auth] setProUnlocked called' + (email ? ' for ' + email : ''));
     isPro   = true;
     credits = Infinity;
+    /* Cache the confirmed pro email so the UI can restore quickly across navigations
+       without re-waiting for the async session check. Supabase is still the source of truth. */
+    if (email) localStorage.setItem('rizzr_pro_email', email);
     updateCreditsUI();
     applyProGating();
     const btn  = document.getElementById('navLoginBtn');
@@ -1624,7 +1639,15 @@
     document.getElementById('loginSubmitBtnText').textContent = 'sending...';
 
     try {
-      const { error } = await _supabase.auth.signInWithOtp({ email });
+      /* redirectTo MUST point back to app.html so Supabase delivers the session
+         hash here (not to index.html which has no Supabase JS and would silently
+         swallow the token, leaving the user stuck on the free tier). */
+      const redirectTo = window.location.href.split('?')[0].split('#')[0];
+      console.log('[Rizzr Auth] submitMagicLink: sending OTP to', email, '— redirect:', redirectTo);
+      const { error } = await _supabase.auth.signInWithOtp({
+        email,
+        options: { redirectTo }
+      });
       if (error) throw error;
       localStorage.setItem('rizzr_email', email);
       document.getElementById('loginSentEmail').textContent = email;
@@ -2598,28 +2621,49 @@
         const { data } = await _supabase
           .from('user_credits').select('is_pro')
           .eq('email', session.user.email).maybeSingle();
-        if (data?.is_pro) { setProUnlocked(); showToast('pro unlocked ✦'); }
+        if (data?.is_pro) { setProUnlocked(session.user.email); showToast('pro unlocked ✦'); }
       } catch (_) {}
     }
     [1500, 3500, 6500, 11000].forEach(ms => setTimeout(recheckPro, ms));
   }
 
-  /* Auto-unlock when magic link is clicked — session email is the identity */
+  /* Auto-unlock when magic link is clicked — session email is the identity.
+     Supabase fires SIGNED_IN after exchanging the hash token that arrives in the
+     URL after the user clicks their magic link email. This is the definitive place
+     to gate on is_pro because getSession() at init time may fire before the
+     hash exchange completes. */
   _supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log('[Rizzr Auth] onAuthStateChange:', event, session?.user?.email ?? '(no session)');
+
     if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user?.email) {
+      const email = session.user.email;
+      console.log('[Rizzr Auth] SIGNED_IN — querying user_credits for:', email);
       try {
-        const { data } = await _supabase
+        const { data, error } = await _supabase
           .from('user_credits').select('is_pro')
-          .eq('email', session.user.email).maybeSingle();
+          .eq('email', email).maybeSingle();
+        console.log('[Rizzr Auth] user_credits result:', data, error);
         if (data?.is_pro) {
-          setProUnlocked();
+          setProUnlocked(email);
           closeLoginModal();
           showToast('welcome back, pro ✦');
         } else {
           closeLoginModal();
+          /* Row may not exist yet if n8n webhook is still processing; user sees this message */
           showToast('logged in — no active pro subscription found');
+          console.log('[Rizzr Auth] is_pro=false or row missing for', email);
         }
-      } catch (_) {}
+      } catch (e) {
+        console.error('[Rizzr Auth] onAuthStateChange DB error:', e);
+      }
+    }
+
+    if (event === 'SIGNED_OUT') {
+      console.log('[Rizzr Auth] SIGNED_OUT — resetting pro state');
+      isPro   = false;
+      credits = parseInt(localStorage.getItem('rizzr_credits') ?? MAX_FREE);
+      localStorage.removeItem('rizzr_pro_email');
+      updateCreditsUI();
     }
   });
 </script>
