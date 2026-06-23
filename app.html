@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
   <script>document.documentElement.classList.replace('no-js','js');</script>
@@ -1149,7 +1149,7 @@
 
   <div class="submit-bar" id="submitBar">
     <div class="submit-bar-inner">
-      <div class="credits-hint" id="creditsHint"><div class="cr-dot"></div><span id="creditsText">3 free analyses remaining</span></div>
+      <div class="credits-hint" id="creditsHint"><div class="cr-dot"></div><span id="creditsText">2 free analyses remaining</span></div>
       <div class="submit-hint" id="submitHint">pick a vibe to get started</div>
       <div class="slide-btn-outer sb-disabled" id="slideBtnOuter">
         <div class="slide-hint-row" id="slideHintRow" style="visibility:hidden">
@@ -1402,7 +1402,7 @@
 <div class="paywall-overlay" id="paywallOverlay">
   <div class="paywall-sheet">
     <div class="paywall-handle"></div>
-    <div class="paywall-title">you used your <span>3 free</span> shots</div>
+    <div class="paywall-title">you used your <span>2 free</span> shots</div>
     <div class="paywall-sub">unlock unlimited analyses, all 6 modes, and every feature.</div>
     <div class="paywall-stack">
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>unlimited analyses</strong> — no daily cap, ever</span></div>
@@ -1510,7 +1510,7 @@
   }
 
   /* ══ CREDITS SYSTEM ══ */
-  const MAX_FREE = 3;
+  const MAX_FREE = 2;
   let isPro   = false;
   let credits = parseInt(localStorage.getItem('rizzr_credits') ?? MAX_FREE);
   if (isNaN(credits) || credits > MAX_FREE) { credits = MAX_FREE; saveCredits(); }
