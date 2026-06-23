@@ -681,7 +681,7 @@
       font-size: 13px; color: var(--text-primary); line-height: 1.65;
       margin-bottom: 14px; font-style: italic;
     }
-    .testi-author { display: flex; align-items: center; gap: 10px; }
+    .testi-author { margin-top: 2px; }
 
     .testi-name   { font-size: 13px; font-weight: 600; color: var(--text-primary); }
     .testi-handle { font-size: 12px; color: var(--text-muted); }
@@ -909,6 +909,74 @@
 
       .testi-col-3 { display: block; }
     }
+
+    /* ═══════════════════════════════════
+       PHONE MOCKUP
+    ════════════════════════════════════ */
+    .mockup-layout { display:flex; flex-direction:column; align-items:center; gap:48px; margin-top:52px; }
+    @media (min-width:920px) { .mockup-layout { flex-direction:row; align-items:flex-start; gap:64px; } .mockup-callouts { flex:1; padding-top:28px; } }
+    .phone-wrap { position:relative; flex-shrink:0; }
+    .phone-body { width:300px; background:#0A0A14; border-radius:42px; border:1.5px solid rgba(255,255,255,0.12); box-shadow:0 0 0 6px rgba(255,255,255,0.03),0 40px 80px rgba(0,0,0,0.6),0 0 80px rgba(255,45,120,0.07); overflow:hidden; }
+    .phone-notch { width:90px; height:24px; background:#0A0A14; border-radius:0 0 18px 18px; margin:0 auto; position:relative; z-index:2; border:1.5px solid rgba(255,255,255,0.07); border-top:none; }
+    .pm-nav { display:flex; align-items:center; justify-content:space-between; padding:10px 16px 8px; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .pm-logo { font-family:var(--font-display); font-size:15px; font-weight:800; color:var(--white); letter-spacing:-0.03em; }
+    .pm-logo span { color:var(--accent); }
+    .pm-pill { font-size:9px; color:var(--text-muted); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:50px; padding:3px 9px; }
+    .pm-inner { padding:12px 12px 16px; display:flex; flex-direction:column; gap:9px; }
+    .pm-score { background:var(--card); border:1px solid rgba(255,255,255,0.07); border-radius:13px; padding:12px; display:flex; align-items:center; gap:12px; }
+    .pm-ring { width:56px; height:56px; flex-shrink:0; position:relative; }
+    .pm-ring svg { width:56px; height:56px; transform:rotate(-90deg); }
+    .pm-ring-bg { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:6; }
+    .pm-ring-fill { fill:none; stroke:var(--accent); stroke-width:6; stroke-linecap:round; stroke-dasharray:138; stroke-dashoffset:30; }
+    .pm-ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+    .pm-score-num { font-family:var(--font-display); font-size:15px; font-weight:800; color:var(--white); line-height:1; }
+    .pm-score-grade { font-size:7px; font-weight:800; color:var(--accent); letter-spacing:0.1em; text-transform:uppercase; }
+    .pm-score-info { flex:1; min-width:0; }
+    .pm-score-title { font-family:var(--font-display); font-size:12px; font-weight:800; color:var(--white); margin-bottom:2px; }
+    .pm-score-sub { font-size:9px; color:var(--text-secondary); line-height:1.5; }
+    .pm-score-tag { display:inline-flex; align-items:center; gap:3px; font-size:8px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; background:rgba(255,45,120,0.1); border:1px solid rgba(255,45,120,0.2); color:var(--accent); border-radius:50px; padding:2px 7px; margin-top:4px; }
+    .pm-replies-label { font-size:8px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+    .pm-replies-label::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.06); }
+    .pm-reply { background:rgba(23,23,42,0.8); border:1px solid rgba(255,255,255,0.07); border-radius:11px; padding:9px 11px; }
+    .pm-reply.best { border-color:rgba(255,45,120,0.4); background:linear-gradient(135deg,rgba(255,45,120,0.08),rgba(23,23,42,0.8)); position:relative; overflow:hidden; }
+    .pm-reply.best::before { content:''; position:absolute; top:0; left:0; right:0; height:1.5px; background:linear-gradient(90deg,transparent,var(--accent),transparent); }
+    .pm-reply-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+    .pm-tone { font-size:8px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:var(--text-muted); border-radius:50px; padding:2px 6px; }
+    .pm-reply.best .pm-tone { background:rgba(255,45,120,0.1); border-color:rgba(255,45,120,0.25); color:var(--accent); }
+    .pm-best-badge { font-size:8px; font-weight:700; color:var(--accent); background:rgba(255,45,120,0.1); border:1px solid rgba(255,45,120,0.2); border-radius:50px; padding:2px 7px; letter-spacing:0.06em; text-transform:uppercase; }
+    .pm-reply-text { font-size:10.5px; color:var(--text-primary); line-height:1.55; }
+    .pm-reply-footer { display:flex; align-items:center; justify-content:space-between; margin-top:6px; }
+    .pm-rate { font-size:9px; font-weight:600; color:var(--accent2); display:flex; align-items:center; gap:3px; }
+    .pm-rate::before { content:''; width:4px; height:4px; border-radius:50%; background:var(--accent2); flex-shrink:0; }
+    .pm-copy { font-size:9px; font-weight:600; color:var(--text-muted); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.07); border-radius:50px; padding:2px 8px; }
+    .pm-alt-stack { display:flex; flex-direction:column; gap:6px; }
+    .pm-bottom-row { display:flex; gap:7px; }
+    .pm-prob { flex:1; background:var(--card); border:1px solid rgba(255,255,255,0.07); border-radius:11px; padding:9px 10px; }
+    .pm-prob-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+    .pm-prob-label { font-size:8px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); }
+    .pm-prob-num { font-family:var(--font-display); font-size:15px; font-weight:800; color:var(--accent2); }
+    .pm-prob-track { height:4px; background:rgba(255,255,255,0.05); border-radius:50px; overflow:hidden; }
+    .pm-prob-bar { height:100%; width:84%; background:linear-gradient(90deg,var(--accent2),#00c87a); border-radius:50px; }
+    .pm-prob-sub { font-size:8.5px; color:var(--text-muted); margin-top:5px; line-height:1.4; }
+    .pm-vibe { flex:1; background:var(--card); border:1px solid rgba(255,255,255,0.07); border-radius:11px; padding:9px; }
+    .pm-vibe-title { font-size:8px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:7px; }
+    .pm-vibe-dot-row { display:flex; align-items:center; gap:4px; margin-bottom:3px; }
+    .pm-vibe-dot-label { font-size:8px; color:var(--text-muted); min-width:44px; }
+    .pm-vibe-dots { display:flex; gap:2px; }
+    .pm-vd { width:5px; height:5px; border-radius:1.5px; background:rgba(255,255,255,0.08); }
+    .pm-vd.on { background:var(--accent); }
+    .pm-vd.on.g { background:var(--accent2); }
+    .pm-vibe-text { font-size:8.5px; color:var(--text-muted); line-height:1.5; margin-top:6px; border-top:1px solid rgba(255,255,255,0.05); padding-top:5px; }
+    .mockup-callouts { display:flex; flex-direction:column; gap:22px; max-width:420px; }
+    .mc-item { display:flex; align-items:flex-start; gap:14px; }
+    .mc-icon { width:40px; height:40px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:18px; }
+    .mc-icon.pink { background:rgba(255,45,120,0.12); border:1px solid rgba(255,45,120,0.2); }
+    .mc-icon.mint { background:rgba(0,240,160,0.1); border:1px solid rgba(0,240,160,0.18); }
+    .mc-icon.purple { background:rgba(130,80,255,0.12); border:1px solid rgba(130,80,255,0.18); }
+    .mc-icon.gold { background:rgba(255,220,0,0.1); border:1px solid rgba(255,220,0,0.18); }
+    .mc-title { font-family:var(--font-display); font-size:15px; font-weight:800; color:var(--white); margin-bottom:4px; }
+    .mc-desc { font-size:13px; color:var(--text-secondary); line-height:1.6; }
+    .phone-glow { position:absolute; bottom:-28px; left:50%; transform:translateX(-50%); width:180px; height:36px; background:rgba(255,45,120,0.2); filter:blur(28px); border-radius:50%; pointer-events:none; }
   </style>
 
   <script type="application/ld+json">
@@ -1014,7 +1082,7 @@
       <a href="#pricing">pricing</a>
       <a href="#faq">faq</a>
     </div>
-    <button class="nav-cta-metal" onclick="handleCheckout()">unlock the rizz</button>
+    <button class="nav-cta-metal" onclick="handleCheckout()">unlock · $7.99/mo</button>
   </div>
 </nav>
 
@@ -1063,7 +1131,7 @@
 <div class="stats-bar">
   <div class="stats-bar-inner">
     <div class="sb-stat">
-      <div class="sb-num">50k+</div>
+      <div class="sb-num">5k+</div>
       <div class="sb-lbl">conversations coached</div>
     </div>
     <div class="sb-divider"></div>
@@ -1113,7 +1181,7 @@
         <div class="step-num-block">03</div>
         <div class="step-body">
           <div class="step-title">send the reply that lands</div>
-          <div class="step-desc">3 ai-crafted options ready in under 10 seconds. pick the one that feels right and hit send.</div>
+          <div class="step-desc">6 ai-crafted options ready in under 10 seconds. pick the one that feels right and hit send.</div>
         </div>
       </div>
     </div>
@@ -1124,6 +1192,131 @@
 <!-- ══════════════════════════════════
      WHY RIZZR
 ══════════════════════════════════ -->
+
+<!-- ══════════════════════════════════
+     SEE IT IN ACTION — PHONE MOCKUP
+══════════════════════════════════ -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="fade-in" style="text-align:center;">
+      <div class="sec-label">see it in action</div>
+      <h2 class="sec-title">this is what you get<br />in <span class="hi">under 10 seconds.</span></h2>
+    </div>
+    <div class="mockup-layout fade-in delay-1">
+
+      <div class="phone-wrap">
+        <div class="phone-body">
+          <div class="phone-notch"></div>
+          <div style="background:var(--bg);">
+            <div class="pm-nav">
+              <div class="pm-logo">rizz<span>r</span></div>
+              <div class="pm-pill">2 free left</div>
+            </div>
+            <div class="pm-inner">
+              <div class="pm-score">
+                <div class="pm-ring">
+                  <svg viewBox="0 0 56 56">
+                    <circle class="pm-ring-bg" cx="28" cy="28" r="22"/>
+                    <circle class="pm-ring-fill" cx="28" cy="28" r="22"/>
+                  </svg>
+                  <div class="pm-ring-center">
+                    <div class="pm-score-num">78</div>
+                    <div class="pm-score-grade">A</div>
+                  </div>
+                </div>
+                <div class="pm-score-info">
+                  <div class="pm-score-title">solid game</div>
+                  <div class="pm-score-sub">good energy — these replies push you to the next level.</div>
+                  <div class="pm-score-tag"><span style="width:4px;height:4px;border-radius:50%;background:currentColor;display:inline-block;"></span> above average</div>
+                </div>
+              </div>
+              <div class="pm-replies-label">best pick</div>
+              <div class="pm-reply best">
+                <div class="pm-reply-top">
+                  <div class="pm-tone">confident</div>
+                  <div class="pm-best-badge">best pick</div>
+                </div>
+                <div class="pm-reply-text">ok but you describing your whole vibe in one message is either brave or dangerously attractive — still deciding</div>
+                <div class="pm-reply-footer">
+                  <div class="pm-rate">89% reply rate</div>
+                  <div class="pm-copy">copy</div>
+                </div>
+              </div>
+              <div class="pm-replies-label">alternatives</div>
+              <div class="pm-alt-stack">
+                <div class="pm-reply">
+                  <div class="pm-reply-top"><div class="pm-tone">playful</div></div>
+                  <div class="pm-reply-text">that's actually kind of impressive ngl. now i need to know more</div>
+                  <div class="pm-reply-footer"><div></div><div class="pm-copy">copy</div></div>
+                </div>
+                <div class="pm-reply">
+                  <div class="pm-reply-top"><div class="pm-tone">bold</div></div>
+                  <div class="pm-reply-text">alright you've got my attention. what do you do with it?</div>
+                  <div class="pm-reply-footer"><div></div><div class="pm-copy">copy</div></div>
+                </div>
+              </div>
+              <div class="pm-bottom-row">
+                <div class="pm-prob">
+                  <div class="pm-prob-header">
+                    <div class="pm-prob-label">reply prob.</div>
+                    <div class="pm-prob-num">84%</div>
+                  </div>
+                  <div class="pm-prob-track"><div class="pm-prob-bar"></div></div>
+                  <div class="pm-prob-sub">she's checking her phone for your reply.</div>
+                </div>
+                <div class="pm-vibe">
+                  <div class="pm-vibe-title">vibe check</div>
+                  <div class="pm-vibe-dot-row">
+                    <div class="pm-vibe-dot-label">interest</div>
+                    <div class="pm-vibe-dots"><div class="pm-vd on"></div><div class="pm-vd on"></div><div class="pm-vd on"></div><div class="pm-vd on"></div><div class="pm-vd on"></div><div class="pm-vd on"></div><div class="pm-vd"></div><div class="pm-vd"></div></div>
+                  </div>
+                  <div class="pm-vibe-dot-row">
+                    <div class="pm-vibe-dot-label">engage</div>
+                    <div class="pm-vibe-dots"><div class="pm-vd on g"></div><div class="pm-vd on g"></div><div class="pm-vd on g"></div><div class="pm-vd on g"></div><div class="pm-vd on g"></div><div class="pm-vd on g"></div><div class="pm-vd on g"></div><div class="pm-vd"></div></div>
+                  </div>
+                  <div class="pm-vibe-text">asking follow-ups, using your name — she's interested.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-glow"></div>
+      </div>
+
+      <div class="mockup-callouts">
+        <div class="mc-item fade-in delay-1">
+          <div class="mc-icon pink">🎯</div>
+          <div>
+            <div class="mc-title">6 replies, ranked for you</div>
+            <div class="mc-desc">one best pick + 5 alternatives, each with a different tone. confident, playful, bold — you choose the energy.</div>
+          </div>
+        </div>
+        <div class="mc-item fade-in delay-2">
+          <div class="mc-icon mint">📊</div>
+          <div>
+            <div class="mc-title">rizz score + reply odds</div>
+            <div class="mc-desc">see exactly where your conversation stands and how likely your next reply gets a response back.</div>
+          </div>
+        </div>
+        <div class="mc-item fade-in delay-1">
+          <div class="mc-icon purple">🧠</div>
+          <div>
+            <div class="mc-title">full vibe check</div>
+            <div class="mc-desc">interest level, engagement, red flags, green lights — rizzr reads the whole conversation, not just the last message.</div>
+          </div>
+        </div>
+        <div class="mc-item fade-in delay-2">
+          <div class="mc-icon gold">⚡</div>
+          <div>
+            <div class="mc-title">under 10 seconds</div>
+            <div class="mc-desc">screenshot in, 6 replies out. no typing. no account needed to try it.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 <section class="section">
   <div class="container">
     <div class="fade-in" style="text-align:center;">
@@ -1216,7 +1409,7 @@
 ══════════════════════════════════ -->
 <div class="bigstat">
   <div class="bigstat-eyebrow fade-in">conversations coached</div>
-  <div class="bigstat-num fade-in"><span class="hi">50</span>,000<span class="hi">+</span></div>
+  <div class="bigstat-num fade-in"><span class="hi">5</span>,000<span class="hi">+</span></div>
   <div class="bigstat-label fade-in">across every app, every vibe, every situation — and counting.</div>
   <div class="bigstat-pills fade-in delay-1">
     <div class="bigstat-pill">94% got a reply back</div>
@@ -1271,33 +1464,33 @@
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">matched on hinge, had no clue what to say. tried swoon mode and she replied in 4 min. got coffee thursday lol still cant believe it</div>
-              <div class="testi-author"><div><div class="testi-name">Marcus</div><div class="testi-handle">New York</div></div></div>
+              <div class="testi-author"><div class="testi-name">Marcus</div><div class="testi-handle">New York</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">kept telling myself hes just busy lol. vibe check called it out instantly. would of wasted months on him</div>
-              <div class="testi-author"><div><div class="testi-name">Priya</div><div class="testi-handle">Austin</div></div></div>
+              <div class="testi-author"><div class="testi-name">Priya</div><div class="testi-handle">Austin</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">3 months in situationship hell with no idea what to do. 2 weeks using rizzr and she brought up "what are we" herself lmao</div>
-              <div class="testi-author"><div><div class="testi-name">Jake</div><div class="testi-handle">Los Angeles</div></div></div>
+              <div class="testi-author"><div class="testi-name">Jake</div><div class="testi-handle">Los Angeles</div></div>
             </div>
             <!-- duplicate for seamless loop -->
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">matched on hinge, had no clue what to say. tried swoon mode and she replied in 4 min. got coffee thursday lol still cant believe it</div>
-              <div class="testi-author"><div><div class="testi-name">Marcus</div><div class="testi-handle">New York</div></div></div>
+              <div class="testi-author"><div class="testi-name">Marcus</div><div class="testi-handle">New York</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">kept telling myself hes just busy lol. vibe check called it out instantly. would of wasted months on him</div>
-              <div class="testi-author"><div><div class="testi-name">Priya</div><div class="testi-handle">Austin</div></div></div>
+              <div class="testi-author"><div class="testi-name">Priya</div><div class="testi-handle">Austin</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">3 months in situationship hell with no idea what to do. 2 weeks using rizzr and she brought up "what are we" herself lmao</div>
-              <div class="testi-author"><div><div class="testi-name">Jake</div><div class="testi-handle">Los Angeles</div></div></div>
+              <div class="testi-author"><div class="testi-name">Jake</div><div class="testi-handle">Los Angeles</div></div>
             </div>
           </div>
         </div>
@@ -1308,33 +1501,33 @@
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">i type delete type delete every single time. make em laugh mode literally fixed that. didnt realize how bad i was getting</div>
-              <div class="testi-author"><div><div class="testi-name">Sophia</div><div class="testi-handle">Chicago</div></div></div>
+              <div class="testi-author"><div class="testi-name">Sophia</div><div class="testi-handle">Chicago</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">11 days nothing, wrote her off. tried ghost reviver as a joke. she replied in an hour lmao. drinks friday</div>
-              <div class="testi-author"><div><div class="testi-name">Tyler</div><div class="testi-handle">Miami</div></div></div>
+              <div class="testi-author"><div class="testi-name">Tyler</div><div class="testi-handle">Miami</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">she ghosted me TWICE and i still recovered lol. idk how it works but it works. dinner saturday</div>
-              <div class="testi-author"><div><div class="testi-name">Alex</div><div class="testi-handle">Seattle</div></div></div>
+              <div class="testi-author"><div class="testi-name">Alex</div><div class="testi-handle">Seattle</div></div>
             </div>
             <!-- duplicate -->
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">i type delete type delete every single time. make em laugh mode literally fixed that. didnt realize how bad i was getting</div>
-              <div class="testi-author"><div><div class="testi-name">Sophia</div><div class="testi-handle">Chicago</div></div></div>
+              <div class="testi-author"><div class="testi-name">Sophia</div><div class="testi-handle">Chicago</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">11 days nothing, wrote her off. tried ghost reviver as a joke. she replied in an hour lmao. drinks friday</div>
-              <div class="testi-author"><div><div class="testi-name">Tyler</div><div class="testi-handle">Miami</div></div></div>
+              <div class="testi-author"><div class="testi-name">Tyler</div><div class="testi-handle">Miami</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">she ghosted me TWICE and i still recovered lol. idk how it works but it works. dinner saturday</div>
-              <div class="testi-author"><div><div class="testi-name">Alex</div><div class="testi-handle">Seattle</div></div></div>
+              <div class="testi-author"><div class="testi-name">Alex</div><div class="testi-handle">Seattle</div></div>
             </div>
           </div>
         </div>
@@ -1345,33 +1538,33 @@
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">used it for the first time at lunch. 2 matches replied before i finished eating. been on tinder 2 yrs and never had that happen</div>
-              <div class="testi-author"><div><div class="testi-name">Diego</div><div class="testi-handle">Houston</div></div></div>
+              <div class="testi-author"><div class="testi-name">Diego</div><div class="testi-handle">Houston</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">rizz score was 31 and i was like wait thats bad?? vibe check told me exactly why. stopped chasing him immediately</div>
-              <div class="testi-author"><div><div class="testi-name">Emma</div><div class="testi-handle">Boston</div></div></div>
+              <div class="testi-author"><div class="testi-name">Emma</div><div class="testi-handle">Boston</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">sent something awful and panicked lol. used saved mode and she literally laughed it off like nothing. this app is insane</div>
-              <div class="testi-author"><div><div class="testi-name">Connor</div><div class="testi-handle">Denver</div></div></div>
+              <div class="testi-author"><div class="testi-name">Connor</div><div class="testi-handle">Denver</div></div>
             </div>
             <!-- duplicate -->
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">used it for the first time at lunch. 2 matches replied before i finished eating. been on tinder 2 yrs and never had that happen</div>
-              <div class="testi-author"><div><div class="testi-name">Diego</div><div class="testi-handle">Houston</div></div></div>
+              <div class="testi-author"><div class="testi-name">Diego</div><div class="testi-handle">Houston</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">rizz score was 31 and i was like wait thats bad?? vibe check told me exactly why. stopped chasing him immediately</div>
-              <div class="testi-author"><div><div class="testi-name">Emma</div><div class="testi-handle">Boston</div></div></div>
+              <div class="testi-author"><div class="testi-name">Emma</div><div class="testi-handle">Boston</div></div>
             </div>
             <div class="testi-card">
               <div class="testi-stars"><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div><div class="star"></div></div>
               <div class="testi-text">sent something awful and panicked lol. used saved mode and she literally laughed it off like nothing. this app is insane</div>
-              <div class="testi-author"><div><div class="testi-name">Connor</div><div class="testi-handle">Denver</div></div></div>
+              <div class="testi-author"><div class="testi-name">Connor</div><div class="testi-handle">Denver</div></div>
             </div>
           </div>
         </div>

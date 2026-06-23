@@ -1,0 +1,916 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Rizzr — Content Creator Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent:      #FF2D78;
+      --accent-dim:  rgba(255,45,120,0.12);
+      --accent-glow: rgba(255,45,120,0.4);
+      --accent2:     #00F0A0;
+      --accent2-dim: rgba(0,240,160,0.1);
+      --bg:          #06060A;
+      --surface:     #0E0E1A;
+      --card:        #17172A;
+      --card-hover:  #222240;
+      --card-border: rgba(255,255,255,0.07);
+      --white:       #FFFFFF;
+      --text-primary:   rgba(255,255,255,0.93);
+      --text-secondary: rgba(255,255,255,0.6);
+      --text-muted:     rgba(255,255,255,0.35);
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'Plus Jakarta Sans', sans-serif;
+      --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px;
+    }
+
+    html, body { background: var(--bg); color: var(--text-primary); font-family: var(--font-body); min-height: 100vh; }
+
+    /* ─── SETUP PANEL ─── */
+    #setup-panel {
+      position: fixed; top: 0; left: 0; width: 320px; height: 100vh;
+      background: #0d0d1a; border-right: 1px solid var(--card-border);
+      overflow-y: auto; padding: 20px 16px; z-index: 100;
+      display: flex; flex-direction: column; gap: 14px;
+      transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+    }
+    #setup-panel.hidden { transform: translateX(-100%); }
+
+    .setup-title {
+      font-family: var(--font-display); font-size: 14px; font-weight: 800;
+      color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .setup-sub { font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 8px; }
+
+    .setup-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 5px; display: block;
+    }
+    .setup-input, .setup-textarea, .setup-select {
+      width: 100%; background: var(--card); border: 1.5px solid var(--card-border);
+      border-radius: var(--r-md); color: var(--text-primary); font-family: var(--font-body);
+      font-size: 13px; padding: 10px 12px; outline: none; resize: vertical;
+      transition: border-color 0.2s;
+    }
+    .setup-textarea { min-height: 72px; }
+    .setup-input:focus, .setup-textarea:focus, .setup-select:focus { border-color: rgba(255,45,120,0.4); }
+    .setup-select option { background: #17172A; }
+
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .setup-group { display: flex; flex-direction: column; }
+
+    .stage-btn {
+      width: 100%; padding: 13px; background: var(--accent); border: none;
+      border-radius: var(--r-lg); color: #fff; font-family: var(--font-display);
+      font-size: 13px; font-weight: 800; letter-spacing: 0.06em; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+    .stage-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px var(--accent-glow); }
+    .stage-btn:active { transform: scale(0.97); }
+
+    .reset-btn {
+      width: 100%; padding: 10px; background: none; border: 1.5px solid var(--card-border);
+      border-radius: var(--r-lg); color: var(--text-muted); font-family: var(--font-body);
+      font-size: 12px; cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    .reset-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text-secondary); }
+
+    .divider { height: 1px; background: var(--card-border); }
+
+    /* ─── MAIN DEMO AREA ─── */
+    #demo-area {
+      margin-left: 320px; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      transition: margin-left 0.4s cubic-bezier(0.23,1,0.32,1);
+    }
+    #demo-area.fullscreen { margin-left: 0; }
+
+    /* ─── PHONE FRAME ─── */
+    .phone-frame {
+      width: 390px; min-height: 844px;
+      background: var(--bg);
+      border-left: 1px solid var(--card-border);
+      border-right: 1px solid var(--card-border);
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+
+    /* ─── NAV ─── */
+    .demo-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--card-border);
+      flex-shrink: 0;
+    }
+    .nav-logo {
+      font-family: var(--font-display); font-size: 20px; font-weight: 800;
+      color: var(--white); letter-spacing: -0.03em;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-uses {
+      font-size: 12px; color: var(--text-muted);
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 50px; padding: 4px 12px;
+    }
+
+    /* ─── SCREENS ─── */
+    .screen { flex: 1; overflow-y: auto; padding: 0; }
+    .screen::-webkit-scrollbar { display: none; }
+
+    /* Upload screen */
+    #screen-upload {
+      padding: 24px 20px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    .upload-zone {
+      width: 100%; aspect-ratio: 9/7;
+      background: var(--card); border: 2px dashed var(--card-border);
+      border-radius: var(--r-xl); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 12px;
+      cursor: pointer; transition: border-color 0.2s;
+      overflow: hidden; position: relative;
+    }
+    .upload-zone:hover { border-color: rgba(255,45,120,0.3); }
+    .upload-zone img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; border-radius: var(--r-xl); }
+    .upload-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .upload-icon { font-size: 36px; }
+    .upload-label { font-size: 13px; color: var(--text-secondary); }
+    .upload-sub { font-size: 11px; color: var(--text-muted); }
+
+    .mode-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    .mode-card {
+      background: var(--card); border: 1.5px solid var(--card-border);
+      border-radius: var(--r-md); padding: 10px 8px;
+      cursor: pointer; transition: all 0.2s; text-align: center;
+    }
+    .mode-card:active { transform: scale(0.96); }
+    .mode-card.selected.swoon { border-color:#FF2D78; background:rgba(255,45,120,0.1); box-shadow:0 0 16px rgba(255,45,120,0.18); }
+    .mode-card.selected.spicy { border-color:#FF6B35; background:rgba(255,107,53,0.1); box-shadow:0 0 16px rgba(255,107,53,0.18); }
+    .mode-card.selected.saved { border-color:#00F0A0; background:rgba(0,240,160,0.08); box-shadow:0 0 16px rgba(0,240,160,0.15); }
+    .mode-card.selected.laugh { border-color:#FFD60A; background:rgba(255,214,10,0.08); box-shadow:0 0 16px rgba(255,214,10,0.15); }
+    .mode-card.selected.ice   { border-color:#4FC3F7; background:rgba(79,195,247,0.09); box-shadow:0 0 16px rgba(79,195,247,0.15); }
+    .mode-card.selected.ghost { border-color:#C084FC; background:rgba(192,132,252,0.09); box-shadow:0 0 16px rgba(192,132,252,0.15); }
+    .mode-emoji { font-size: 22px; margin-bottom: 4px; }
+    .mode-name { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); }
+
+    .context-input {
+      width: 100%; background: var(--card); border: 1.5px solid var(--card-border);
+      border-radius: var(--r-md); color: var(--text-primary); font-family: var(--font-body);
+      font-size: 14px; padding: 12px 16px; outline: none; resize: none; height: 60px;
+    }
+    .context-input:focus { border-color: rgba(255,45,120,0.35); }
+    .context-input::placeholder { color: var(--text-muted); }
+
+    .analyze-btn {
+      width: 100%; padding: 16px; background: var(--accent); border: none;
+      border-radius: var(--r-lg); color: #fff; font-family: var(--font-display);
+      font-size: 16px; font-weight: 800; letter-spacing: -0.01em; cursor: pointer;
+      box-shadow: 0 4px 24px var(--accent-glow);
+      transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+    }
+    .analyze-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 32px var(--accent-glow); }
+    .analyze-btn:active { transform: scale(0.97); }
+    .analyze-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* Loading screen */
+    #screen-loading {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      gap: 32px; padding: 60px 20px;
+    }
+    .loading-blobs { position: relative; width: 120px; height: 120px; }
+    .loading-blob {
+      position: absolute; border-radius: 50%; filter: blur(18px);
+      animation: blobFloat 3s ease-in-out infinite;
+    }
+    .lb1 { width:80px; height:80px; background:rgba(255,45,120,0.6); top:10px; left:10px; animation-delay:0s; }
+    .lb2 { width:60px; height:60px; background:rgba(0,240,160,0.4); bottom:5px; right:5px; animation-delay:1.2s; }
+    .lb3 { width:50px; height:50px; background:rgba(192,132,252,0.35); top:30px; right:15px; animation-delay:0.6s; }
+    @keyframes blobFloat { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(5px,-8px) scale(1.08);} }
+
+    .loading-logo-txt {
+      font-family: var(--font-display); font-size: 22px; font-weight: 800;
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      letter-spacing: -0.03em;
+    }
+    .loading-logo-txt span { color: var(--accent); }
+
+    .loading-steps { display: flex; flex-direction: column; gap: 10px; }
+    .loading-step {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; color: var(--text-muted); transition: color 0.4s;
+    }
+    .loading-step.active { color: var(--text-primary); }
+    .loading-step.done   { color: var(--accent2); }
+    .ls-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      background: var(--card-border); transition: background 0.4s, box-shadow 0.4s;
+    }
+    .loading-step.active .ls-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); animation: dotPulse 0.9s ease-in-out infinite; }
+    .loading-step.done   .ls-dot { background: var(--accent2); animation: none; }
+    @keyframes dotPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.5);} }
+
+    /* Results screen */
+    #screen-results {
+      display: none; flex-direction: column; gap: 16px;
+      padding: 20px 20px 48px;
+    }
+
+    /* Rizz score */
+    .rizz-score-block {
+      background: var(--card); border: 1.5px solid var(--card-border);
+      border-radius: var(--r-lg); padding: 20px 18px;
+      display: flex; align-items: center; gap: 18px;
+      position: relative; overflow: hidden;
+    }
+    .rizz-score-block::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(ellipse at 20% 50%,rgba(255,45,120,0.07),transparent 65%);
+      pointer-events:none;
+    }
+    .rizz-ring-wrap { position:relative; flex-shrink:0; width:80px; height:80px; }
+    .rizz-ring-wrap svg { width:80px; height:80px; transform:rotate(-90deg); }
+    .rizz-ring-bg  { fill:none; stroke:rgba(255,255,255,0.06); stroke-width:7; }
+    .rizz-ring-fill {
+      fill:none; stroke:var(--accent); stroke-width:7; stroke-linecap:round;
+      stroke-dasharray:220; stroke-dashoffset:220;
+      transition:stroke-dashoffset 1.6s cubic-bezier(0.23,1,0.32,1);
+    }
+    .rizz-ring-center {
+      position:absolute; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+    }
+    .rizz-num { font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--white); line-height:1; }
+    .rizz-grade { font-family:var(--font-display); font-size:10px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); }
+    .rizz-info { flex:1; }
+    .rizz-title { font-family:var(--font-display); font-size:17px; font-weight:800; color:var(--white); letter-spacing:-0.02em; margin-bottom:3px; }
+    .rizz-title span { color:var(--accent); }
+    .rizz-subtitle { font-size:12px; color:var(--text-secondary); line-height:1.5; }
+    .rizz-label-pill {
+      display:inline-flex; align-items:center; gap:4px;
+      font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+      border-radius:50px; padding:3px 9px; margin-top:7px; border:1px solid;
+    }
+    .pill-dot { width:5px; height:5px; border-radius:50%; animation:blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+    /* Reply section label */
+    .reply-section-label {
+      font-size:10px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
+      color:var(--text-muted); margin-bottom:6px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .reply-section-label::after { content:''; flex:1; height:1px; background:var(--card-border); }
+
+    /* Reply cards */
+    .reply-card {
+      background:rgba(23,23,42,0.7); border:1.5px solid var(--card-border);
+      border-radius:var(--r-lg); padding:16px 16px 12px;
+      display:flex; flex-direction:column; gap:10px;
+      backdrop-filter:blur(10px); position:relative; overflow:hidden;
+    }
+    .reply-card.best {
+      border-color:rgba(255,45,120,0.45);
+      background:linear-gradient(135deg,rgba(255,45,120,0.08) 0%,rgba(23,23,42,0.7) 60%);
+      box-shadow:0 0 28px rgba(255,45,120,0.12);
+    }
+    .reply-card.best::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,transparent,var(--accent),transparent);
+    }
+    .reply-card-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .reply-tone-tag {
+      display:inline-flex; align-items:center;
+      font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+      border-radius:50px; padding:3px 9px; color:var(--text-muted); width:fit-content;
+    }
+    .reply-card.best .reply-tone-tag { background:rgba(255,45,120,0.1); border-color:rgba(255,45,120,0.25); color:var(--accent); }
+    .best-badge {
+      display:inline-flex; align-items:center; gap:4px;
+      font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+      color:var(--accent); background:var(--accent-dim); border:1px solid rgba(255,45,120,0.25);
+      border-radius:50px; padding:3px 9px;
+    }
+    .best-badge-dot { width:5px; height:5px; background:var(--accent); border-radius:50%; animation:blink 2s infinite; }
+    .reply-text { font-size:14px; color:var(--text-primary); line-height:1.65; font-weight:500; min-height:20px; }
+    .reply-card.best .reply-text { font-size:15px; }
+    .tw-cursor { display:inline-block; width:2px; height:1em; background:var(--accent); vertical-align:text-bottom; margin-left:2px; animation:twBlink 0.7s ease-in-out infinite; }
+    @keyframes twBlink { 0%,100%{opacity:1;} 49%{opacity:1;} 50%,99%{opacity:0;} }
+    .reply-footer { display:flex; align-items:center; justify-content:space-between; }
+    .reply-rate { display:flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--accent2); opacity:0.85; }
+    .reply-rate::before { content:''; display:block; width:5px; height:5px; border-radius:50%; background:var(--accent2); flex-shrink:0; }
+    .copy-btn {
+      display:inline-flex; align-items:center; gap:5px;
+      background:var(--card-hover); border:1px solid var(--card-border);
+      color:var(--text-secondary); font-family:var(--font-body);
+      font-size:11px; font-weight:600; padding:7px 12px; border-radius:50px;
+      cursor:pointer; transition:all 0.2s; min-height:32px;
+    }
+    .copy-btn:active { transform:scale(0.94); }
+    .copy-btn.copied { background:var(--accent2-dim); border-color:rgba(0,240,160,0.3); color:var(--accent2); }
+    .alt-replies { display:flex; flex-direction:column; gap:8px; }
+
+    /* Prob card */
+    .prob-card { background:var(--card); border:1.5px solid var(--card-border); border-radius:var(--r-lg); padding:18px 16px; }
+    .prob-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .prob-title { font-family:var(--font-display); font-size:14px; font-weight:800; color:var(--white); }
+    .prob-percent-badge { font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--accent2); transition:color 0.5s; }
+    .prob-track { width:100%; height:9px; background:rgba(255,255,255,0.05); border-radius:50px; overflow:hidden; margin-bottom:9px; }
+    .prob-bar { height:100%; border-radius:50px; width:0%; background:linear-gradient(90deg,var(--accent2),#00c87a); transition:width 1.4s cubic-bezier(0.23,1,0.32,1); box-shadow:0 0 10px rgba(0,240,160,0.4); }
+    .prob-verdict { font-size:12px; color:var(--text-secondary); line-height:1.5; }
+    .prob-verdict strong { color:var(--accent2); }
+
+    /* Vibe check card */
+    .vibecheck-card { background:var(--card); border:1.5px solid var(--card-border); border-radius:var(--r-lg); padding:18px 16px; }
+    .vibecheck-title { font-family:var(--font-display); font-size:14px; font-weight:800; color:var(--white); margin-bottom:4px; }
+    .vibecheck-subtitle { font-size:12px; color:var(--text-muted); margin-bottom:14px; }
+    .score-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; font-size:12px; color:var(--text-secondary); }
+    .score-pips { display:flex; gap:3px; }
+    .score-pip { width:7px; height:7px; border-radius:2px; background:var(--card-border); transition:background 0.3s; }
+    .score-pip.on { background:var(--accent); }
+    .score-pip.on.g { background:var(--accent2); }
+    .vibe-text { font-size:12px; color:var(--text-secondary); line-height:1.6; padding-top:10px; border-top:1px solid var(--card-border); }
+
+    /* Retry btn */
+    .retry-btn {
+      width:100%; padding:14px; background:none; border:1.5px solid var(--card-border);
+      border-radius:var(--r-lg); color:var(--text-secondary); font-family:var(--font-display);
+      font-size:14px; font-weight:800; cursor:pointer; transition:all 0.2s; letter-spacing:-0.01em;
+    }
+    .retry-btn:hover { border-color:rgba(255,45,120,0.3); color:var(--text-primary); }
+
+    /* Result reveal animation */
+    .result-item { opacity:0; transform:translateY(12px); animation:resultIn 0.45s cubic-bezier(0.23,1,0.32,1) forwards; }
+    @keyframes resultIn { to { opacity:1; transform:none; } }
+
+    /* ─── TOGGLE PANEL BTN (during recording) ─── */
+    #toggle-panel-btn {
+      position: fixed; top: 12px; left: 12px; z-index: 200;
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 50px; padding: 8px 14px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted);
+      cursor: pointer; transition: all 0.2s;
+    }
+    #toggle-panel-btn:hover { color: var(--text-primary); border-color: rgba(255,45,120,0.3); }
+    #toggle-panel-btn.hidden-panel { left: 12px; }
+
+    /* ─── RECORDING INDICATOR ─── */
+    #rec-indicator {
+      position: fixed; top: 12px; right: 12px; z-index: 200;
+      display: none; align-items: center; gap: 6px;
+      background: rgba(255,45,120,0.15); border: 1px solid rgba(255,45,120,0.3);
+      border-radius: 50px; padding: 6px 12px;
+      font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 0.1em;
+    }
+    #rec-indicator.show { display: flex; }
+    .rec-dot { width:7px; height:7px; background:var(--accent); border-radius:50%; animation:blink 1s infinite; }
+
+    @media (max-width: 720px) {
+      #setup-panel { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--card-border); }
+      #demo-area { margin-left: 0; }
+      .phone-frame { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── SETUP PANEL ─── -->
+<div id="setup-panel">
+  <div class="setup-title">Content Setup</div>
+  <div class="setup-sub">Llená las respuestas antes de grabar. Nadie más ve este panel.</div>
+
+  <div class="divider"></div>
+
+  <div class="setup-group">
+    <label class="setup-label">Modo seleccionado</label>
+    <select class="setup-select" id="inp-mode">
+      <option value="swoon">💘 Swoon</option>
+      <option value="spicy">🌶️ Spicy</option>
+      <option value="saved">🛟 Saved</option>
+      <option value="laugh">😭 Make 'em laugh</option>
+      <option value="ice">🧊 Ice Breaker</option>
+      <option value="ghost">👻 Ghost Reviver</option>
+    </select>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="setup-group">
+    <label class="setup-label">🥇 Mejor respuesta (card 1 — "Best Pick")</label>
+    <textarea class="setup-textarea" id="inp-r1" placeholder="ej: ok your trail mix recommendation or we're not talking fr"></textarea>
+    <input class="setup-input" id="inp-t1" placeholder="Tone tag ej: confident" style="margin-top:6px;" />
+    <input class="setup-input" id="inp-rate1" placeholder="Reply rate ej: 87% reply rate" style="margin-top:6px;" />
+  </div>
+
+  <div class="setup-group">
+    <label class="setup-label">Alternativa 1 (card 2)</label>
+    <textarea class="setup-textarea" id="inp-r2" placeholder="segunda opción..."></textarea>
+    <input class="setup-input" id="inp-t2" placeholder="Tone tag ej: playful" style="margin-top:6px;" />
+  </div>
+
+  <div class="setup-group">
+    <label class="setup-label">Alternativa 2 (card 3)</label>
+    <textarea class="setup-textarea" id="inp-r3" placeholder="tercera opción..."></textarea>
+    <input class="setup-input" id="inp-t3" placeholder="Tone tag ej: bold" style="margin-top:6px;" />
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="row2">
+    <div class="setup-group">
+      <label class="setup-label">Rizz Score (0–100)</label>
+      <input class="setup-input" id="inp-score" type="number" min="0" max="100" value="34" />
+    </div>
+    <div class="setup-group">
+      <label class="setup-label">Prob % (barra)</label>
+      <input class="setup-input" id="inp-prob" type="number" min="0" max="100" value="73" />
+    </div>
+  </div>
+
+  <div class="setup-group">
+    <label class="setup-label">Vibe check — análisis (texto)</label>
+    <textarea class="setup-textarea" id="inp-vibe" placeholder="ej: she's testing your confidence — one-word replies signal she's interested but waiting for you to lead..."></textarea>
+  </div>
+
+  <div class="setup-group">
+    <label class="setup-label">Prob verdict (debajo de la barra)</label>
+    <textarea class="setup-textarea" id="inp-verdict" placeholder="ej: she left you on read but her previous replies were short — not cold, just busy. a confident nudge with a 73% shot at pulling her back." style="min-height:56px;"></textarea>
+  </div>
+
+  <button class="reset-btn" onclick="loadExample()" style="border-color:rgba(0,240,160,0.28);color:var(--accent2);">✨ cargar ejemplo listo</button>
+  <button class="stage-btn" onclick="stageDemo()">Stage for recording →</button>
+  <button class="reset-btn" onclick="resetDemo()">Reset / start over</button>
+</div>
+
+<!-- ─── TOGGLE PANEL BUTTON ─── -->
+<button id="toggle-panel-btn" onclick="togglePanel()">⚙ Setup</button>
+
+<!-- ─── REC INDICATOR ─── -->
+<div id="rec-indicator"><span class="rec-dot"></span>RECORDING DEMO</div>
+
+<!-- ─── DEMO AREA ─── -->
+<div id="demo-area">
+  <div class="phone-frame">
+    <!-- NAV -->
+    <div class="demo-nav">
+      <div class="nav-logo">rizz<span>r</span></div>
+      <div class="nav-uses" id="nav-uses-txt">2 free analyses left</div>
+    </div>
+
+    <!-- UPLOAD SCREEN -->
+    <div class="screen" id="screen-upload">
+      <div class="upload-zone" id="upload-zone" onclick="triggerUpload()">
+        <div class="upload-placeholder" id="upload-placeholder">
+          <div class="upload-icon">📱</div>
+          <div class="upload-label">tap to upload screenshot</div>
+          <div class="upload-sub">tinder · hinge · imessage · ig · bumble</div>
+        </div>
+        <img id="preview-img" style="display:none;" />
+      </div>
+      <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleFile(event)" />
+
+      <div class="mode-grid" id="mode-grid">
+        <div class="mode-card swoon" data-mode="swoon" onclick="selectMode(this)">
+          <div class="mode-emoji">💘</div><div class="mode-name">Swoon</div>
+        </div>
+        <div class="mode-card spicy" data-mode="spicy" onclick="selectMode(this)">
+          <div class="mode-emoji">🌶️</div><div class="mode-name">Spicy</div>
+        </div>
+        <div class="mode-card saved" data-mode="saved" onclick="selectMode(this)">
+          <div class="mode-emoji">🛟</div><div class="mode-name">Saved</div>
+        </div>
+        <div class="mode-card laugh" data-mode="laugh" onclick="selectMode(this)">
+          <div class="mode-emoji">😭</div><div class="mode-name">Make 'em laugh</div>
+        </div>
+        <div class="mode-card ice" data-mode="ice" onclick="selectMode(this)">
+          <div class="mode-emoji">🧊</div><div class="mode-name">Ice Breaker</div>
+        </div>
+        <div class="mode-card ghost" data-mode="ghost" onclick="selectMode(this)">
+          <div class="mode-emoji">👻</div><div class="mode-name">Ghost Reviver</div>
+        </div>
+      </div>
+
+      <textarea class="context-input" id="context-input" placeholder="optional context — who is she? what's the situation?"></textarea>
+
+      <button class="analyze-btn" id="analyze-btn" onclick="startAnalysis()">analyze ✨</button>
+    </div>
+
+    <!-- LOADING SCREEN -->
+    <div class="screen" id="screen-loading" style="display:flex;">
+      <div class="loading-blobs">
+        <div class="loading-blob lb1"></div>
+        <div class="loading-blob lb2"></div>
+        <div class="loading-blob lb3"></div>
+        <div class="loading-logo-txt">rizz<span>r</span></div>
+      </div>
+      <div class="loading-steps">
+        <div class="loading-step" id="ls1"><div class="ls-dot"></div>reading the screenshot...</div>
+        <div class="loading-step" id="ls2"><div class="ls-dot"></div>analyzing conversation tone...</div>
+        <div class="loading-step" id="ls3"><div class="ls-dot"></div>crafting your replies...</div>
+        <div class="loading-step" id="ls4"><div class="ls-dot"></div>done ✓</div>
+      </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div class="screen" id="screen-results" style="display:flex; flex-direction:column; gap:14px; padding:20px 20px 48px;">
+
+      <div class="rizz-score-block result-item" id="res-score-block" style="animation-delay:0.05s">
+        <div class="rizz-ring-wrap">
+          <svg viewBox="0 0 88 88">
+            <circle class="rizz-ring-bg" cx="44" cy="44" r="35"/>
+            <circle class="rizz-ring-fill" id="ring-fill" cx="44" cy="44" r="35"/>
+          </svg>
+          <div class="rizz-ring-center">
+            <div class="rizz-num" id="res-score-num">—</div>
+            <div class="rizz-grade" id="res-score-grade">—</div>
+          </div>
+        </div>
+        <div class="rizz-info">
+          <div class="rizz-title" id="res-score-title">rizz score</div>
+          <div class="rizz-subtitle" id="res-score-sub">analyzing your current energy...</div>
+          <div class="rizz-label-pill" id="res-label-pill" style="border-color:rgba(255,45,120,0.3); color:var(--accent); background:rgba(255,45,120,0.08);">
+            <span class="pill-dot" style="background:var(--accent);"></span>
+            <span id="res-pill-txt">analyzing</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="replies-section" class="result-item" style="animation-delay:0.15s">
+        <div class="reply-section-label">best pick</div>
+        <div class="reply-card best" id="res-card1">
+          <div class="reply-card-top">
+            <div class="reply-tone-tag" id="res-tone1">—</div>
+            <div class="best-badge"><div class="best-badge-dot"></div>best pick</div>
+          </div>
+          <div class="reply-text" id="res-r1"></div>
+          <div class="reply-footer">
+            <div class="reply-rate" id="res-rate1">—</div>
+            <button class="copy-btn" onclick="copyReply(1)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="5" width="8" height="9" rx="1.5"/><path d="M3 11V3a1 1 0 011-1h7"/></svg>
+              copy
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="alt-section" class="result-item" style="animation-delay:0.25s">
+        <div class="reply-section-label">alternatives</div>
+        <div class="alt-replies">
+          <div class="reply-card" id="res-card2">
+            <div class="reply-card-top">
+              <div class="reply-tone-tag" id="res-tone2">—</div>
+            </div>
+            <div class="reply-text" id="res-r2"></div>
+            <div class="reply-footer">
+              <div></div>
+              <button class="copy-btn" onclick="copyReply(2)">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="5" width="8" height="9" rx="1.5"/><path d="M3 11V3a1 1 0 011-1h7"/></svg>
+                copy
+              </button>
+            </div>
+          </div>
+          <div class="reply-card" id="res-card3">
+            <div class="reply-card-top">
+              <div class="reply-tone-tag" id="res-tone3">—</div>
+            </div>
+            <div class="reply-text" id="res-r3"></div>
+            <div class="reply-footer">
+              <div></div>
+              <button class="copy-btn" onclick="copyReply(3)">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="5" width="8" height="9" rx="1.5"/><path d="M3 11V3a1 1 0 011-1h7"/></svg>
+                copy
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="prob-card result-item" id="res-prob-block" style="animation-delay:0.35s">
+        <div class="prob-header">
+          <div class="prob-title">reply probability</div>
+          <div class="prob-percent-badge" id="res-prob-num">—</div>
+        </div>
+        <div class="prob-track"><div class="prob-bar" id="res-prob-bar"></div></div>
+        <div class="prob-verdict" id="res-verdict">—</div>
+      </div>
+
+      <div class="vibecheck-card result-item" id="res-vibe-block" style="animation-delay:0.45s">
+        <div class="vibecheck-title">vibe check</div>
+        <div class="vibecheck-subtitle">what's really going on</div>
+        <div class="score-row">
+          <span>interest level</span>
+          <div class="score-pips" id="pip-interest"></div>
+        </div>
+        <div class="score-row">
+          <span>engagement</span>
+          <div class="score-pips" id="pip-engage"></div>
+        </div>
+        <div class="vibe-text" id="res-vibe-text">—</div>
+      </div>
+
+      <button class="retry-btn" onclick="resetToUpload()">← analyze another</button>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── STATE ───
+  let demoData = {};
+  let currentMode = 'swoon';
+  let panelVisible = true;
+
+  // ─── SETUP PANEL ───
+  function selectMode(el) {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    currentMode = el.dataset.mode;
+    const sel = document.getElementById('inp-mode');
+    sel.value = currentMode;
+  }
+
+  function togglePanel() {
+    panelVisible = !panelVisible;
+    const panel = document.getElementById('setup-panel');
+    const area = document.getElementById('demo-area');
+    const btn = document.getElementById('toggle-panel-btn');
+    if (panelVisible) {
+      panel.classList.remove('hidden');
+      area.classList.remove('fullscreen');
+      btn.textContent = '⚙ Setup';
+    } else {
+      panel.classList.add('hidden');
+      area.classList.add('fullscreen');
+      btn.textContent = '⚙ Setup';
+    }
+  }
+
+  function stageDemo() {
+    // Read all setup values
+    demoData = {
+      mode:    document.getElementById('inp-mode').value,
+      r1:      document.getElementById('inp-r1').value.trim(),
+      t1:      document.getElementById('inp-t1').value.trim() || 'confident',
+      rate1:   document.getElementById('inp-rate1').value.trim() || '81% reply rate',
+      r2:      document.getElementById('inp-r2').value.trim(),
+      t2:      document.getElementById('inp-t2').value.trim() || 'playful',
+      r3:      document.getElementById('inp-r3').value.trim(),
+      t3:      document.getElementById('inp-t3').value.trim() || 'bold',
+      score:   parseInt(document.getElementById('inp-score').value) || 34,
+      prob:    parseInt(document.getElementById('inp-prob').value) || 73,
+      vibe:    document.getElementById('inp-vibe').value.trim(),
+      verdict: document.getElementById('inp-verdict').value.trim(),
+    };
+
+    // Sync mode card selection
+    document.querySelectorAll('.mode-card').forEach(c => {
+      c.classList.remove('selected');
+      if (c.dataset.mode === demoData.mode) c.classList.add('selected');
+    });
+    currentMode = demoData.mode;
+
+    // Show upload screen, hide others
+    showScreen('upload');
+    resetLoadingSteps();
+
+    // Hide setup panel, go fullscreen
+    panelVisible = false;
+    document.getElementById('setup-panel').classList.add('hidden');
+    document.getElementById('demo-area').classList.add('fullscreen');
+    document.getElementById('rec-indicator').classList.add('show');
+    document.getElementById('toggle-panel-btn').textContent = '⚙ Setup';
+  }
+
+  function resetDemo() {
+    showScreen('upload');
+    resetLoadingSteps();
+    document.getElementById('rec-indicator').classList.remove('show');
+  }
+
+  // ─── UPLOAD FLOW ───
+  function triggerUpload() {
+    document.getElementById('file-input').click();
+  }
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    const img = document.getElementById('preview-img');
+    const ph = document.getElementById('upload-placeholder');
+    img.src = url;
+    img.style.display = 'block';
+    ph.style.display = 'none';
+  }
+
+  function selectMode(el) {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    currentMode = el.dataset.mode;
+  }
+
+  // ─── ANALYSIS FLOW ───
+  function startAnalysis() {
+    const btn = document.getElementById('analyze-btn');
+    btn.disabled = true;
+    showScreen('loading');
+    resetLoadingSteps();
+    runLoadingSequence();
+  }
+
+  function resetLoadingSteps() {
+    ['ls1','ls2','ls3','ls4'].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.remove('active', 'done');
+    });
+  }
+
+  function runLoadingSequence() {
+    const steps = ['ls1','ls2','ls3','ls4'];
+    const timings = [0, 1200, 2400, 3800];
+    steps.forEach((id, i) => {
+      setTimeout(() => {
+        if (i > 0) document.getElementById(steps[i-1]).classList.replace('active','done');
+        document.getElementById(id).classList.add('active');
+      }, timings[i]);
+    });
+    setTimeout(() => {
+      document.getElementById('ls4').classList.replace('active','done');
+      showResults();
+    }, 5200);
+  }
+
+  function showResults() {
+    showScreen('results');
+    populateResults();
+  }
+
+  function populateResults() {
+    const d = demoData;
+    if (!d.r1) return; // no data set up, show blanks
+
+    // Score ring
+    const score = d.score;
+    const circumference = 220;
+    const offset = circumference - (score / 100) * circumference;
+    setTimeout(() => {
+      document.getElementById('ring-fill').style.strokeDashoffset = offset;
+    }, 100);
+
+    // Score label
+    document.getElementById('res-score-num').textContent = score;
+    let grade, title, sub, pillTxt;
+    if (score >= 80) { grade = 'S'; title = 'elite rizz'; sub = "you're already cooking — these replies keep the momentum going."; pillTxt = 'already strong'; }
+    else if (score >= 60) { grade = 'A'; title = 'solid game'; sub = "good foundation. these replies push you to the next level."; pillTxt = 'above average'; }
+    else if (score >= 40) { grade = 'B'; title = 'needs work'; sub = "there's interest but the texts aren't landing. use these to reset."; pillTxt = 'room to grow'; }
+    else if (score >= 20) { grade = 'C'; title = 'low energy'; sub = "the convo is going flat. one of these can restart it."; pillTxt = 'rescue mode'; }
+    else { grade = 'D'; title = 'critical'; sub = "this convo needs an immediate save. send one of these now."; pillTxt = 'emergency fix'; }
+    document.getElementById('res-score-grade').textContent = grade;
+    document.getElementById('res-score-title').textContent = title;
+    document.getElementById('res-score-sub').textContent = sub;
+    document.getElementById('res-pill-txt').textContent = pillTxt;
+
+    // Replies — typewriter effect
+    if (d.r1) {
+      document.getElementById('res-tone1').textContent = d.t1;
+      document.getElementById('res-rate1').textContent = d.rate1;
+      typewrite('res-r1', d.r1, 0);
+    }
+    if (d.r2) {
+      document.getElementById('res-tone2').textContent = d.t2;
+      typewrite('res-r2', d.r2, 600);
+    }
+    if (d.r3) {
+      document.getElementById('res-tone3').textContent = d.t3;
+      typewrite('res-r3', d.r3, 1200);
+    }
+
+    // Prob
+    const prob = d.prob;
+    document.getElementById('res-prob-num').textContent = prob + '%';
+    setTimeout(() => {
+      document.getElementById('res-prob-bar').style.width = prob + '%';
+    }, 400);
+    if (d.verdict) document.getElementById('res-verdict').innerHTML = d.verdict;
+
+    // Vibe pips
+    const iScore = Math.round((score / 100) * 8);
+    const eScore = Math.round((prob / 100) * 8);
+    buildPips('pip-interest', iScore, 8, false);
+    buildPips('pip-engage', eScore, 8, true);
+    if (d.vibe) document.getElementById('res-vibe-text').textContent = d.vibe;
+
+    // Animate result items
+    document.querySelectorAll('.result-item').forEach(el => {
+      el.style.animationPlayState = 'running';
+    });
+  }
+
+  function buildPips(containerId, on, total, green) {
+    const c = document.getElementById(containerId);
+    c.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+      const pip = document.createElement('div');
+      pip.className = 'score-pip' + (i < on ? (green ? ' on g' : ' on') : '');
+      c.appendChild(pip);
+    }
+  }
+
+  function typewrite(elId, text, delay) {
+    const el = document.getElementById(elId);
+    el.textContent = '';
+    const cursor = document.createElement('span');
+    cursor.className = 'tw-cursor';
+    el.appendChild(cursor);
+    let i = 0;
+    const speed = Math.max(18, Math.min(40, 2200 / text.length));
+    setTimeout(() => {
+      const timer = setInterval(() => {
+        if (i < text.length) {
+          el.insertBefore(document.createTextNode(text[i]), cursor);
+          i++;
+        } else {
+          clearInterval(timer);
+          setTimeout(() => cursor.remove(), 800);
+        }
+      }, speed);
+    }, delay);
+  }
+
+  // ─── COPY ───
+  function copyReply(n) {
+    const texts = { 1: demoData.r1, 2: demoData.r2, 3: demoData.r3 };
+    const text = texts[n];
+    if (!text) return;
+    navigator.clipboard.writeText(text).catch(() => {});
+    const btn = document.querySelector(`#res-card${n} .copy-btn`);
+    if (btn) {
+      btn.classList.add('copied');
+      btn.textContent = 'copied ✓';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="5" width="8" height="9" rx="1.5"/><path d="M3 11V3a1 1 0 011-1h7"/></svg> copy';
+      }, 2000);
+    }
+  }
+
+  // ─── SCREEN MANAGEMENT ───
+  function showScreen(name) {
+    document.getElementById('screen-upload').style.display = 'none';
+    document.getElementById('screen-loading').style.display = 'none';
+    document.getElementById('screen-results').style.display = 'none';
+    if (name === 'upload') {
+      document.getElementById('screen-upload').style.display = 'flex';
+      document.getElementById('screen-upload').style.flexDirection = 'column';
+      document.getElementById('analyze-btn').disabled = false;
+    } else if (name === 'loading') {
+      document.getElementById('screen-loading').style.display = 'flex';
+      document.getElementById('screen-loading').style.flexDirection = 'column';
+    } else if (name === 'results') {
+      document.getElementById('screen-results').style.display = 'flex';
+      // Re-trigger animations
+      document.querySelectorAll('.result-item').forEach((el, i) => {
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.style.animation = '';
+      });
+    }
+  }
+
+  function resetToUpload() {
+    showScreen('upload');
+    document.getElementById('analyze-btn').disabled = false;
+  }
+
+
+  function loadExample() {
+    document.getElementById('inp-mode').value = 'swoon';
+    document.getElementById('inp-r1').value = "ok but you describing your whole vibe in one message is either brave or dangerously attractive — still deciding";
+    document.getElementById('inp-t1').value = "confident";
+    document.getElementById('inp-rate1').value = "89% reply rate";
+    document.getElementById('inp-r2').value = "that's actually kind of impressive ngl. now i need to know more";
+    document.getElementById('inp-t2').value = "playful";
+    document.getElementById('inp-r3').value = "alright you've got my attention. what do you do with it?";
+    document.getElementById('inp-t3').value = "bold";
+    document.getElementById('inp-score').value = "78";
+    document.getElementById('inp-prob').value = "84";
+    document.getElementById('inp-vibe').value = "she's asking follow-ups and using your name — both strong signals. energy is light and curious. she wants to keep going but she's waiting for you to lead.";
+    document.getElementById('inp-verdict').value = "she's engaged and checking her phone. send something confident that matches her energy — don't overthink it.";
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+    document.querySelector('.mode-card.swoon').classList.add('selected');
+  }
+  // Init: show upload screen only
+  showScreen('upload');
+</script>
+</body>
+</html>
