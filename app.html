@@ -473,15 +473,6 @@
 
     .reply-footer { display:flex; align-items:center; justify-content:space-between; }
 
-    /* ── Response rate ── */
-    .reply-rate {
-      display:flex; align-items:center; gap:5px;
-      font-size:11px; font-weight:600; color:var(--accent2); opacity:0.85;
-    }
-    .reply-rate::before {
-      content:''; display:block; width:5px; height:5px; border-radius:50%;
-      background:var(--accent2); flex-shrink:0;
-    }
 
     /* ── Copy button ── */
     .copy-btn {
@@ -503,35 +494,6 @@
       100% { transform:translate(var(--dx),var(--dy)) scale(0.1) rotate(var(--dr)); opacity:0; }
     }
 
-    /* ── Probability meter ── */
-    .prob-card {
-      background:var(--card); border:1.5px solid var(--card-border);
-      border-radius:var(--r-lg); padding:20px 18px;
-    }
-    .prob-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-    .prob-title {
-      font-family:var(--font-display); font-size:15px; font-weight:800;
-      color:var(--white); letter-spacing:-0.01em;
-    }
-    .prob-percent-badge {
-      font-family:var(--font-display); font-size:22px; font-weight:800;
-      color:var(--accent2); letter-spacing:-0.03em;
-      transition:color 0.5s;
-    }
-    .prob-track {
-      width:100%; height:10px; background:rgba(255,255,255,0.05);
-      border-radius:50px; overflow:hidden; margin-bottom:10px;
-    }
-    .prob-bar {
-      height:100%; border-radius:50px; width:0%;
-      background:linear-gradient(90deg,var(--accent2),#00c87a);
-      transition:width 1.4s cubic-bezier(0.23,1,0.32,1);
-      box-shadow:0 0 10px rgba(0,240,160,0.4);
-    }
-    .prob-verdict {
-      font-size:13px; color:var(--text-secondary); line-height:1.5;
-    }
-    .prob-verdict strong { color:var(--accent2); }
 
     /* ── Reply timer card ── */
     .reply-timer-card {
@@ -952,6 +914,38 @@
       .lb1,.lb2,.lb3,.ls-dot,.tw-cursor,.rizz-ring-fill,.prob-bar { animation:none; transition:none; }
     }
 
+    /* ── Reply "why" line ── */
+    .reply-why {
+      display: none;
+      font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+      padding: 7px 10px;
+      background: rgba(255,255,255,0.03);
+      border-left: 2px solid rgba(255,45,120,0.3);
+      border-radius: 0 6px 6px 0; margin-top: 2px;
+    }
+    .reply-why.show { display: block; }
+    .reply-why-label {
+      display: block; font-size: 9px; font-weight: 700;
+      letter-spacing: 0.13em; text-transform: uppercase;
+      color: rgba(255,45,120,0.6); margin-bottom: 3px;
+    }
+
+    /* ── Lesson card ── */
+    .lesson-card {
+      background: linear-gradient(135deg, rgba(0,240,160,0.05) 0%, rgba(155,112,255,0.05) 100%);
+      border: 1.5px solid rgba(0,240,160,0.2);
+      border-radius: var(--r-lg); padding: 20px 18px;
+    }
+    .lesson-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent2); margin-bottom: 10px;
+    }
+    .lesson-label::after { content: ''; flex: 1; height: 1px; background: rgba(0,240,160,0.15); }
+    .lesson-text {
+      font-size: 14px; color: var(--text-primary); line-height: 1.7; font-weight: 500;
+    }
+
     /* ── Pro reply blur gate ── */
     .reply-card.blurred {
       filter: blur(7px); -webkit-filter: blur(7px);
@@ -1235,8 +1229,8 @@
           <div class="reply-tone-tag" id="reply1Tone"></div>
         </div>
         <div class="reply-text" id="reply1Text"></div>
+        <div class="reply-why" id="reply1Why"><span class="reply-why-label">the play</span><span class="why-text"></span></div>
         <div class="reply-footer">
-          <div class="reply-rate" id="reply1Rate"></div>
           <button class="copy-btn" onclick="copyReply(this,'reply1Text')">
             <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
             copy
@@ -1253,8 +1247,8 @@
           <div class="reply-card" id="altReply2Card">
             <div class="reply-tone-tag" id="reply2Tone"></div>
             <div class="reply-text" id="reply2Text"></div>
+            <div class="reply-why" id="reply2Why"><span class="reply-why-label">the play</span><span class="why-text"></span></div>
             <div class="reply-footer">
-              <div class="reply-rate" id="reply2Rate"></div>
               <button class="copy-btn" onclick="copyReply(this,'reply2Text')">
                 <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
                 copy
@@ -1264,8 +1258,8 @@
           <div class="reply-card" id="altReply3Card">
             <div class="reply-tone-tag" id="reply3Tone"></div>
             <div class="reply-text" id="reply3Text"></div>
+            <div class="reply-why" id="reply3Why"><span class="reply-why-label">the play</span><span class="why-text"></span></div>
             <div class="reply-footer">
-              <div class="reply-rate" id="reply3Rate"></div>
               <button class="copy-btn" onclick="copyReply(this,'reply3Text')">
                 <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
                 copy
@@ -1283,20 +1277,6 @@
       </div>
     </div>
 
-    <!-- Probability meter -->
-    <div class="result-item" style="animation-delay:0.22s">
-      <div class="reply-section-label">ask for the date?</div>
-      <div class="prob-card">
-        <div class="prob-header">
-          <div class="prob-title">date probability</div>
-          <div class="prob-percent-badge" id="probBadge">0%</div>
-        </div>
-        <div class="prob-track">
-          <div class="prob-bar" id="probBar"></div>
-        </div>
-        <div class="prob-verdict" id="probVerdict"></div>
-      </div>
-    </div>
 
     <!-- Reply timer -->
     <div class="result-item" style="animation-delay:0.28s">
@@ -1325,8 +1305,16 @@
       </div>
     </div>
 
+    <!-- The Lesson -->
+    <div class="result-item" id="lessonWrap" style="animation-delay:0.40s;display:none">
+      <div class="lesson-card">
+        <div class="lesson-label">the lesson</div>
+        <div class="lesson-text" id="lessonText"></div>
+      </div>
+    </div>
+
     <!-- Guarantee badge -->
-    <div class="result-item" style="animation-delay:0.40s">
+    <div class="result-item" style="animation-delay:0.46s">
       <div class="guarantee-badge">
         <div class="gb-icon">🛡️</div>
         <div class="gb-text">
@@ -1342,7 +1330,7 @@
     </div>
 
     <!-- Try again -->
-    <div class="result-item" style="animation-delay:0.46s">
+    <div class="result-item" style="animation-delay:0.52s">
       <button class="try-again-btn" onclick="resetToInput()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M1 4v5h5"/><path d="M15 12V7h-5"/><path d="M2.4 9A6 6 0 1113.6 7"/>
@@ -1408,7 +1396,7 @@
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>unlimited analyses</strong> — no daily cap, ever</span></div>
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>rizz score™</strong> + grade on every conversation</span></div>
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>6 modes</strong> — ice breaker, ghost reviver & more</span></div>
-      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>date probability</strong> + reply timing advisor</span></div>
+      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>the why behind every reply</strong> — learn the game</span></div>
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>vibe analysis</strong> — red flags, green lights, move tip</span></div>
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>48h guarantee</strong> — we rewrite for free if needed</span></div>
     </div>
@@ -1418,11 +1406,10 @@
         <div class="plan-price">$7.99</div>
         <div class="plan-period">per month</div>
       </div>
-      <div class="plan-option" id="planAnnual" onclick="selectPlan('annual')">
-        <div class="plan-save-badge">save 37%</div>
-        <div class="plan-label">annual</div>
-        <div class="plan-price">$59.99</div>
-        <div class="plan-period">$5.00/mo · billed yearly</div>
+      <div class="plan-option" id="planWeekly" onclick="selectPlan('weekly')">
+        <div class="plan-label">weekly</div>
+        <div class="plan-price">$4.99</div>
+        <div class="plan-period">per week</div>
       </div>
     </div>
     <button class="btn-shiny" id="paywallBtn" onclick="openWhopCheckout()" style="margin-bottom:0">
@@ -1483,23 +1470,7 @@
     ice:   ['✨ confident','😊 curious',   '💬 casual'],
     ghost: ['🤍 low-key',  '😌 chill',     '💫 warm'],
   };
-  const REPLY_RATES = {
-    swoon: [82, 71, 68],
-    spicy: [94, 88, 79],
-    saved: [77, 69, 73],
-    laugh: [91, 85, 80],
-    ice:   [88, 76, 70],
-    ghost: [74, 68, 71],
-  };
 
-  /* ══ PROBABILITY VERDICTS ══ */
-  function getProbVerdict(p) {
-    if (p >= 85) return `<strong>ask right now.</strong> they're giving every signal. a direct "we should hang, what does your week look like?" will land.`;
-    if (p >= 70) return `<strong>strong green light.</strong> make a move in the next 1-2 messages — don't wait long enough to lose the momentum.`;
-    if (p >= 55) return `<strong>warming up.</strong> keep the energy for one more exchange, then make the ask. don't overthink it.`;
-    if (p >= 38) return `<strong>not yet.</strong> build a bit more comfort first. you'll know when — just don't wait forever.`;
-    return `<strong>slow down.</strong> focus on the conversation right now. the date ask can wait.`;
-  }
 
   /* ══ REPLY TIMER TEXT ══ */
   function getTimerText(mode, score) {
@@ -1707,16 +1678,16 @@
 
   const WHOP_PLANS = {
     monthly: 'https://whop.com/checkout/plan_c92T01n4OHGzP',
-    annual:  'https://whop.com/checkout/plan_5fidYp9CpLnkQ'
+    weekly:  'https://whop.com/checkout/plan_5fidYp9CpLnkQ'
   };
   let selectedPlan = 'monthly';
 
   function selectPlan(plan) {
     selectedPlan = plan;
     document.getElementById('planMonthly').classList.toggle('selected', plan === 'monthly');
-    document.getElementById('planAnnual').classList.toggle('selected', plan === 'annual');
+    document.getElementById('planWeekly').classList.toggle('selected', plan === 'weekly');
     document.getElementById('paywallBtnText').textContent =
-      plan === 'monthly' ? 'unlock rizzr — $7.99/mo' : 'unlock rizzr — $59.99/yr';
+      plan === 'monthly' ? 'unlock rizzr — $7.99/mo' : 'unlock rizzr — $4.99/week';
   }
 
   function openWhopCheckout() {
@@ -2136,7 +2107,7 @@
 
       if (res.status === 402) {
         credits = 0; saveCredits(); updateCreditsUI();
-        setNavState('upload'); showState('stateUpload');
+        setNavState('input'); showState('stateInput');
         showEmailGate();
         return;
       }
@@ -2148,12 +2119,19 @@
       let data;
       try { data = JSON.parse(rawText); } catch(e) { throw new Error('n8n returned invalid JSON: ' + rawText.slice(0, 120)); }
       data.score = data.vibeScore ?? data.score ?? 3;
+
+      /* Guard: unreadable screenshot — prompt returns replies:[] in this case */
+      if (!Array.isArray(data.replies) || data.replies.length < 3 || !data.replies[0]?.text) {
+        const hint = data.flags?.[0]?.text?.replace(/<[^>]+>/g, '') || "couldn't read the screenshot — try a clearer image";
+        throw new Error(hint);
+      }
+
       showResults(data);
     } catch (err) {
       console.error('Rizzr error:', err);
       credits++; saveCredits(); updateCreditsUI();
       showToast('something went wrong — try again');
-      try { setNavState('upload'); showState('stateUpload'); } catch(_) {}
+      setNavState('input'); showState('stateInput');
     }
   }
 
@@ -2179,12 +2157,8 @@
 
     /* Tone tags */
     const tones = (data.toneLabels && data.toneLabels.length) ? data.toneLabels : (TONE_TAGS[selectedMode] || TONE_TAGS.swoon);
-    const rates = (data.responseRates && data.responseRates.length) ? data.responseRates : (REPLY_RATES[selectedMode] || REPLY_RATES.swoon);
     ['reply1Tone','reply2Tone','reply3Tone'].forEach((id,i) => {
       const el = document.getElementById(id); if (el) el.textContent = tones[i];
-    });
-    ['reply1Rate','reply2Rate','reply3Rate'].forEach((id,i) => {
-      const el = document.getElementById(id); if (el) el.textContent = `${rates[i]}% response rate`;
     });
 
     /* Reply timer — prefer n8n's analysis, fall back to local */
@@ -2206,13 +2180,38 @@
     /* Flags */
     const flagsList = document.getElementById('flagsList');
     flagsList.innerHTML = '';
-    data.flags.forEach(f => {
+    (data.flags || []).forEach(f => {
       const div = document.createElement('div');
       div.className = `flag-item ${f.type}`;
       div.innerHTML = `<div class="flag-icon">${f.type==='green'?'✓':'!'}</div><div>${f.text}</div>`;
       flagsList.appendChild(div);
     });
-    document.getElementById('moveTipText').textContent = data.move;
+    document.getElementById('moveTipText').textContent = data.move || '';
+
+    /* "Why" lines per reply */
+    ['reply1Why','reply2Why','reply3Why'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const why = data.replies[i]?.why;
+      if (why) {
+        el.querySelector('.why-text').textContent = why;
+        el.classList.add('show');
+      } else {
+        el.classList.remove('show');
+      }
+    });
+
+    /* Lesson card */
+    const lessonWrap = document.getElementById('lessonWrap');
+    const lessonText = document.getElementById('lessonText');
+    if (lessonWrap && lessonText) {
+      if (data.lesson) {
+        lessonText.textContent = data.lesson;
+        lessonWrap.style.display = '';
+      } else {
+        lessonWrap.style.display = 'none';
+      }
+    }
 
     /* Restart result animations */
     document.querySelectorAll('.result-item').forEach(el => {
@@ -2226,16 +2225,13 @@
     document.getElementById('ghostNudge').classList.remove('show');
 
     /* Rizz score ring + counter */
-    setTimeout(() => animateRizzScore(data.rizzScore), 350);
-
-    /* Probability meter */
-    if (data.probability != null) setTimeout(() => animateProbability(data.probability), 600);
+    setTimeout(() => animateRizzScore(data.rizzScore ?? 0), 350);
 
     /* Typewriter replies */
     const t1 = 300, spd = 22;
-    typewriter('reply1Text', data.replies[0].text ?? data.replies[0], t1, spd, () => {
-      typewriter('reply2Text', data.replies[1].text ?? data.replies[1], 120, spd, () => {
-        typewriter('reply3Text', data.replies[2].text ?? data.replies[2], 100, spd);
+    typewriter('reply1Text', data.replies[0].text, t1, spd, () => {
+      typewriter('reply2Text', data.replies[1].text, 120, spd, () => {
+        typewriter('reply3Text', data.replies[2].text, 100, spd);
       });
     });
 
@@ -2305,30 +2301,6 @@
     subEl.textContent = subtitles[key] || subtitles[0];
   }
 
-  /* ══ PROBABILITY METER ══ */
-  function animateProbability(prob) {
-    const bar     = document.getElementById('probBar');
-    const badge   = document.getElementById('probBadge');
-    const verdict = document.getElementById('probVerdict');
-
-    const color = prob >= 70 ? '#00F0A0' : prob >= 50 ? '#FFD700' : '#FF6B35';
-    bar.style.background   = `linear-gradient(90deg, ${color}, ${color}aa)`;
-    bar.style.boxShadow    = `0 0 10px ${color}66`;
-    badge.style.color      = color;
-
-    let cur = 0;
-    const interval = setInterval(() => {
-      cur = Math.min(cur + 3, prob);
-      badge.textContent = cur + '%';
-      if (cur >= prob) clearInterval(interval);
-    }, 28);
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { bar.style.width = prob + '%'; });
-    });
-
-    verdict.innerHTML = getProbVerdict(prob);
-  }
 
   /* ══ TYPEWRITER ══ */
   function typewriter(elId, text, delay, speed, onDone) {
@@ -2449,7 +2421,7 @@
     if (!lastResultData) return;
     const g    = getGrade(lastResultData.rizzScore);
     const mode = (selectedMode || 'rizz').replace('ice','ice breaker').replace('ghost','ghost reviver').replace('laugh',"make 'em laugh");
-    const text = `got my rizz analyzed 👀\n\nscore: ${lastResultData.rizzScore} — ${g.grade} (${g.label})\ndate probability: ${lastResultData.probability}%\nmode: ${mode}\n\nrizzr.app — ai texting coach`;
+    const text = `got my rizz analyzed 👀\n\nscore: ${lastResultData.rizzScore} — ${g.grade} (${g.label})\nmode: ${mode}\n\nrizzr.app — ai texting coach`;
     const btn  = document.getElementById('shareBtn');
 
     if (navigator.share) {
@@ -2539,108 +2511,6 @@
     }, 28000);
   }
 
-  /* ══ MOCK DATA ══ */
-  function generateMockResults(mode) {
-    const data = {
-      swoon: {
-        replies: [
-          "okay but that last thing you said is genuinely living rent-free in my head 😭 we need to talk about this in person",
-          "not me rereading this three times because i liked your energy way too much for a tuesday afternoon",
-          "you're making me want to cancel my plans and i barely even know you yet. terrifying in the best way"
-        ],
-        flags: [
-          { type:'green', text:'<strong>matching energy</strong> — their replies are keeping up with yours. they\'re engaged.' },
-          { type:'green', text:'<strong>personal details</strong> — they\'re sharing real stuff. comfort is building fast.' },
-          { type:'red',   text:'<strong>pace check</strong> — last message felt slightly held back. keep it warm, not intense.' }
-        ],
-        move:        "keep momentum but suggest something specific soon — they\'re waiting for you to lead.",
-        rizzScore:   78,
-        probability: 74,
-        score:       4
-      },
-      spicy: {
-        replies: [
-          "okay you can\'t just say that and expect me to act normal for the rest of the day. not fair and you know it",
-          "i was going to play it cool but you made that literally impossible. bold move.",
-          "okay fine, you win. i\'m interested. happy now? 😏"
-        ],
-        flags: [
-          { type:'green', text:'<strong>playful tension</strong> — the banter is landing and they\'re leaning in. great chemistry signal.' },
-          { type:'green', text:'<strong>fast replies</strong> — they\'re not keeping you waiting. they\'re very much into it.' },
-          { type:'red',   text:'<strong>create some tension</strong> — you\'ve both been very available. a slight pull-back builds desire.' }
-        ],
-        move:        "let them chase a little — reply well, then don\'t respond instantly. make them wonder.",
-        rizzScore:   91,
-        probability: 88,
-        score:       5
-      },
-      saved: {
-        replies: [
-          "okay that came out way weirder than i meant lol — what i was actually trying to say was that i think you\'re interesting",
-          "ignore my last message. pretend i said something smooth instead. the real version: i genuinely enjoyed talking to you",
-          "okay i fumbled that one 😭 let me try again — the point was just that you\'re kind of hard not to like"
-        ],
-        flags: [
-          { type:'green', text:'<strong>still here</strong> — despite the awkward message, they replied. they haven\'t checked out yet.' },
-          { type:'red',   text:'<strong>shorter replies</strong> — their energy dropped a little. a light, warm recovery can reset this.' },
-          { type:'red',   text:'<strong>overthinking risk</strong> — don\'t dwell on the fumble. acknowledge it once, then move forward.' }
-        ],
-        move:        "acknowledge with humor, then pivot fast to something genuinely engaging. don\'t make it a thing.",
-        rizzScore:   42,
-        probability: 35,
-        score:       2
-      },
-      laugh: {
-        replies: [
-          "this conversation just took a turn i was absolutely not prepared for and now i can\'t stop laughing. you owe me an explanation 😭",
-          "okay who told you that was an acceptable thing to say to someone?? i\'m devastated and crying (in a good way)",
-          "i came in completely unprepared for you to be this funny. my whole week is ruined. thanks a lot 😭🙏"
-        ],
-        flags: [
-          { type:'green', text:'<strong>laughing together</strong> — humor is landing and they\'re playing along. this is where real connection forms.' },
-          { type:'green', text:'<strong>inside jokes forming</strong> — you\'re building your own language. that\'s a genuinely good sign.' },
-          { type:'red',   text:'<strong>don\'t stay in comedy mode</strong> — humor got you here, but eventually show there\'s more to you.' }
-        ],
-        move:        "land one more great joke then shift gears — ask something real. banter got the door open, now walk through it.",
-        rizzScore:   83,
-        probability: 79,
-        score:       4
-      },
-      ice: {
-        replies: [
-          "okay your profile had one thing i needed to ask about immediately — give me the full story",
-          "first message, zero context, all vibes — but i promise i have more range than 'hey' 😂",
-          "matched on a tuesday, no pressure — just thought you seemed genuinely interesting and wanted to find out if i was right"
-        ],
-        flags: [
-          { type:'green', text:'<strong>fresh start</strong> — no history to overthink. this is your cleanest opening shot.' },
-          { type:'green', text:'<strong>full control</strong> — you set the tone entirely. make it curious, not thirsty.' },
-          { type:'red',   text:'<strong>no context yet</strong> — keep it light and ask one specific question. don\'t dump your personality in one message.' }
-        ],
-        move:        "open with genuine curiosity — ask something specific about them. you\'ll immediately stand out from everyone saying \'hey\'.",
-        rizzScore:   65,
-        probability: 60,
-        score:       3
-      },
-      ghost: {
-        replies: [
-          "hey — zero pressure, just wanted to follow up in case my message got buried. still think we had something good going 👀",
-          "okay i\'ll break the silence 😅 life clearly got busy on both sides — want to pick back up?",
-          "not gonna overthink the gap — just wanted to check in. hope you\'re doing well tbh"
-        ],
-        flags: [
-          { type:'green', text:'<strong>you reached out</strong> — most people never do. that alone puts you ahead.' },
-          { type:'red',   text:'<strong>no explanation needed</strong> — don\'t over-apologize or explain the silence. keep it breezy.' },
-          { type:'red',   text:'<strong>one shot</strong> — this is your re-engage. make it warm, curious, and pressure-free.' }
-        ],
-        move:        "send one warm, low-pressure message. if they don\'t respond within 48h, move on with your head held high.",
-        rizzScore:   38,
-        probability: 32,
-        score:       2
-      }
-    };
-    return data[mode] || data.swoon;
-  }
 
   /* ══ INIT ══ */
   setNavState('input');
