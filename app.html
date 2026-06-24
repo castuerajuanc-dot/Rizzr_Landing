@@ -2229,13 +2229,13 @@
     setTimeout(() => animateRizzScore(data.rizzScore), 350);
 
     /* Probability meter */
-    setTimeout(() => animateProbability(data.probability), 600);
+    if (data.probability != null) setTimeout(() => animateProbability(data.probability), 600);
 
     /* Typewriter replies */
     const t1 = 300, spd = 22;
-    typewriter('reply1Text', data.replies[0], t1, spd, () => {
-      typewriter('reply2Text', data.replies[1], 120, spd, () => {
-        typewriter('reply3Text', data.replies[2], 100, spd);
+    typewriter('reply1Text', data.replies[0].text ?? data.replies[0], t1, spd, () => {
+      typewriter('reply2Text', data.replies[1].text ?? data.replies[1], 120, spd, () => {
+        typewriter('reply3Text', data.replies[2].text ?? data.replies[2], 100, spd);
       });
     });
 
