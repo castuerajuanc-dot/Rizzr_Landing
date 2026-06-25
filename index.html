@@ -1651,11 +1651,10 @@
             <div class="plan-price">$7.99</div>
             <div class="plan-period">per month</div>
           </div>
-          <div class="plan-option" id="planAnnual" onclick="selectPlan('annual')">
-            <div class="plan-save-badge">save 37%</div>
-            <div class="plan-label">annual</div>
-            <div class="plan-price">$59.99</div>
-            <div class="plan-period">$5.00/mo · billed yearly</div>
+          <div class="plan-option" id="planWeekly" onclick="selectPlan('weekly')">
+            <div class="plan-label">weekly</div>
+            <div class="plan-price">$4.99</div>
+            <div class="plan-period">per week</div>
           </div>
         </div>
 
@@ -1810,16 +1809,16 @@
   */
   const WHOP_PLANS = {
     monthly: 'https://whop.com/checkout/plan_c92T01n4OHGzP',
-    annual:  'https://whop.com/checkout/plan_5fidYp9CpLnkQ'
+    weekly:  'https://whop.com/checkout/plan_5fidYp9CpLnkQ'
   };
   let selectedPlan = 'monthly';
 
   function selectPlan(plan) {
     selectedPlan = plan;
     document.getElementById('planMonthly').classList.toggle('selected', plan === 'monthly');
-    document.getElementById('planAnnual').classList.toggle('selected', plan === 'annual');
+    document.getElementById('planWeekly').classList.toggle('selected', plan === 'weekly');
     document.getElementById('checkoutBtn').textContent =
-      plan === 'monthly' ? 'unlock rizzr — $7.99/mo' : 'unlock rizzr — $59.99/yr';
+      plan === 'monthly' ? 'unlock rizzr — $7.99/mo' : 'unlock rizzr — $4.99/week';
   }
 
   function goToApp() {
