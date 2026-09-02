@@ -905,6 +905,29 @@
     }
     .context-reveal { animation:stateIn 0.35s cubic-bezier(0.23,1,0.32,1) both; }
 
+    /* ── Collapsible sections (native <details>) ── */
+    details > summary { cursor:pointer; list-style:none; -webkit-tap-highlight-color:transparent; }
+    details > summary::-webkit-details-marker { display:none; }
+    details > summary::marker { content:''; }
+
+    .vibe-nudge-summary {
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      font-size:12px; font-weight:600; color:var(--text-muted);
+      padding:10px 0; text-align:center;
+    }
+    .vibe-nudge-summary span { font-weight:500; color:var(--text-muted); font-size:11px; }
+    .vibe-nudge-summary::before { content:'›'; display:inline-block; transition:transform 0.2s; }
+    details[open] > .vibe-nudge-summary::before { transform:rotate(90deg); }
+
+    .analysis-summary {
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+      color:var(--text-secondary); padding:12px 0; text-align:center;
+    }
+    .analysis-summary::before { content:'›'; display:inline-block; transition:transform 0.2s; }
+    details[open] > .analysis-summary::before { transform:rotate(90deg); }
+    .analysis-body { display:flex; flex-direction:column; gap:16px; padding-top:8px; animation:stateIn 0.3s ease both; }
+
     /* ════ RESPONSIVE ════ */
     @media (min-width:520px) {
       .input-wrap,.results-wrap { padding-left:28px; padding-right:28px; }
@@ -1051,6 +1074,58 @@
 </head>
 <body>
 
+<!-- ══════════════════════════════════════════════════════════
+     RIZZR — MAINTENANCE MODE (self-contained toggle)
+     Flip RIZZR_MAINTENANCE_MODE to false to bring the app back
+     online. Nothing else on the page is touched — this whole
+     block is safe to leave in place indefinitely.
+     ══════════════════════════════════════════════════════════ -->
+<script>window.RIZZR_MAINTENANCE_MODE = true;</script>
+<style>
+  #rizzrMaintenanceOverlay {
+    position: fixed; inset: 0; z-index: 999999;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg, #06060A);
+    padding: 24px; text-align: center;
+  }
+  #rizzrMaintenanceOverlay .rm-card { max-width: 380px; }
+  #rizzrMaintenanceOverlay .rm-logo {
+    font-family: var(--font-display, 'Syne', sans-serif); font-weight: 800;
+    font-size: 26px; color: #fff; letter-spacing: -0.02em; margin-bottom: 28px;
+  }
+  #rizzrMaintenanceOverlay .rm-logo span { color: var(--accent, #FF2D78); }
+  #rizzrMaintenanceOverlay .rm-dot {
+    width: 8px; height: 8px; border-radius: 50%; margin: 0 auto 20px;
+    background: var(--accent2, #00F0A0); box-shadow: 0 0 10px var(--accent2-glow, rgba(0,240,160,.4));
+    animation: rm-blink 2s infinite;
+  }
+  @keyframes rm-blink { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+  #rizzrMaintenanceOverlay h1 {
+    font-family: var(--font-display, 'Syne', sans-serif); font-weight: 800;
+    font-size: clamp(22px, 5vw, 28px); color: #fff; line-height: 1.25; margin-bottom: 12px;
+  }
+  #rizzrMaintenanceOverlay p {
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+    font-size: 14px; color: var(--text-secondary, #8888A8); line-height: 1.6;
+  }
+  body.rm-locked { overflow: hidden !important; }
+</style>
+<div id="rizzrMaintenanceOverlay" style="display:none">
+  <div class="rm-card">
+    <div class="rm-logo">Rizzr<span>.</span></div>
+    <div class="rm-dot"></div>
+    <h1>we're tuning things up</h1>
+    <p>rizzr's getting some upgrades behind the scenes. check back soon — we won't be long.</p>
+  </div>
+</div>
+<script>
+  if (window.RIZZR_MAINTENANCE_MODE) {
+    document.getElementById('rizzrMaintenanceOverlay').style.display = 'flex';
+    document.body.classList.add('rm-locked');
+  }
+</script>
+<!-- ══ END MAINTENANCE MODE ══ -->
+
 <!-- NAV -->
 <nav id="nav">
   <a href="index.html" class="nav-logo">Rizzr<span>.</span></a>
@@ -1078,26 +1153,8 @@
       <span><span class="sp-count" id="spCount">1,247</span> conversations analyzed today</span>
     </div>
 
-    <!-- Orbital vibe picker -->
-    <div class="orbital-section">
-      <div class="field-label">pick your vibe</div>
-      <div class="orbital-outer">
-        <div class="orbit-hub" id="orbitHub">
-          <div class="hub-ring hub-ring-2"></div>
-          <div class="hub-ring hub-ring-1"></div>
-          <div class="hub-core"><div class="hub-dot"></div></div>
-        </div>
-        <div class="orbit-track-ring"></div>
-        <div class="orbit-nodes-container" id="orbitNodes"></div>
-      </div>
-      <div class="mode-info-panel">
-        <div class="mip-name" id="mipName">choose your weapon</div>
-        <div class="mip-desc" id="mipDesc">tap a vibe to get started</div>
-      </div>
-    </div>
-
-    <!-- Upload CTA — revealed after mode selection -->
-    <div id="uploadSection" style="display:none">
+    <!-- Upload CTA — the primary action, visible immediately -->
+    <div id="uploadSection">
       <div class="upload-cta-section">
         <button class="btn-shiny" id="uploadCtaBtn" type="button">
           <span id="uploadCtaBtnText">drop the receipts</span>
@@ -1105,7 +1162,7 @@
             <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <div class="upload-cta-sub" id="uploadCtaSub">screenshot your chat — I won't judge (I will)</div>
+        <div class="upload-cta-sub" id="uploadCtaSub">screenshot the chat — I'll tell you exactly what to send</div>
       </div>
       <div class="upload-preview-card" id="uploadPreviewCard" style="display:none">
         <img id="uploadPreview" alt="preview">
@@ -1138,6 +1195,26 @@
         placeholder="e.g. we matched 3 days ago, she seemed excited at first but her last reply was short…"
         rows="3" maxlength="400"></textarea>
     </div>
+
+    <!-- Vibe nudge — optional, collapsed. Engine infers tone automatically otherwise -->
+    <details class="context-reveal" id="vibeSection" style="display:none">
+      <summary class="vibe-nudge-summary">nudge the vibe <span>— optional, we'll pick for you otherwise</span></summary>
+      <div class="orbital-section">
+        <div class="orbital-outer">
+          <div class="orbit-hub" id="orbitHub">
+            <div class="hub-ring hub-ring-2"></div>
+            <div class="hub-ring hub-ring-1"></div>
+            <div class="hub-core"><div class="hub-dot"></div></div>
+          </div>
+          <div class="orbit-track-ring"></div>
+          <div class="orbit-nodes-container" id="orbitNodes"></div>
+        </div>
+        <div class="mode-info-panel">
+          <div class="mip-name" id="mipName">choose your weapon</div>
+          <div class="mip-desc" id="mipDesc">tap a vibe, or leave it to us</div>
+        </div>
+      </div>
+    </details>
 
   </div>
 
@@ -1178,8 +1255,8 @@
     <div class="loading-steps">
       <div class="loading-step" id="ls1"><div class="ls-dot"></div><span>reading the vibe...</span></div>
       <div class="loading-step" id="ls2"><div class="ls-dot"></div><span>analyzing the signals...</span></div>
-      <div class="loading-step" id="ls3"><div class="ls-dot"></div><span>writing your replies...</span></div>
-      <div class="loading-step" id="ls4"><div class="ls-dot"></div><span>calculating rizz score...</span></div>
+      <div class="loading-step" id="ls3"><div class="ls-dot"></div><span>writing your reply...</span></div>
+      <div class="loading-step" id="ls4"><div class="ls-dot"></div><span>picking your best move...</span></div>
     </div>
     <p class="loading-tagline">under 10 seconds. you got this.</p>
   </div>
@@ -1190,131 +1267,97 @@
 <div id="stateResults" class="app-state">
   <div class="results-wrap">
 
-    <!-- Rizz Score ring -->
-    <div class="rizz-score-block result-item" style="animation-delay:0s">
-      <div class="rizz-ring-wrap">
-        <svg viewBox="0 0 88 88">
-          <circle class="rizz-ring-bg"   cx="44" cy="44" r="40"/>
-          <circle class="rizz-ring-fill" id="rizzRingFill" cx="44" cy="44" r="40"/>
-        </svg>
-        <div class="rizz-ring-center">
-          <div class="rizz-num" id="rizzNum">0</div>
-          <div class="rizz-grade" id="rizzGrade">—</div>
+    <!-- Best pick — the hero, immediately visible -->
+    <div class="result-item" style="animation-delay:0s">
+      <div class="reply-section-label">your reply</div>
+      <div class="reply-card best" id="bestCard">
+        <div class="reply-card-top">
+          <div class="best-badge"><div class="best-badge-dot"></div> <span id="bestBadgeText">best reply</span></div>
+          <div class="reply-tone-tag" id="reply1Tone"></div>
         </div>
-      </div>
-      <div class="rizz-info">
-        <div class="rizz-title">rizz score<span>™</span></div>
-        <div class="rizz-subtitle" id="rizzSubtitle">analyzing your vibe…</div>
-        <div class="rizz-label-pill" id="rizzPill">
-          <div class="pill-dot"></div>
-          <span id="rizzPillText">loading</span>
+        <div class="reply-text" id="reply1Text"></div>
+        <div class="reply-why" id="reply1Why"><span class="reply-why-label">why this works</span><span class="why-text"></span></div>
+        <div class="reply-footer">
+          <button class="copy-btn" id="copyBtn1" onclick="copyReply(this,'reply1Text')">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
+            copy
+          </button>
+          <button class="copy-btn" id="tryAnotherBtn" onclick="tryAnother()">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v5h5"/><path d="M15 12V7h-5"/><path d="M2.4 9A6 6 0 1113.6 7"/></svg>
+            try another
+          </button>
         </div>
       </div>
     </div>
 
+    <!-- Collapsed analysis — score, vibe check, lesson, timing. Hidden by default. -->
+    <details class="result-item" id="analysisDetails" style="animation-delay:0.1s">
+      <summary class="analysis-summary">show analysis</summary>
+      <div class="analysis-body">
+
+        <!-- Rizz Score ring -->
+        <div class="rizz-score-block">
+          <div class="rizz-ring-wrap">
+            <svg viewBox="0 0 88 88">
+              <circle class="rizz-ring-bg"   cx="44" cy="44" r="40"/>
+              <circle class="rizz-ring-fill" id="rizzRingFill" cx="44" cy="44" r="40"/>
+            </svg>
+            <div class="rizz-ring-center">
+              <div class="rizz-num" id="rizzNum">0</div>
+              <div class="rizz-grade" id="rizzGrade">—</div>
+            </div>
+          </div>
+          <div class="rizz-info">
+            <div class="rizz-title">rizz score<span>™</span></div>
+            <div class="rizz-subtitle" id="rizzSubtitle">analyzing your vibe…</div>
+            <div class="rizz-label-pill" id="rizzPill">
+              <div class="pill-dot"></div>
+              <span id="rizzPillText">loading</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reply timer -->
+        <div class="reply-timer-card">
+          <div class="timer-icon">⏱</div>
+          <div class="timer-info">
+            <div class="timer-title">when to send</div>
+            <div class="timer-text" id="replyTimerText">analyzing timing…</div>
+          </div>
+        </div>
+
+        <!-- Vibe check -->
+        <div class="vibecheck-card">
+          <div class="vibecheck-head">
+            <div class="vibecheck-title">read the room</div>
+            <div class="vibecheck-score" id="vibeScore"></div>
+          </div>
+          <div class="flags-section" id="flagsList"></div>
+          <div class="move-tip">
+            <span class="move-tip-label">suggested move</span>
+            <span id="moveTipText"></span>
+          </div>
+        </div>
+
+        <!-- The Lesson -->
+        <div class="lesson-card" id="lessonWrap" style="display:none">
+          <div class="lesson-label">the lesson</div>
+          <div class="lesson-text" id="lessonText"></div>
+        </div>
+
+      </div>
+    </details>
+
     <!-- Share row -->
-    <div class="result-item" style="animation-delay:0.05s;display:flex;justify-content:flex-end">
+    <div class="result-item" style="animation-delay:0.15s;display:flex;justify-content:flex-end">
       <button class="share-btn" id="shareBtn" onclick="shareResults()">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="3" r="1.5"/><circle cx="4" cy="8" r="1.5"/><circle cx="12" cy="13" r="1.5"/><path d="M5.5 7l5-3M5.5 9l5 3"/></svg>
         share my rizz
       </button>
     </div>
 
-    <!-- Best pick -->
-    <div class="result-item" style="animation-delay:0.08s">
-      <div class="reply-section-label">best pick</div>
-      <div class="reply-card best" id="bestCard">
-        <div class="reply-card-top">
-          <div class="best-badge"><div class="best-badge-dot"></div> top choice</div>
-          <div class="reply-tone-tag" id="reply1Tone"></div>
-        </div>
-        <div class="reply-text" id="reply1Text"></div>
-        <div class="reply-why" id="reply1Why"><span class="reply-why-label">the play</span><span class="why-text"></span></div>
-        <div class="reply-footer">
-          <button class="copy-btn" onclick="copyReply(this,'reply1Text')">
-            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
-            copy
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Alt replies -->
-    <div class="result-item" style="animation-delay:0.15s">
-      <div class="reply-section-label">alternatives</div>
-      <div class="alt-replies-gated">
-        <div class="alt-replies">
-          <div class="reply-card" id="altReply2Card">
-            <div class="reply-tone-tag" id="reply2Tone"></div>
-            <div class="reply-text" id="reply2Text"></div>
-            <div class="reply-why" id="reply2Why"><span class="reply-why-label">the play</span><span class="why-text"></span></div>
-            <div class="reply-footer">
-              <button class="copy-btn" onclick="copyReply(this,'reply2Text')">
-                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
-                copy
-              </button>
-            </div>
-          </div>
-          <div class="reply-card" id="altReply3Card">
-            <div class="reply-tone-tag" id="reply3Tone"></div>
-            <div class="reply-text" id="reply3Text"></div>
-            <div class="reply-why" id="reply3Why"><span class="reply-why-label">the play</span><span class="why-text"></span></div>
-            <div class="reply-footer">
-              <button class="copy-btn" onclick="copyReply(this,'reply3Text')">
-                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4" width="8" height="8" rx="1.5"/><path d="M10 4V2.5A1.5 1.5 0 008.5 1h-6A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"/></svg>
-                copy
-              </button>
-            </div>
-          </div>
-        </div>
-        <!-- Pro blur overlay — hidden for pro users -->
-        <div class="alt-replies-blur-overlay" id="altRepliesOverlay">
-          <button class="pro-unlock-pill" onclick="showPaywall()">
-            <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="9" height="6" rx="1.5"/><path d="M5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
-            Unlock in Pro
-          </button>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Reply timer -->
-    <div class="result-item" style="animation-delay:0.28s">
-      <div class="reply-timer-card">
-        <div class="timer-icon">⏱</div>
-        <div class="timer-info">
-          <div class="timer-title">when to send</div>
-          <div class="timer-text" id="replyTimerText">analyzing timing…</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Vibe check -->
-    <div class="result-item" style="animation-delay:0.34s">
-      <div class="reply-section-label">vibe check</div>
-      <div class="vibecheck-card">
-        <div class="vibecheck-head">
-          <div class="vibecheck-title">read the room</div>
-          <div class="vibecheck-score" id="vibeScore"></div>
-        </div>
-        <div class="flags-section" id="flagsList"></div>
-        <div class="move-tip">
-          <span class="move-tip-label">suggested move</span>
-          <span id="moveTipText"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- The Lesson -->
-    <div class="result-item" id="lessonWrap" style="animation-delay:0.40s;display:none">
-      <div class="lesson-card">
-        <div class="lesson-label">the lesson</div>
-        <div class="lesson-text" id="lessonText"></div>
-      </div>
-    </div>
-
     <!-- Guarantee badge -->
-    <div class="result-item" style="animation-delay:0.46s">
+    <div class="result-item" style="animation-delay:0.2s">
       <div class="guarantee-badge">
         <div class="gb-icon">🛡️</div>
         <div class="gb-text">
@@ -1330,12 +1373,12 @@
     </div>
 
     <!-- Try again -->
-    <div class="result-item" style="animation-delay:0.52s">
+    <div class="result-item" style="animation-delay:0.26s">
       <button class="try-again-btn" onclick="resetToInput()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M1 4v5h5"/><path d="M15 12V7h-5"/><path d="M2.4 9A6 6 0 1113.6 7"/>
         </svg>
-        analyze another screenshot
+        analyze a different screenshot
       </button>
     </div>
 
@@ -1391,13 +1434,10 @@
   <div class="paywall-sheet">
     <div class="paywall-handle"></div>
     <div class="paywall-title">you used your <span>2 free</span> shots</div>
-    <div class="paywall-sub">unlock unlimited analyses, all 6 modes, and every feature.</div>
+    <div class="paywall-sub">unlock unlimited analyses and instant regeneration.</div>
     <div class="paywall-stack">
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>unlimited analyses</strong> — no daily cap, ever</span></div>
-      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>rizz score™</strong> + grade on every conversation</span></div>
-      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>6 modes</strong> — ice breaker, ghost reviver & more</span></div>
-      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>the why behind every reply</strong> — learn the game</span></div>
-      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>vibe analysis</strong> — red flags, green lights, move tip</span></div>
+      <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>unlimited "try another"</strong> — regenerate until it's perfect</span></div>
       <div class="pwall-item"><div class="pwall-check">✓</div><span><strong>48h guarantee</strong> — we rewrite for free if needed</span></div>
     </div>
     <div class="plan-selector">
@@ -1551,35 +1591,10 @@
        without re-waiting for the async session check. Supabase is still the source of truth. */
     if (email) localStorage.setItem('rizzr_pro_email', email);
     updateCreditsUI();
-    applyProGating();
     const btn  = document.getElementById('navLoginBtn');
     const txt  = document.getElementById('navLoginBtnText');
     if (btn) btn.classList.add('is-pro');
     if (txt) txt.textContent = 'pro ✦';
-  }
-
-  /* Applies or removes blur/lock gating based on current isPro value */
-  function applyProGating() {
-    if (isPro) {
-      /* Unblur reply cards */
-      document.getElementById('altReply2Card')?.classList.remove('blurred');
-      document.getElementById('altReply3Card')?.classList.remove('blurred');
-      const overlay = document.getElementById('altRepliesOverlay');
-      if (overlay) overlay.classList.remove('visible');
-      /* Unlock orbit nodes */
-      document.querySelectorAll('.orbit-node.locked').forEach(n => {
-        n.classList.remove('locked');
-        n.querySelector('.orbit-lock-badge')?.remove();
-      });
-    }
-  }
-
-  /* Blur alt replies for free users — called after showResults() */
-  function applyRepliesBlur() {
-    document.getElementById('altReply2Card')?.classList.add('blurred');
-    document.getElementById('altReply3Card')?.classList.add('blurred');
-    const overlay = document.getElementById('altRepliesOverlay');
-    if (overlay) overlay.classList.add('visible');
   }
 
   function saveCredits() { localStorage.setItem('rizzr_credits', credits); }
@@ -1815,6 +1830,7 @@
     document.getElementById('uploadPreviewCard').style.display = 'block';
     document.getElementById('platformSection').style.display = 'block';
     document.getElementById('contextSection').style.display = 'block';
+    document.getElementById('vibeSection').style.display = 'block';
     updateSubmitHint();
   }
 
@@ -1867,8 +1883,6 @@
   let orbitPaused   = false;
   let orbitLastTime = 0;
 
-  const PRO_ONLY_MODES = ['saved', 'ghost'];
-
   function initOrbital() {
     const container = document.getElementById('orbitNodes');
     ORBITAL_MODES.forEach((m, i) => {
@@ -1877,17 +1891,7 @@
       node.dataset.mode = m.id;
       node.style.cssText = `--node-color:${m.color};--node-glow:${m.glow};--node-dim:${m.dim}`;
       node.innerHTML    = `<div class="orbit-node-inner">${ORBIT_ICONS[m.id]}</div><div class="orbit-node-label">${m.name}</div>`;
-      if (!isPro && PRO_ONLY_MODES.includes(m.id)) {
-        node.classList.add('locked');
-        const badge = document.createElement('div');
-        badge.className = 'orbit-lock-badge';
-        badge.innerHTML = `<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="5" width="6" height="4" rx="1"/><path d="M3.5 5V3.5a1.5 1.5 0 0 1 3 0V5"/></svg>`;
-        node.appendChild(badge);
-      }
-      node.addEventListener('click', () => {
-        if (!isPro && PRO_ONLY_MODES.includes(m.id)) { showPaywall(); return; }
-        selectOrbitalMode(m.id);
-      });
+      node.addEventListener('click', () => selectOrbitalMode(m.id));
       container.appendChild(node);
     });
     requestAnimationFrame(orbitTick);
@@ -1952,9 +1956,6 @@
     document.getElementById('uploadCtaBtnText').textContent = copy.main;
     document.getElementById('uploadCtaSub').textContent     = copy.sub;
 
-    const sec = document.getElementById('uploadSection');
-    sec.style.display = 'block';
-
     updateSubmitHint();
   }
 
@@ -1962,12 +1963,8 @@
     const outer   = document.getElementById('slideBtnOuter');
     const hint    = document.getElementById('submitHint');
     const hintRow = document.getElementById('slideHintRow');
-    if (!selectedMode) {
-      hint.textContent = 'pick a vibe to get started';
-      outer.className  = 'slide-btn-outer sb-disabled';
-      hintRow.style.visibility = 'hidden';
-    } else if (!uploadedFile) {
-      hint.textContent = 'now drop the screenshot';
+    if (!uploadedFile) {
+      hint.textContent = 'drop a screenshot to get started';
       outer.className  = 'slide-btn-outer sb-disabled';
       hintRow.style.visibility = 'hidden';
     } else {
@@ -2075,11 +2072,17 @@
     tag.textContent    = state === 'loading' ? 'analyzing…' : 'analyze';
   }
 
+  /* ══ ANALYTICS (lightweight stub — wire to a real sink whenever you're ready) ══ */
+  function trackEvent(name, data) {
+    try { console.log('[Rizzr Analytics]', name, data || {}); } catch (_) {}
+  }
+
   /* ══ ANALYSIS ══ */
   async function startAnalysis() {
     if (!uploadedFile) { showToast('drop a screenshot first'); return; }
-    if (!selectedMode) { showToast('pick your vibe first'); return; }
     if (credits <= 0)  { showEmailGate(); return; }
+
+    trackEvent('analysis_started', { mode: selectedMode, platform: selectedPlatform });
 
     credits--;
     saveCredits();
@@ -2120,17 +2123,33 @@
       try { data = JSON.parse(rawText); } catch(e) { throw new Error('n8n returned invalid JSON: ' + rawText.slice(0, 120)); }
       data.score = data.vibeScore ?? data.score ?? 3;
 
-      /* Guard: unreadable screenshot — prompt returns replies:[] in this case */
-      if (!Array.isArray(data.replies) || data.replies.length < 3 || !data.replies[0]?.text) {
-        const hint = data.flags?.[0]?.text?.replace(/<[^>]+>/g, '') || "couldn't read the screenshot — try a clearer image";
-        throw new Error(hint);
+      /* Guard: unreadable screenshot / bad response.
+         Supports both the current n8n contract (replies:[]) and the new
+         Rizzr Engine V1 contract ({action, reply, why}) so this keeps working
+         whichever one the workflow is currently returning. */
+      const hasLegacyReply    = Array.isArray(data.replies) && data.replies.length > 0 && !!data.replies[0]?.text;
+      const hasEngineV1Reply  = typeof data.reply === 'string' && data.reply.trim().length > 0;
+      const isNonReplyAction  = data.action === 'wait' || data.action === 'stop';
+      if (!hasLegacyReply && !hasEngineV1Reply && !isNonReplyAction) {
+        /* action:"error" (or anything outside reply/wait/ask_out/stop) means the
+           engine couldn't read the screenshot — this must throw (refunds the credit
+           via the catch block below) instead of rendering as a "stop" result, which
+           would wrongly read as relationship advice instead of a technical failure. */
+        const hint = data.why || data.flags?.[0]?.text?.replace(/<[^>]+>/g, '') || "couldn't read the screenshot — try a clearer image";
+        const err = new Error(hint);
+        err.userSafe = true; /* this message is written for the user, not a technical detail */
+        throw err;
       }
 
-      showResults(data);
+      renderResult(data);
     } catch (err) {
       console.error('Rizzr error:', err);
       credits++; saveCredits(); updateCreditsUI();
-      showToast('something went wrong — try again');
+      /* Only surface the specific message for errors we composed ourselves for the
+         user (e.g. "couldn't read the screenshot"). Anything else (network failure,
+         HTTP status, malformed JSON) stays generic — its message can contain n8n/API
+         internals that must never reach the UI. */
+      showToast(err.userSafe ? err.message : 'something went wrong — try again');
       setNavState('input'); showState('stateInput');
     }
   }
@@ -2150,68 +2169,77 @@
     });
   }
 
-  /* ══ SHOW RESULTS ══ */
-  function showResults(data) {
-    /* Clear reply text */
-    ['reply1Text','reply2Text','reply3Text'].forEach(id => { document.getElementById(id).textContent = ''; });
+  /* ══ RENDER RESULT ══
+     Reads either contract: the current n8n workflow (data.replies[]) or the
+     new Rizzr Engine V1 shape (data.action / data.reply / data.why). Whichever
+     one n8n is returning right now just works — no frontend deploy needed
+     when you flip the prompt over. */
+  function renderResult(data) {
+    const legacy    = Array.isArray(data.replies) && data.replies.length > 0;
+    const action    = data.action || 'reply';
+    const replyText = legacy ? data.replies[0]?.text : data.reply;
+    const why       = legacy ? data.replies[0]?.why  : data.why;
 
-    /* Tone tags */
-    const tones = (data.toneLabels && data.toneLabels.length) ? data.toneLabels : (TONE_TAGS[selectedMode] || TONE_TAGS.swoon);
-    ['reply1Tone','reply2Tone','reply3Tone'].forEach((id,i) => {
-      const el = document.getElementById(id); if (el) el.textContent = tones[i];
-    });
+    document.getElementById('reply1Text').textContent = '';
 
-    /* Reply timer — prefer n8n's analysis, fall back to local */
-    const timerEl = document.getElementById('replyTimerText');
-    if (timerEl) timerEl.textContent = data.timing || getTimerText(selectedMode, data.rizzScore);
+    /* Tone tag — only meaningful on the legacy contract */
+    const toneEl = document.getElementById('reply1Tone');
+    if (toneEl) {
+      const tones = (data.toneLabels && data.toneLabels.length) ? data.toneLabels : (TONE_TAGS[selectedMode] || TONE_TAGS.swoon);
+      if (legacy && tones[0]) { toneEl.textContent = tones[0]; toneEl.style.display = ''; }
+      else { toneEl.style.display = 'none'; }
+    }
+
+    /* Badge + copy button reflect the engine's recommended action */
+    const badgeText = document.getElementById('bestBadgeText');
+    const copyBtn    = document.getElementById('copyBtn1');
+    if (action === 'wait')       { badgeText.textContent = 'better to wait'; copyBtn.style.display = 'none'; }
+    else if (action === 'stop')  { badgeText.textContent = 'let it go';      copyBtn.style.display = 'none'; }
+    else                         { badgeText.textContent = 'best reply';     copyBtn.style.display = ''; }
 
     /* Store result for share */
     lastResultData = data;
 
-    /* Vibe score pips */
-    const scoreEl = document.getElementById('vibeScore');
-    scoreEl.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-      const pip = document.createElement('div');
-      pip.className = 'score-pip' + (i < data.score ? ' active green' : '');
-      scoreEl.appendChild(pip);
+    /* Score / flags / lesson / timing — only available on the legacy contract today */
+    const analysisDetails = document.getElementById('analysisDetails');
+    const hasAnalysis = legacy && (data.rizzScore != null || (data.flags && data.flags.length));
+    analysisDetails.style.display = hasAnalysis ? '' : 'none';
+    analysisDetails.removeAttribute('open');
+
+    if (hasAnalysis) {
+      const timerEl = document.getElementById('replyTimerText');
+      if (timerEl) timerEl.textContent = data.timing || getTimerText(selectedMode, data.rizzScore);
+
+      const scoreEl = document.getElementById('vibeScore');
+      scoreEl.innerHTML = '';
+      for (let i = 0; i < 5; i++) {
+        const pip = document.createElement('div');
+        pip.className = 'score-pip' + (i < (data.score || 0) ? ' active green' : '');
+        scoreEl.appendChild(pip);
+      }
+
+      const flagsList = document.getElementById('flagsList');
+      flagsList.innerHTML = '';
+      (data.flags || []).forEach(f => {
+        const div = document.createElement('div');
+        div.className = `flag-item ${f.type}`;
+        div.innerHTML = `<div class="flag-icon">${f.type==='green'?'✓':'!'}</div><div>${f.text}</div>`;
+        flagsList.appendChild(div);
+      });
+      document.getElementById('moveTipText').textContent = data.move || '';
+
+      const lessonWrap = document.getElementById('lessonWrap');
+      const lessonText = document.getElementById('lessonText');
+      if (data.lesson) { lessonText.textContent = data.lesson; lessonWrap.style.display = ''; }
+      else { lessonWrap.style.display = 'none'; }
+
+      setTimeout(() => animateRizzScore(data.rizzScore ?? 0), 350);
     }
 
-    /* Flags */
-    const flagsList = document.getElementById('flagsList');
-    flagsList.innerHTML = '';
-    (data.flags || []).forEach(f => {
-      const div = document.createElement('div');
-      div.className = `flag-item ${f.type}`;
-      div.innerHTML = `<div class="flag-icon">${f.type==='green'?'✓':'!'}</div><div>${f.text}</div>`;
-      flagsList.appendChild(div);
-    });
-    document.getElementById('moveTipText').textContent = data.move || '';
-
-    /* "Why" lines per reply */
-    ['reply1Why','reply2Why','reply3Why'].forEach((id, i) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const why = data.replies[i]?.why;
-      if (why) {
-        el.querySelector('.why-text').textContent = why;
-        el.classList.add('show');
-      } else {
-        el.classList.remove('show');
-      }
-    });
-
-    /* Lesson card */
-    const lessonWrap = document.getElementById('lessonWrap');
-    const lessonText = document.getElementById('lessonText');
-    if (lessonWrap && lessonText) {
-      if (data.lesson) {
-        lessonText.textContent = data.lesson;
-        lessonWrap.style.display = '';
-      } else {
-        lessonWrap.style.display = 'none';
-      }
-    }
+    /* "Why this works" line */
+    const whyEl = document.getElementById('reply1Why');
+    if (why) { whyEl.querySelector('.why-text').textContent = why; whyEl.classList.add('show'); }
+    else { whyEl.classList.remove('show'); }
 
     /* Restart result animations */
     document.querySelectorAll('.result-item').forEach(el => {
@@ -2220,27 +2248,30 @@
 
     setNavState('results');
     showState('stateResults');
-    if (!isPro) applyRepliesBlur();
     STEPS.forEach(id => { document.getElementById(id).className = 'loading-step'; });
     document.getElementById('ghostNudge').classList.remove('show');
 
-    /* Rizz score ring + counter */
-    setTimeout(() => animateRizzScore(data.rizzScore ?? 0), 350);
+    /* Typewriter reply — or, for wait/stop, show the reasoning as the message */
+    if (replyText) {
+      typewriter('reply1Text', replyText, 300, 22);
+    } else {
+      document.getElementById('reply1Text').textContent = why || "sometimes the best move is not to text.";
+    }
 
-    /* Typewriter replies */
-    const t1 = 300, spd = 22;
-    typewriter('reply1Text', data.replies[0].text, t1, spd, () => {
-      typewriter('reply2Text', data.replies[1].text, 120, spd, () => {
-        typewriter('reply3Text', data.replies[2].text, 100, spd);
-      });
-    });
-
-    /* Tilt effect on reply cards */
+    /* Tilt effect on the reply card */
     setTimeout(initTilt, 600);
 
     /* "Did it work?" — show after 14s */
     clearTimeout(diwTimer);
     diwTimer = setTimeout(showDiw, 14000);
+
+    trackEvent('analysis_success', { action, hasAnalysis });
+  }
+
+  /* ══ TRY ANOTHER ══ */
+  function tryAnother() {
+    trackEvent('try_another_clicked', { mode: selectedMode });
+    startAnalysis();
   }
 
   /* ══ TILT EFFECT ══ */
@@ -2328,6 +2359,7 @@
   /* ══ COPY + CONFETTI ══ */
   function copyReply(btn, textId) {
     const text = document.getElementById(textId).textContent;
+    trackEvent('copy_clicked');
 
     navigator.clipboard.writeText(text).catch(() => {
       const ta = document.createElement('textarea');
@@ -2419,9 +2451,13 @@
   /* ══ SHARE ══ */
   function shareResults() {
     if (!lastResultData) return;
-    const g    = getGrade(lastResultData.rizzScore);
+    /* rizzScore only exists on the legacy contract — Engine V1 doesn't return
+       one, so fall back to a score-free share line instead of crashing. */
+    const g    = lastResultData.rizzScore != null ? getGrade(lastResultData.rizzScore) : null;
     const mode = (selectedMode || 'rizz').replace('ice','ice breaker').replace('ghost','ghost reviver').replace('laugh',"make 'em laugh");
-    const text = `got my rizz analyzed 👀\n\nscore: ${lastResultData.rizzScore} — ${g.grade} (${g.label})\nmode: ${mode}\n\nrizzr.app — ai texting coach`;
+    const text = g
+      ? `got my rizz analyzed 👀\n\nscore: ${lastResultData.rizzScore} — ${g.grade} (${g.label})\nmode: ${mode}\n\nrizzr.app — ai texting coach`
+      : `rizzr just told me exactly what to send 👀\n\nrizzr.app — ai texting coach`;
     const btn  = document.getElementById('shareBtn');
 
     if (navigator.share) {
@@ -2462,7 +2498,7 @@
     document.querySelectorAll('.orbit-node').forEach(n => n.classList.remove('selected'));
     const nameEl = document.getElementById('mipName');
     nameEl.textContent = 'choose your weapon'; nameEl.style.color = '';
-    document.getElementById('mipDesc').textContent = 'tap a vibe to get started';
+    document.getElementById('mipDesc').textContent = 'tap a vibe, or leave it to us';
 
     const hub  = document.getElementById('orbitHub');
     const core = hub.querySelector('.hub-core');
@@ -2470,9 +2506,10 @@
     core.style.background  = ''; core.style.borderColor = ''; core.style.boxShadow = '';
     dot.style.background   = ''; dot.style.boxShadow    = '';
 
-    document.getElementById('uploadSection').style.display      = 'none';
     document.getElementById('uploadPreviewCard').style.display  = 'none';
     document.getElementById('contextSection').style.display     = 'none';
+    document.getElementById('vibeSection').style.display        = 'none';
+    document.getElementById('vibeSection').removeAttribute('open');
     document.getElementById('fileInput').value                  = '';
     if (window._resetSlideBtn) window._resetSlideBtn();
     updateSubmitHint();
@@ -2536,7 +2573,7 @@
         const { data } = await _supabase
           .from('user_credits').select('is_pro')
           .eq('email', session.user.email).maybeSingle();
-        if (data?.is_pro) { setProUnlocked(session.user.email); showToast('pro unlocked ✦'); }
+        if (data?.is_pro) { setProUnlocked(session.user.email); showToast('pro unlocked ✦'); trackEvent('purchase', { email: session.user.email }); }
       } catch (_) {}
     }
     [1500, 3500, 6500, 11000].forEach(ms => setTimeout(recheckPro, ms));
